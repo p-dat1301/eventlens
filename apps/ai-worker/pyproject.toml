@@ -1,0 +1,22 @@
+[project]
+name = "eventlens-worker"
+version = "0.1.0"
+description = "EventLens AI worker boundary"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "eventlens-contracts",
+    "polars>=1.30,<2",
+    "pydantic>=2.11,<3",
+    "typer>=0.16,<1",
+]
+
+[project.scripts]
+eventlens-worker = "eventlens_worker.cli:app"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+eventlens-contracts = { workspace = true, editable = true }

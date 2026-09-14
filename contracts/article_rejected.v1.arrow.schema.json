@@ -1,0 +1,53 @@
+{
+  "schema_version": "article_rejected.v1",
+  "fields": [
+    {
+      "name": "schema_version",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "article_raw_id",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "source_id",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "raw_storage_uri",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "reason_code",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "error_detail",
+      "type": "string",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "parse_version",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "rejected_at",
+      "type": "timestamp[us, UTC]",
+      "nullable": false,
+      "fields": []
+    }
+  ]
+}

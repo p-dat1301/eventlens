@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>EventLens</title>
+  <rect width="64" height="64" rx="14" fill="#b94f32"/>
+  <path fill="#191916" d="M18 14h31v9H29v5h16v8H29v5h20v9H18z"/>
+</svg>

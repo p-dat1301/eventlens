@@ -1,0 +1,261 @@
+{
+  "schema_version": "article.v1",
+  "fields": [
+    {
+      "name": "schema_version",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "article_id",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "source_id",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "source",
+      "type": "struct",
+      "nullable": false,
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "nullable": false,
+          "fields": []
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "nullable": false,
+          "fields": []
+        },
+        {
+          "name": "authority_tier",
+          "type": "string",
+          "nullable": false,
+          "fields": []
+        }
+      ]
+    },
+    {
+      "name": "canonical_url",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "content",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "summary_source",
+      "type": "string",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "author",
+      "type": "string",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "section",
+      "type": "string",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "tags",
+      "type": "list<string>",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "published_at",
+      "type": "timestamp[us, UTC]",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "updated_at_source",
+      "type": "timestamp[us, UTC]",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "lead_image_url",
+      "type": "string",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "lead_image_storage_uri",
+      "type": "string",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "media_count",
+      "type": "int32",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "language",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "word_count",
+      "type": "int32",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "content_hash",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "duplicate",
+      "type": "struct",
+      "nullable": false,
+      "fields": [
+        {
+          "name": "is_duplicate",
+          "type": "bool",
+          "nullable": false,
+          "fields": []
+        },
+        {
+          "name": "canonical_article_id",
+          "type": "string",
+          "nullable": true,
+          "fields": []
+        },
+        {
+          "name": "duplicate_type",
+          "type": "string",
+          "nullable": true,
+          "fields": []
+        },
+        {
+          "name": "score",
+          "type": "float64",
+          "nullable": true,
+          "fields": []
+        },
+        {
+          "name": "method",
+          "type": "string",
+          "nullable": true,
+          "fields": []
+        }
+      ]
+    },
+    {
+      "name": "raw",
+      "type": "struct",
+      "nullable": false,
+      "fields": [
+        {
+          "name": "article_raw_id",
+          "type": "string",
+          "nullable": false,
+          "fields": []
+        },
+        {
+          "name": "storage_uri",
+          "type": "string",
+          "nullable": false,
+          "fields": []
+        },
+        {
+          "name": "body_hash",
+          "type": "string",
+          "nullable": false,
+          "fields": []
+        },
+        {
+          "name": "bytes",
+          "type": "int64",
+          "nullable": false,
+          "fields": []
+        },
+        {
+          "name": "http_status",
+          "type": "int32",
+          "nullable": false,
+          "fields": []
+        },
+        {
+          "name": "fetched_at",
+          "type": "timestamp[us, UTC]",
+          "nullable": false,
+          "fields": []
+        },
+        {
+          "name": "crawl_run_id",
+          "type": "string",
+          "nullable": false,
+          "fields": []
+        }
+      ]
+    },
+    {
+      "name": "processing",
+      "type": "struct",
+      "nullable": false,
+      "fields": [
+        {
+          "name": "parse_version",
+          "type": "string",
+          "nullable": false,
+          "fields": []
+        },
+        {
+          "name": "quality_status",
+          "type": "string",
+          "nullable": false,
+          "fields": []
+        },
+        {
+          "name": "quality_flags",
+          "type": "list<string>",
+          "nullable": false,
+          "fields": []
+        },
+        {
+          "name": "extraction_methods",
+          "type": "map<string, string>",
+          "nullable": false,
+          "fields": []
+        },
+        {
+          "name": "extracted_at",
+          "type": "timestamp[us, UTC]",
+          "nullable": false,
+          "fields": []
+        }
+      ]
+    }
+  ]
+}

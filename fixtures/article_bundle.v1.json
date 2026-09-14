@@ -1,0 +1,102 @@
+{
+  "article": {
+    "schema_version": "article.v1",
+    "article_id": "550e8400-e29b-41d4-a716-446655440000",
+    "source_id": "18e63d23-f2ab-4f79-a05c-23ba7e1faf11",
+    "source": {
+      "name": "VnEconomy",
+      "domain": "vneconomy.vn",
+      "authority_tier": "tier1"
+    },
+    "canonical_url": "https://vneconomy.vn/example.htm",
+    "title": "Thành phố mở công viên công cộng mới",
+    "content": "Thành phố đã mở một công viên công cộng mới vào thứ Sáu.\n\nCông viên có khu vui chơi dành cho trẻ em.",
+    "summary_source": "Không gian xanh mới phục vụ cộng đồng.",
+    "author": "Nguyễn Văn A",
+    "section": "Đô thị",
+    "tags": ["công viên", "đô thị"],
+    "published_at": "2026-09-10T07:02:44Z",
+    "updated_at_source": "2026-09-10T08:15:00Z",
+    "lead_image_url": "https://premedia.vneconomy.vn/park.jpg",
+    "lead_image_storage_uri": "s3://etl/media/images/source=vneconomy/date=2026-09-10/park.jpg",
+    "media_count": 2,
+    "language": "vi",
+    "word_count": 24,
+    "content_hash": "sha256:9e81e7b963c71363e2fb3eefcfecfc0e44f27496042b071a71b1d2649a9bc5c4",
+    "duplicate": {
+      "is_duplicate": false,
+      "canonical_article_id": null,
+      "duplicate_type": null,
+      "score": null,
+      "method": null
+    },
+    "raw": {
+      "article_raw_id": "a8c4d2b0-8bf4-4b4b-b691-c3289326f562",
+      "storage_uri": "s3://eventlens-raw/vneconomy/2026/09/10/a8c4d2b0-8bf4-4b4b-b691-c3289326f562.html",
+      "body_hash": "sha256:cd8e5a98ced8b4bdebd801f57c0d42e7444b972ca0e39b5452f8527e58a7486d",
+      "bytes": 204274,
+      "http_status": 200,
+      "fetched_at": "2026-09-10T07:02:44Z",
+      "crawl_run_id": "462f7f4a-76ad-430a-b544-b80ec9cb771d"
+    },
+    "processing": {
+      "parse_version": "vneconomy.v1",
+      "quality_status": "passed",
+      "quality_flags": [],
+      "extraction_methods": {
+        "title": "selector:[data-field=title]",
+        "content": "selector:[data-field=body]",
+        "published_at": "meta:article:published_time"
+      },
+      "extracted_at": "2026-09-14T08:00:00Z"
+    }
+  },
+  "media": [
+    {
+      "schema_version": "article_media.v1",
+      "media_id": "6f89d402-18e4-45f8-9343-2aa80a5693b4",
+      "article_id": "550e8400-e29b-41d4-a716-446655440000",
+      "media_type": "image",
+      "position": 0,
+      "role": "lead",
+      "source_url": "https://premedia.vneconomy.vn/park.jpg",
+      "canonical_url": "https://premedia.vneconomy.vn/park.jpg",
+      "storage_uri": "s3://etl/media/images/source=vneconomy/date=2026-09-10/park.jpg",
+      "mime_type": "image/jpeg",
+      "width": 1200,
+      "height": 800,
+      "bytes": 182440,
+      "content_hash": "sha256:5c80c09683041123f22b37f5a086429d425a6635d988095755896c73b2d1f3d4",
+      "caption": "Công viên công cộng mới",
+      "alt_text": "Không gian xanh trong công viên",
+      "credit": "Ảnh: VnEconomy",
+      "is_lead": true,
+      "download_status": "success",
+      "quality_flags": [],
+      "collected_at": "2026-09-10T07:02:44Z"
+    },
+    {
+      "schema_version": "article_media.v1",
+      "media_id": "326f2fcf-5485-4f9c-ab3c-d54bbbcd0d85",
+      "article_id": "550e8400-e29b-41d4-a716-446655440000",
+      "media_type": "image",
+      "position": 1,
+      "role": "content",
+      "source_url": "https://premedia.vneconomy.vn/playground.jpg",
+      "canonical_url": null,
+      "storage_uri": null,
+      "mime_type": null,
+      "width": null,
+      "height": null,
+      "bytes": null,
+      "content_hash": null,
+      "caption": null,
+      "alt_text": null,
+      "credit": null,
+      "is_lead": false,
+      "download_status": "not_attempted",
+      "quality_flags": [],
+      "collected_at": "2026-09-10T07:02:44Z"
+    }
+  ]
+}

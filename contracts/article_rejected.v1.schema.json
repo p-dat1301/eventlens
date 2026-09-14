@@ -1,0 +1,62 @@
+{
+  "additionalProperties": false,
+  "description": "Raw article rejected by extraction quality gate.",
+  "properties": {
+    "article_raw_id": {
+      "format": "uuid",
+      "title": "Article Raw Id",
+      "type": "string"
+    },
+    "error_detail": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error Detail"
+    },
+    "parse_version": {
+      "title": "Parse Version",
+      "type": "string"
+    },
+    "raw_storage_uri": {
+      "pattern": "^s3://[^/\\s]+/.+$",
+      "title": "Raw Storage Uri",
+      "type": "string"
+    },
+    "reason_code": {
+      "title": "Reason Code",
+      "type": "string"
+    },
+    "rejected_at": {
+      "format": "date-time",
+      "title": "Rejected At",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "article_rejected.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_id": {
+      "format": "uuid",
+      "title": "Source Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "article_raw_id",
+    "source_id",
+    "raw_storage_uri",
+    "reason_code",
+    "parse_version",
+    "rejected_at"
+  ],
+  "title": "ArticleRejected",
+  "type": "object"
+}

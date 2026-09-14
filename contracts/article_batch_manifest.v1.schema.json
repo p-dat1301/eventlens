@@ -1,0 +1,147 @@
+{
+  "$defs": {
+    "ManifestFile": {
+      "additionalProperties": false,
+      "description": "Published file metadata.",
+      "properties": {
+        "bytes": {
+          "minimum": 0,
+          "title": "Bytes",
+          "type": "integer"
+        },
+        "rows": {
+          "minimum": 0,
+          "title": "Rows",
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "uri": {
+          "pattern": "^s3://[^/\\s]+/.+$",
+          "title": "Uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uri",
+        "rows",
+        "bytes",
+        "sha256"
+      ],
+      "title": "ManifestFile",
+      "type": "object"
+    },
+    "ManifestQuality": {
+      "additionalProperties": false,
+      "description": "Batch quality counters.",
+      "properties": {
+        "duplicates": {
+          "minimum": 0,
+          "title": "Duplicates",
+          "type": "integer"
+        },
+        "flagged": {
+          "minimum": 0,
+          "title": "Flagged",
+          "type": "integer"
+        },
+        "input": {
+          "minimum": 0,
+          "title": "Input",
+          "type": "integer"
+        },
+        "passed": {
+          "minimum": 0,
+          "title": "Passed",
+          "type": "integer"
+        },
+        "rejected": {
+          "minimum": 0,
+          "title": "Rejected",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input",
+        "passed",
+        "flagged",
+        "rejected",
+        "duplicates"
+      ],
+      "title": "ManifestQuality",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Published Silver batch handoff manifest.",
+  "properties": {
+    "batch_id": {
+      "format": "uuid",
+      "title": "Batch Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "files": {
+      "items": {
+        "$ref": "#/$defs/ManifestFile"
+      },
+      "title": "Files",
+      "type": "array"
+    },
+    "parse_versions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Parse Versions",
+      "type": "array"
+    },
+    "partition": {
+      "title": "Partition",
+      "type": "string"
+    },
+    "quality": {
+      "$ref": "#/$defs/ManifestQuality"
+    },
+    "schema_version": {
+      "const": "article_batch_manifest.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source": {
+      "title": "Source",
+      "type": "string"
+    },
+    "supersedes_batch_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Supersedes Batch Id"
+    }
+  },
+  "required": [
+    "schema_version",
+    "batch_id",
+    "source",
+    "partition",
+    "files",
+    "quality",
+    "parse_versions",
+    "created_at"
+  ],
+  "title": "ArticleBatchManifest",
+  "type": "object"
+}

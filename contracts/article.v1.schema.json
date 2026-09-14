@@ -1,0 +1,383 @@
+{
+  "$defs": {
+    "ArticleDuplicate": {
+      "additionalProperties": false,
+      "description": "Deduplication decision embedded in canonical article.",
+      "properties": {
+        "canonical_article_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Canonical Article Id"
+        },
+        "duplicate_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Duplicate Type"
+        },
+        "is_duplicate": {
+          "title": "Is Duplicate",
+          "type": "boolean"
+        },
+        "method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Method"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Score"
+        }
+      },
+      "required": [
+        "is_duplicate",
+        "canonical_article_id",
+        "duplicate_type",
+        "score",
+        "method"
+      ],
+      "title": "ArticleDuplicate",
+      "type": "object"
+    },
+    "ArticleProcessing": {
+      "additionalProperties": false,
+      "description": "Extraction provenance and quality decision.",
+      "properties": {
+        "extracted_at": {
+          "format": "date-time",
+          "title": "Extracted At",
+          "type": "string"
+        },
+        "extraction_methods": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Extraction Methods",
+          "type": "object"
+        },
+        "parse_version": {
+          "title": "Parse Version",
+          "type": "string"
+        },
+        "quality_flags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Quality Flags",
+          "type": "array"
+        },
+        "quality_status": {
+          "enum": [
+            "passed",
+            "flagged"
+          ],
+          "title": "Quality Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "parse_version",
+        "quality_status",
+        "quality_flags",
+        "extraction_methods",
+        "extracted_at"
+      ],
+      "title": "ArticleProcessing",
+      "type": "object"
+    },
+    "ArticleRaw": {
+      "additionalProperties": false,
+      "description": "Raw evidence lineage for canonical article.",
+      "properties": {
+        "article_raw_id": {
+          "format": "uuid",
+          "title": "Article Raw Id",
+          "type": "string"
+        },
+        "body_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Body Hash",
+          "type": "string"
+        },
+        "bytes": {
+          "maximum": 9223372036854775807,
+          "minimum": 0,
+          "title": "Bytes",
+          "type": "integer"
+        },
+        "crawl_run_id": {
+          "format": "uuid",
+          "title": "Crawl Run Id",
+          "type": "string"
+        },
+        "fetched_at": {
+          "format": "date-time",
+          "title": "Fetched At",
+          "type": "string"
+        },
+        "http_status": {
+          "maximum": 599,
+          "minimum": 100,
+          "title": "Http Status",
+          "type": "integer"
+        },
+        "storage_uri": {
+          "pattern": "^s3://[^/\\s]+/.+$",
+          "title": "Storage Uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "article_raw_id",
+        "storage_uri",
+        "body_hash",
+        "bytes",
+        "http_status",
+        "fetched_at",
+        "crawl_run_id"
+      ],
+      "title": "ArticleRaw",
+      "type": "object"
+    },
+    "ArticleSource": {
+      "additionalProperties": false,
+      "description": "Publisher identity embedded in canonical article.",
+      "properties": {
+        "authority_tier": {
+          "enum": [
+            "official",
+            "tier1",
+            "tier2",
+            "unknown"
+          ],
+          "title": "Authority Tier",
+          "type": "string"
+        },
+        "domain": {
+          "pattern": "^[a-z0-9.-]+$",
+          "title": "Domain",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "domain",
+        "authority_tier"
+      ],
+      "title": "ArticleSource",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Normalized article payload version 1.",
+  "properties": {
+    "article_id": {
+      "format": "uuid",
+      "title": "Article Id",
+      "type": "string"
+    },
+    "author": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Author"
+    },
+    "canonical_url": {
+      "format": "uri",
+      "maxLength": 2083,
+      "minLength": 1,
+      "title": "Canonical Url",
+      "type": "string"
+    },
+    "content": {
+      "title": "Content",
+      "type": "string"
+    },
+    "content_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Content Hash",
+      "type": "string"
+    },
+    "duplicate": {
+      "$ref": "#/$defs/ArticleDuplicate"
+    },
+    "language": {
+      "title": "Language",
+      "type": "string"
+    },
+    "lead_image_storage_uri": {
+      "anyOf": [
+        {
+          "pattern": "^s3://[^/\\s]+/.+$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Lead Image Storage Uri"
+    },
+    "lead_image_url": {
+      "anyOf": [
+        {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Lead Image Url"
+    },
+    "media_count": {
+      "maximum": 2147483647,
+      "minimum": 0,
+      "title": "Media Count",
+      "type": "integer"
+    },
+    "processing": {
+      "$ref": "#/$defs/ArticleProcessing"
+    },
+    "published_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Published At"
+    },
+    "raw": {
+      "$ref": "#/$defs/ArticleRaw"
+    },
+    "schema_version": {
+      "const": "article.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "section": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section"
+    },
+    "source": {
+      "$ref": "#/$defs/ArticleSource"
+    },
+    "source_id": {
+      "format": "uuid",
+      "title": "Source Id",
+      "type": "string"
+    },
+    "summary_source": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Summary Source"
+    },
+    "tags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Tags",
+      "type": "array"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "updated_at_source": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Updated At Source"
+    },
+    "word_count": {
+      "maximum": 2147483647,
+      "minimum": 0,
+      "title": "Word Count",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "article_id",
+    "source_id",
+    "source",
+    "canonical_url",
+    "title",
+    "content",
+    "tags",
+    "media_count",
+    "language",
+    "word_count",
+    "content_hash",
+    "duplicate",
+    "raw",
+    "processing"
+  ],
+  "title": "Article",
+  "type": "object"
+}

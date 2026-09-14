@@ -1,0 +1,228 @@
+{
+  "additionalProperties": false,
+  "description": "Media row associated with canonical article.",
+  "properties": {
+    "alt_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Alt Text"
+    },
+    "article_id": {
+      "format": "uuid",
+      "title": "Article Id",
+      "type": "string"
+    },
+    "bytes": {
+      "anyOf": [
+        {
+          "maximum": 9223372036854775807,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Bytes"
+    },
+    "canonical_url": {
+      "anyOf": [
+        {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Url"
+    },
+    "caption": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Caption"
+    },
+    "collected_at": {
+      "format": "date-time",
+      "title": "Collected At",
+      "type": "string"
+    },
+    "content_hash": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Content Hash"
+    },
+    "credit": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Credit"
+    },
+    "download_status": {
+      "enum": [
+        "success",
+        "failed",
+        "skipped_policy",
+        "not_attempted"
+      ],
+      "title": "Download Status",
+      "type": "string"
+    },
+    "height": {
+      "anyOf": [
+        {
+          "maximum": 2147483647,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Height"
+    },
+    "is_lead": {
+      "title": "Is Lead",
+      "type": "boolean"
+    },
+    "media_id": {
+      "format": "uuid",
+      "title": "Media Id",
+      "type": "string"
+    },
+    "media_type": {
+      "enum": [
+        "image",
+        "video",
+        "audio",
+        "document"
+      ],
+      "title": "Media Type",
+      "type": "string"
+    },
+    "mime_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Mime Type"
+    },
+    "position": {
+      "maximum": 2147483647,
+      "minimum": 0,
+      "title": "Position",
+      "type": "integer"
+    },
+    "quality_flags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Quality Flags",
+      "type": "array"
+    },
+    "role": {
+      "enum": [
+        "lead",
+        "content",
+        "gallery",
+        "infographic",
+        "thumbnail",
+        "unknown"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "article_media.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_url": {
+      "format": "uri",
+      "maxLength": 2083,
+      "minLength": 1,
+      "title": "Source Url",
+      "type": "string"
+    },
+    "storage_uri": {
+      "anyOf": [
+        {
+          "pattern": "^s3://[^/\\s]+/.+$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Storage Uri"
+    },
+    "width": {
+      "anyOf": [
+        {
+          "maximum": 2147483647,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Width"
+    }
+  },
+  "required": [
+    "schema_version",
+    "media_id",
+    "article_id",
+    "media_type",
+    "position",
+    "role",
+    "source_url",
+    "is_lead",
+    "download_status",
+    "quality_flags",
+    "collected_at"
+  ],
+  "title": "ArticleMedia",
+  "type": "object"
+}

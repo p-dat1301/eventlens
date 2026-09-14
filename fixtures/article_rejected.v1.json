@@ -1,0 +1,10 @@
+{
+  "schema_version": "article_rejected.v1",
+  "article_raw_id": "a8c4d2b0-8bf4-4b4b-b691-c3289326f562",
+  "source_id": "18e63d23-f2ab-4f79-a05c-23ba7e1faf11",
+  "raw_storage_uri": "s3://eventlens-raw/vneconomy/2026/09/10/a8c4d2b0-8bf4-4b4b-b691-c3289326f562.html",
+  "reason_code": "non_article",
+  "error_detail": "missing title and article body",
+  "parse_version": "vneconomy.v1",
+  "rejected_at": "2026-09-14T08:00:00Z"
+}

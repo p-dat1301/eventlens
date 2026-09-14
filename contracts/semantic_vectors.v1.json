@@ -1,0 +1,61 @@
+{
+  "schema_version": "eventlens_semantic_vectors.v1",
+  "vectors": [
+    {
+      "name": "valid_article_bundle",
+      "contract": "article_bundle.v1",
+      "fixture": "fixtures/article_bundle.v1.json",
+      "replacements": [],
+      "valid": true,
+      "error_type": null
+    },
+    {
+      "name": "invalid_media_count",
+      "contract": "article_bundle.v1",
+      "fixture": "fixtures/article_bundle.v1.json",
+      "replacements": [{"old": "\"media_count\": 2", "new": "\"media_count\": 3"}],
+      "valid": false,
+      "error_type": "media_count_mismatch"
+    },
+    {
+      "name": "invalid_media_fk",
+      "contract": "article_bundle.v1",
+      "fixture": "fixtures/article_bundle.v1.json",
+      "replacements": [{"old": "\"article_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"media_type\": \"image\",\n      \"position\": 1", "new": "\"article_id\": \"216f0e33-25c4-49af-af92-cc4730896c21\",\n      \"media_type\": \"image\",\n      \"position\": 1"}],
+      "valid": false,
+      "error_type": "article_id_mismatch"
+    },
+    {
+      "name": "invalid_duplicate_media_id",
+      "contract": "article_bundle.v1",
+      "fixture": "fixtures/article_bundle.v1.json",
+      "replacements": [{"old": "326f2fcf-5485-4f9c-ab3c-d54bbbcd0d85", "new": "6f89d402-18e4-45f8-9343-2aa80a5693b4"}],
+      "valid": false,
+      "error_type": "duplicate_media_id"
+    },
+    {
+      "name": "invalid_non_contiguous_position",
+      "contract": "article_bundle.v1",
+      "fixture": "fixtures/article_bundle.v1.json",
+      "replacements": [{"old": "\"position\": 1", "new": "\"position\": 2"}],
+      "valid": false,
+      "error_type": "non_contiguous_position"
+    },
+    {
+      "name": "valid_manifest_quality_total",
+      "contract": "article_batch_manifest.v1",
+      "fixture": "fixtures/article_batch_manifest.v1.json",
+      "replacements": [],
+      "valid": true,
+      "error_type": null
+    },
+    {
+      "name": "invalid_manifest_quality_total",
+      "contract": "article_batch_manifest.v1",
+      "fixture": "fixtures/article_batch_manifest.v1.json",
+      "replacements": [{"old": "\"input\": 136", "new": "\"input\": 137"}],
+      "valid": false,
+      "error_type": "quality_input_mismatch"
+    }
+  ]
+}

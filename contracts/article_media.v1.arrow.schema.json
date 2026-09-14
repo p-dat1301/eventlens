@@ -1,0 +1,131 @@
+{
+  "schema_version": "article_media.v1",
+  "fields": [
+    {
+      "name": "schema_version",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "media_id",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "article_id",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "media_type",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "position",
+      "type": "int32",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "role",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "source_url",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "canonical_url",
+      "type": "string",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "storage_uri",
+      "type": "string",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "mime_type",
+      "type": "string",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "width",
+      "type": "int32",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "height",
+      "type": "int32",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "bytes",
+      "type": "int64",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "content_hash",
+      "type": "string",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "caption",
+      "type": "string",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "alt_text",
+      "type": "string",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "credit",
+      "type": "string",
+      "nullable": true,
+      "fields": []
+    },
+    {
+      "name": "is_lead",
+      "type": "bool",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "download_status",
+      "type": "string",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "quality_flags",
+      "type": "list<string>",
+      "nullable": false,
+      "fields": []
+    },
+    {
+      "name": "collected_at",
+      "type": "timestamp[us, UTC]",
+      "nullable": false,
+      "fields": []
+    }
+  ]
+}

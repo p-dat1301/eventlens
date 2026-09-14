@@ -1,0 +1,59 @@
+name: eventlens
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "8000:8000"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "5173:80"
+
+  ai-worker:
+    build:
+      context: .
+      dockerfile: apps/ai-worker/Dockerfile
+    command: ["validate", "/fixtures/article_bundle.v1.json"]
+    profiles: ["tools"]
+    volumes:
+      - ./fixtures:/fixtures:ro
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: eventlens
+      POSTGRES_USER: eventlens
+      POSTGRES_PASSWORD: eventlens-local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eventlens -d eventlens"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "127.0.0.1:5432:5432"
+    profiles: ["infra"]
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: eventlens
+      MINIO_ROOT_PASSWORD: eventlens-local-secret
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    profiles: ["infra"]
+    volumes:
+      - minio-data:/data
+
+volumes:
+  postgres-data:
+  minio-data:

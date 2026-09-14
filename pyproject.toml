@@ -1,0 +1,72 @@
+[project]
+name = "eventlens"
+version = "0.1.0"
+description = "EventLens backend and AI worker foundation"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "basedpyright>=1.31,<2",
+    "httpx2>=2.12.0",
+    "pyarrow-stubs>=19",
+    "pytest>=8.4,<9",
+    "ruff>=0.12,<1",
+]
+
+[tool.basedpyright]
+typeCheckingMode = "all"
+pythonVersion = "3.12"
+pythonPlatform = "All"
+include = ["apps", "packages"]
+exclude = ["**/__pycache__", "**/.venv", "**/build", "**/dist"]
+reportUnusedCallResult = "warning"
+reportUnnecessaryTypeIgnoreComment = "error"
+reportUnusedVariable = "error"
+reportMissingParameterType = "error"
+reportPrivateUsage = "error"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+src = [
+    "apps/api/src",
+    "apps/ai-worker/src",
+    "packages/contracts-python/src",
+]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["COM812", "ISC001", "D203", "D213", "CPY001"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**/*.py" = ["S101", "PLR2004", "D", "INP001"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = [
+    "packages/contracts-python/tests",
+    "apps/api/tests",
+    "apps/ai-worker/tests",
+]
+addopts = ["-ra", "--strict-config", "--strict-markers"]
+filterwarnings = ["error"]
+
+[tool.uv.workspace]
+members = [
+    "packages/contracts-python",
+    "apps/api",
+    "apps/ai-worker",
+]
+
+[tool.uv]
+package = false
