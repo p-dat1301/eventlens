@@ -10,6 +10,7 @@ from eventlens_contracts import (
     ArticleBatchManifest,
     ArticleMedia,
     ArticleRejected,
+    Event,
 )
 
 
@@ -37,9 +38,15 @@ def article_batch_manifest_schema_json() -> str:
     return _schema_json(ArticleBatchManifest)
 
 
+def event_schema_json() -> str:
+    """Render Event v1 JSON Schema."""
+    return _schema_json(Event)
+
+
 SCHEMA_RENDERERS: tuple[tuple[str, Callable[[], str]], ...] = (
     ("article.v1.schema.json", article_schema_json),
     ("article_media.v1.schema.json", article_media_schema_json),
     ("article_rejected.v1.schema.json", article_rejected_schema_json),
     ("article_batch_manifest.v1.schema.json", article_batch_manifest_schema_json),
+    ("event.v1.schema.json", event_schema_json),
 )

@@ -103,6 +103,8 @@
       "type": "array"
     },
     "partition": {
+      "minLength": 1,
+      "pattern": "\\S",
       "title": "Partition",
       "type": "string"
     },
@@ -115,6 +117,8 @@
       "type": "string"
     },
     "source": {
+      "minLength": 1,
+      "pattern": "\\S",
       "title": "Source",
       "type": "string"
     },

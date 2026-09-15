@@ -4,10 +4,13 @@ from typing import ClassVar, Literal
 import pytest
 from pydantic import BaseModel, ConfigDict, ValidationError
 
-from eventlens_contracts import ArticleBatchManifest, ArticleBundle
+from eventlens_contracts import ArticleBatchManifest, ArticleBundle, Event
 
 CONTRACTS_DIRECTORY = Path(__file__).parents[3] / "contracts"
 REPOSITORY_ROOT = Path(__file__).parents[3]
+type ContractName = Literal[
+    "article_bundle.v1", "article_batch_manifest.v1", "event.v1"
+]
 
 
 class Replacement(BaseModel):
@@ -25,7 +28,7 @@ class SemanticVector(BaseModel):
     )
 
     name: str
-    contract: Literal["article_bundle.v1", "article_batch_manifest.v1"]
+    contract: ContractName
     fixture: str
     replacements: tuple[Replacement, ...]
     valid: bool
@@ -50,11 +53,12 @@ def _apply_vector(vector: SemanticVector) -> str:
 
 def _validate_vector(vector: SemanticVector) -> None:
     payload = _apply_vector(vector)
-    match vector.contract:
-        case "article_bundle.v1":
-            _ = ArticleBundle.model_validate_json(payload)
-        case "article_batch_manifest.v1":
-            _ = ArticleBatchManifest.model_validate_json(payload)
+    models: dict[ContractName, type[BaseModel]] = {
+        "article_bundle.v1": ArticleBundle,
+        "article_batch_manifest.v1": ArticleBatchManifest,
+        "event.v1": Event,
+    }
+    _ = models[vector.contract].model_validate_json(payload)
 
 
 def semantic_vectors() -> SemanticVectors:
@@ -77,6 +81,17 @@ def test_semantic_vectors_cover_publish_cross_field_rules() -> None:
         "invalid_non_contiguous_position",
         "valid_manifest_quality_total",
         "invalid_manifest_quality_total",
+        "valid_event_detected",
+        "valid_event_unconfirmed",
+        "valid_event_confirmed",
+        "valid_event_ongoing",
+        "valid_event_resolved",
+        "valid_event_cancelled",
+        "valid_event_merged",
+        "invalid_event_entity_fk",
+        "invalid_event_duplicate_entity_role",
+        "invalid_event_non_utc_timestamp",
+        "invalid_event_whitespace_title",
     }
 
 

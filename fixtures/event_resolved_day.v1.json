@@ -1,0 +1,32 @@
+{
+  "id": "fb60da36-51cf-4429-bcf2-2730e7c80c46",
+  "event_type": "SERVICE_OUTAGE",
+  "canonical_title": "Sự cố điện lưới phía Bắc đã được khắc phục",
+  "status": "resolved",
+  "severity": "high",
+  "time_start": "2026-09-12T17:00:00Z",
+  "time_end": "2026-09-13T16:59:00Z",
+  "time_precision": "day",
+  "first_seen_at": "2026-09-13T01:00:00Z",
+  "last_seen_at": "2026-09-14T10:30:00Z",
+  "last_changed_at": "2026-09-14T11:00:00Z",
+  "source_count": 5,
+  "article_count": 9,
+  "confidence": 1.0,
+  "attributes": {"service": "electricity"},
+  "schema_version": "event.v1",
+  "created_at": "2026-09-13T01:00:00Z",
+  "updated_at": "2026-09-14T11:00:00Z",
+  "entities": [
+    {
+      "event_id": "fb60da36-51cf-4429-bcf2-2730e7c80c46",
+      "entity_id": "76044ca7-2c13-486d-9855-e03e348827d7",
+      "entity_type": "SERVICE",
+      "canonical_name": "Điện lưới miền Bắc",
+      "role": "affected",
+      "confidence": 0.95,
+      "first_linked_at": "2026-09-13T01:00:00Z",
+      "is_active": true
+    }
+  ]
+}
