@@ -81,6 +81,8 @@
           "type": "object"
         },
         "parse_version": {
+          "minLength": 1,
+          "pattern": "\\S",
           "title": "Parse Version",
           "type": "string"
         },
@@ -184,6 +186,8 @@
           "type": "string"
         },
         "name": {
+          "minLength": 1,
+          "pattern": "\\S",
           "title": "Name",
           "type": "string"
         }
@@ -225,6 +229,8 @@
       "type": "string"
     },
     "content": {
+      "minLength": 1,
+      "pattern": "\\S",
       "title": "Content",
       "type": "string"
     },
@@ -237,6 +243,8 @@
       "$ref": "#/$defs/ArticleDuplicate"
     },
     "language": {
+      "minLength": 1,
+      "pattern": "\\S",
       "title": "Language",
       "type": "string"
     },
@@ -338,6 +346,8 @@
       "type": "array"
     },
     "title": {
+      "minLength": 1,
+      "pattern": "\\S",
       "title": "Title",
       "type": "string"
     },

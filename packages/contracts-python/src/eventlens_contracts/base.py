@@ -22,7 +22,9 @@ def _require_non_blank(value: str) -> str:
     return value
 
 
-NonEmptyText = Annotated[str, AfterValidator(_require_non_blank)]
+NonEmptyText = Annotated[
+    str, Field(min_length=1, pattern=r"\S"), AfterValidator(_require_non_blank)
+]
 
 
 def _require_utc(value: datetime) -> datetime:

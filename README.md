@@ -31,9 +31,10 @@ Data team publishes Silver data independently. Current frozen inputs:
 - `article_rejected.v1`
 - `article_batch_manifest.v1`
 
-This foundation implements four frozen contract models, JSON Schemas, Arrow descriptors
-for the three Parquet datasets, and representative fixtures. Cross-record rules remain
-semantic vectors tested by the Python package; JSON Schema alone cannot express them.
+This foundation implements four frozen Data input contracts plus downstream `event.v1`,
+with JSON Schemas, Arrow descriptors for the three Parquet datasets, and representative
+fixtures. Cross-record rules remain semantic vectors tested by the Python package; JSON
+Schema alone cannot express them.
 Production MinIO access, Parquet ingestion, database persistence, model inference,
 Kafka, and final product UI remain intentionally out of scope.
 

@@ -1,0 +1,314 @@
+{
+  "$defs": {
+    "EventEntity": {
+      "additionalProperties": false,
+      "description": "Canonical Entity identity joined with EventEntity relation fields.",
+      "properties": {
+        "canonical_name": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Canonical Name",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "entity_id": {
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "entity_type": {
+          "enum": [
+            "LOCATION",
+            "ORG",
+            "PERSON",
+            "SERVICE",
+            "PRODUCT",
+            "FACILITY",
+            "OTHER"
+          ],
+          "title": "Entity Type",
+          "type": "string"
+        },
+        "event_id": {
+          "format": "uuid",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "first_linked_at": {
+          "format": "date-time",
+          "title": "First Linked At",
+          "type": "string"
+        },
+        "is_active": {
+          "title": "Is Active",
+          "type": "boolean"
+        },
+        "role": {
+          "enum": [
+            "primary",
+            "affected",
+            "involved",
+            "mentioned"
+          ],
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event_id",
+        "entity_id",
+        "entity_type",
+        "canonical_name",
+        "role",
+        "confidence",
+        "first_linked_at",
+        "is_active"
+      ],
+      "title": "EventEntity",
+      "type": "object"
+    },
+    "JsonObject": {
+      "additionalProperties": {
+        "$ref": "#/$defs/JsonValue"
+      },
+      "type": "object"
+    },
+    "JsonScalar": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "JsonValue": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/JsonScalar"
+        },
+        {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "description": "Canonical current state of event version 1.",
+  "properties": {
+    "article_count": {
+      "maximum": 2147483647,
+      "minimum": 0,
+      "title": "Article Count",
+      "type": "integer"
+    },
+    "attributes": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/JsonObject"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "canonical_title": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Canonical Title",
+      "type": "string"
+    },
+    "confidence": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Confidence"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "entities": {
+      "items": {
+        "$ref": "#/$defs/EventEntity"
+      },
+      "title": "Entities",
+      "type": "array"
+    },
+    "event_type": {
+      "enum": [
+        "TRAFFIC_DISRUPTION",
+        "SERVICE_OUTAGE",
+        "WEATHER_EVENT",
+        "PUBLIC_SAFETY",
+        "POLICY_ANNOUNCEMENT",
+        "SCHEDULED_EVENT"
+      ],
+      "title": "Event Type",
+      "type": "string"
+    },
+    "first_seen_at": {
+      "format": "date-time",
+      "title": "First Seen At",
+      "type": "string"
+    },
+    "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+    },
+    "last_changed_at": {
+      "format": "date-time",
+      "title": "Last Changed At",
+      "type": "string"
+    },
+    "last_seen_at": {
+      "format": "date-time",
+      "title": "Last Seen At",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "event.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "severity": {
+      "anyOf": [
+        {
+          "enum": [
+            "info",
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Severity"
+    },
+    "source_count": {
+      "maximum": 2147483647,
+      "minimum": 0,
+      "title": "Source Count",
+      "type": "integer"
+    },
+    "status": {
+      "enum": [
+        "detected",
+        "unconfirmed",
+        "confirmed",
+        "ongoing",
+        "resolved",
+        "cancelled",
+        "merged"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "time_end": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Time End"
+    },
+    "time_precision": {
+      "anyOf": [
+        {
+          "enum": [
+            "exact",
+            "day",
+            "range",
+            "unknown"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Time Precision"
+    },
+    "time_start": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Time Start"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "event_type",
+    "canonical_title",
+    "status",
+    "first_seen_at",
+    "last_seen_at",
+    "last_changed_at",
+    "source_count",
+    "article_count",
+    "schema_version",
+    "created_at",
+    "updated_at",
+    "entities"
+  ],
+  "title": "Event",
+  "type": "object"
+}

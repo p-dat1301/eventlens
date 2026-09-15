@@ -1,0 +1,32 @@
+{
+  "id": "0dbe0a86-0e0d-4459-b299-3283df018cdc",
+  "event_type": "SCHEDULED_EVENT",
+  "canonical_title": "Trận đấu tại SVĐ Mỹ Đình đổi giờ",
+  "status": "confirmed",
+  "severity": "info",
+  "time_start": "2026-09-14T09:12:35Z",
+  "time_end": null,
+  "time_precision": "exact",
+  "first_seen_at": "2026-09-14T08:55:00Z",
+  "last_seen_at": "2026-09-14T09:18:00Z",
+  "last_changed_at": "2026-09-14T09:20:00Z",
+  "source_count": 3,
+  "article_count": 4,
+  "confidence": 0.96,
+  "attributes": null,
+  "schema_version": "event.v1",
+  "created_at": "2026-09-14T08:55:00Z",
+  "updated_at": "2026-09-14T09:20:00Z",
+  "entities": [
+    {
+      "event_id": "0dbe0a86-0e0d-4459-b299-3283df018cdc",
+      "entity_id": "2ae66727-164f-4527-bc8b-975936e925c6",
+      "entity_type": "FACILITY",
+      "canonical_name": "Sân vận động Quốc gia Mỹ Đình",
+      "role": "primary",
+      "confidence": 0.99,
+      "first_linked_at": "2026-09-14T08:55:00Z",
+      "is_active": true
+    }
+  ]
+}

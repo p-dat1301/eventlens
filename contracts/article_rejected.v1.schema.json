@@ -20,6 +20,8 @@
       "title": "Error Detail"
     },
     "parse_version": {
+      "minLength": 1,
+      "pattern": "\\S",
       "title": "Parse Version",
       "type": "string"
     },
@@ -29,6 +31,8 @@
       "type": "string"
     },
     "reason_code": {
+      "minLength": 1,
+      "pattern": "\\S",
       "title": "Reason Code",
       "type": "string"
     },

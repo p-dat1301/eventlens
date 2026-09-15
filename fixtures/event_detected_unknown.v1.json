@@ -1,0 +1,32 @@
+{
+  "id": "59da2c4c-872f-4a63-b16c-bf19dcbd85d0",
+  "event_type": "TRAFFIC_DISRUPTION",
+  "canonical_title": "Phân luồng quanh Mỹ Đình tối 15/9",
+  "status": "detected",
+  "severity": null,
+  "time_start": null,
+  "time_end": null,
+  "time_precision": "unknown",
+  "first_seen_at": "2026-09-14T08:30:00Z",
+  "last_seen_at": "2026-09-14T08:30:00Z",
+  "last_changed_at": "2026-09-14T08:30:00Z",
+  "source_count": 1,
+  "article_count": 1,
+  "confidence": null,
+  "attributes": null,
+  "schema_version": "event.v1",
+  "created_at": "2026-09-14T08:30:00Z",
+  "updated_at": "2026-09-14T08:30:00Z",
+  "entities": [
+    {
+      "event_id": "59da2c4c-872f-4a63-b16c-bf19dcbd85d0",
+      "entity_id": "48b5d66f-5dc6-4363-b2df-2066ad355c94",
+      "entity_type": "LOCATION",
+      "canonical_name": "Mỹ Đình",
+      "role": "primary",
+      "confidence": 0.85,
+      "first_linked_at": "2026-09-14T08:30:00Z",
+      "is_active": true
+    }
+  ]
+}

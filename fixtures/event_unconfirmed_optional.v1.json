@@ -1,0 +1,26 @@
+{
+  "id": "cc761c31-e8b8-4d19-a619-927c6532eabe",
+  "event_type": "PUBLIC_SAFETY",
+  "canonical_title": "Thông tin cháy tại quận Thanh Xuân đang được xác minh",
+  "status": "unconfirmed",
+  "first_seen_at": "2026-09-14T09:10:00Z",
+  "last_seen_at": "2026-09-14T09:20:00Z",
+  "last_changed_at": "2026-09-14T09:15:00Z",
+  "source_count": 2,
+  "article_count": 2,
+  "schema_version": "event.v1",
+  "created_at": "2026-09-14T09:10:00Z",
+  "updated_at": "2026-09-14T09:20:00Z",
+  "entities": [
+    {
+      "event_id": "cc761c31-e8b8-4d19-a619-927c6532eabe",
+      "entity_id": "1acd554d-d90e-4e07-b5c4-20eaf45c5181",
+      "entity_type": "OTHER",
+      "canonical_name": "Thông tin chưa phân loại",
+      "role": "mentioned",
+      "confidence": 0.5,
+      "first_linked_at": "2026-09-14T09:10:00Z",
+      "is_active": true
+    }
+  ]
+}

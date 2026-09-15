@@ -56,6 +56,48 @@
       "replacements": [{"old": "\"input\": 136", "new": "\"input\": 137"}],
       "valid": false,
       "error_type": "quality_input_mismatch"
+    },
+    {"name": "valid_event_detected", "contract": "event.v1", "fixture": "fixtures/event_detected_unknown.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {"name": "valid_event_unconfirmed", "contract": "event.v1", "fixture": "fixtures/event_unconfirmed_optional.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {"name": "valid_event_confirmed", "contract": "event.v1", "fixture": "fixtures/event_confirmed_exact.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {"name": "valid_event_ongoing", "contract": "event.v1", "fixture": "fixtures/event_ongoing_range.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {"name": "valid_event_resolved", "contract": "event.v1", "fixture": "fixtures/event_resolved_day.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {"name": "valid_event_cancelled", "contract": "event.v1", "fixture": "fixtures/event_cancelled.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {"name": "valid_event_merged", "contract": "event.v1", "fixture": "fixtures/event_merged.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {
+      "name": "invalid_event_entity_fk",
+      "contract": "event.v1",
+      "fixture": "fixtures/event_detected_unknown.v1.json",
+      "replacements": [{"old": "\"event_id\": \"59da2c4c-872f-4a63-b16c-bf19dcbd85d0\"", "new": "\"event_id\": \"216f0e33-25c4-49af-af92-cc4730896c21\""}],
+      "valid": false,
+      "error_type": "event_entity_id_mismatch"
+    },
+    {
+      "name": "invalid_event_duplicate_entity_role",
+      "contract": "event.v1",
+      "fixture": "fixtures/event_ongoing_range.v1.json",
+      "replacements": [
+        {"old": "12126bea-152a-4b22-942c-bc847a01ac71", "new": "4f46bf25-948f-4f47-bd44-b4140c93d6f3"},
+        {"old": "\"role\": \"affected\"", "new": "\"role\": \"primary\""}
+      ],
+      "valid": false,
+      "error_type": "duplicate_event_entity"
+    },
+    {
+      "name": "invalid_event_non_utc_timestamp",
+      "contract": "event.v1",
+      "fixture": "fixtures/event_confirmed_exact.v1.json",
+      "replacements": [{"old": "\"time_start\": \"2026-09-14T09:12:35Z\"", "new": "\"time_start\": \"2026-09-14T16:12:35+07:00\""}],
+      "valid": false,
+      "error_type": "value_error"
+    },
+    {
+      "name": "invalid_event_whitespace_title",
+      "contract": "event.v1",
+      "fixture": "fixtures/event_detected_unknown.v1.json",
+      "replacements": [{"old": "\"canonical_title\": \"Phân luồng quanh Mỹ Đình tối 15/9\"", "new": "\"canonical_title\": \"   \""}],
+      "valid": false,
+      "error_type": "string_pattern_mismatch"
     }
   ]
 }
