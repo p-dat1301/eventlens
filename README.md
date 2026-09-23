@@ -12,15 +12,26 @@ presentation / adapters -> application -> domain contracts
 ```
 
 - `apps/api`: FastAPI HTTP adapter and framework-free use cases.
-- `apps/ai-worker`: Typer adapter and framework-free validation pipeline.
+- `apps/ai-worker`: Typer adapter and framework-free local event-processing pipeline.
 - `apps/web`: React presentation with Zod parsing at external boundaries.
 - `packages/contracts-python`: frozen Pydantic models shared by Python processes.
 - `contracts`: checked-in JSON Schema and Arrow descriptor artifacts for language-neutral integration.
-- `fixtures`: representative contract payloads for local development and tests.
+- `fixtures`: canonical contract fixtures plus worker-local trace fixtures for local
+  development and tests. Contract fixtures represent shared boundary payloads;
+  `*.trace.v1.json` files represent worker behavior, not cross-language contracts.
 
 No app imports another app. Domain and application code do not import FastAPI, Typer,
-React, PostgreSQL, MinIO, or model SDKs. Infrastructure adapters will implement ports
-when ingestion and persistence are added.
+React, PostgreSQL, MinIO, or model SDKs. Worker processing currently follows this local,
+deterministic path:
+
+```text
+ArticleBundle -> FakeEventExtractor -> EventProposal -> gate
+              -> InMemoryEventWriter (ACCEPT only) -> worker-local ProcessingTrace
+```
+
+`ACCEPT`, `REJECT`, and `REVIEW` are observable gate verdicts. `REJECT` and `REVIEW`
+skip writes. Current fake extraction confidence and gate thresholds are hard-coded local
+demonstration policy, not canonical business policy.
 
 ## Data Boundary
 
@@ -35,8 +46,10 @@ This foundation implements four frozen Data input contracts plus downstream `eve
 with JSON Schemas, Arrow descriptors for the three Parquet datasets, and representative
 fixtures. Cross-record rules remain semantic vectors tested by the Python package; JSON
 Schema alone cannot express them.
-Production MinIO access, Parquet ingestion, database persistence, model inference,
-Kafka, and final product UI remain intentionally out of scope.
+Production MinIO and Parquet readers, database event writers, model or LLM extractors,
+MCP integration, retries, Kafka, living-event updates, and final product UI remain
+intentionally out of scope. Current worker adapters are local fakes, not production-ready
+substitutes.
 
 ## Local Development
 
@@ -47,6 +60,16 @@ make sync
 make check
 make validate-fixture
 ```
+
+Validate or process one local fixture directly:
+
+```bash
+uv run --package eventlens-worker eventlens-worker validate fixtures/article_bundle.v1.json
+uv run --package eventlens-worker eventlens-worker process fixtures/article_bundle.v1.json
+```
+
+`process` prints one JSON `ProcessingTrace`. Its in-memory writer resets on every CLI
+invocation, so it does not persist events between commands.
 
 Run services without Docker:
 

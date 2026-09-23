@@ -1,0 +1,9 @@
+{
+  "schema_version": "processing_trace.v1",
+  "article_id": "550e8400-e29b-41d4-a716-446655440000",
+  "proposal_id": "03ab9993-5c51-595d-b0ef-c49c5d120a3c",
+  "event_id": "c92abd74-9fbd-597c-84be-5a96cd5a45ec",
+  "verdict": "ACCEPT",
+  "reasons": ["ready"],
+  "write_disposition": "inserted"
+}
