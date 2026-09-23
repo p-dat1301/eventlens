@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 
 from eventlens_contracts import ArticleBundle
+from eventlens_worker.models import ProcessingTrace
+from eventlens_worker.runner import PipelineRunner
 
 
 @dataclass(frozen=True, slots=True)
@@ -20,3 +22,9 @@ def validate_bundle_json(bundle_json: str) -> BundleValidation:
         article_id=str(bundle.article.article_id),
         media_count=len(bundle.media),
     )
+
+
+def process_bundle_json(bundle_json: str, runner: PipelineRunner) -> ProcessingTrace:
+    """Parse one bundle at worker boundary and process it synchronously."""
+    bundle = ArticleBundle.model_validate_json(bundle_json)
+    return runner.run((bundle,))[0]
