@@ -1,0 +1,16 @@
+{
+  "schema_version": "article_document.v1",
+  "article_id": "550e8400-e29b-41d4-a716-446655440000",
+  "source_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+  "title": "Title",
+  "normalized_content": "hello world",
+  "canonical_url": "https://example.com/article",
+  "source_name": "Example",
+  "source_domain": "example.com",
+  "source_published_at": "2026-09-23T10:00:00Z",
+  "ingested_at": "2026-09-23T10:00:00Z",
+  "processed_at": "2026-09-23T10:00:00Z",
+  "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "visibility": "internal",
+  "evidence_spans": [{"span_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7", "article_id": "550e8400-e29b-41d4-a716-446655440000", "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "start_offset": 0, "end_offset": 5, "excerpt": "hello", "offset_basis": "unicode_codepoint"}]
+}

@@ -2,6 +2,62 @@
   "schema_version": "eventlens_semantic_vectors.v1",
   "vectors": [
     {
+      "name": "valid_article_document",
+      "contract": "article_document.v1",
+      "fixture": "fixtures/rag_article_document.v1.json",
+      "replacements": [],
+      "valid": true,
+      "error_type": null
+    },
+    {
+      "name": "invalid_document_span_offsets",
+      "contract": "article_document.v1",
+      "fixture": "fixtures/rag_article_document.v1.json",
+      "replacements": [{"old": "\"end_offset\": 5", "new": "\"end_offset\": 0"}],
+      "valid": false,
+      "error_type": "greater_than_equal"
+    },
+    {
+      "name": "valid_article_enrichment_ready",
+      "contract": "article_enrichment.v1",
+      "fixture": "fixtures/rag_article_enrichment.v1.json",
+      "replacements": [],
+      "valid": true,
+      "error_type": null
+    },
+    {
+      "name": "invalid_enrichment_duplicate_topic",
+      "contract": "article_enrichment.v1",
+      "fixture": "fixtures/rag_article_enrichment.v1.json",
+      "replacements": [{"old": "\"topics\": [\"technology\"]", "new": "\"topics\": [\"technology\", \"technology\"]"}],
+      "valid": false,
+      "error_type": "duplicate_topic"
+    },
+    {
+      "name": "invalid_enrichment_pending_output",
+      "contract": "article_enrichment.v1",
+      "fixture": "fixtures/rag_article_enrichment.v1.json",
+      "replacements": [{"old": "\"status\": \"READY\"", "new": "\"status\": \"PENDING\""}, {"old": "\"enriched_at\": \"2026-09-23T10:00:00Z\"", "new": "\"enriched_at\": null"}, {"old": "\"attempt_count\": 1", "new": "\"attempt_count\": 0"}],
+      "valid": false,
+      "error_type": "pending_invalid_metadata"
+    },
+    {
+      "name": "invalid_enrichment_ready_empty_output",
+      "contract": "article_enrichment.v1",
+      "fixture": "fixtures/rag_article_enrichment.v1.json",
+      "replacements": [{"old": "\"topics\": [\"technology\"]", "new": "\"topics\": []"}, {"old": "\"content_type\": \"news_report\"", "new": "\"content_type\": null"}, {"old": "\"event_relevance\": \"actionable_event\"", "new": "\"event_relevance\": null"}, {"old": "\"suggested_tags\": [\"discovery\"]", "new": "\"suggested_tags\": []"}, {"old": "\"field_confidence\": [{\"field\": \"topics\", \"confidence\": 1.0}]", "new": "\"field_confidence\": []"}],
+      "valid": false,
+      "error_type": "ready_invalid_metadata"
+    },
+    {
+      "name": "invalid_enrichment_stale_empty_output",
+      "contract": "article_enrichment.v1",
+      "fixture": "fixtures/rag_article_enrichment.v1.json",
+      "replacements": [{"old": "\"status\": \"READY\"", "new": "\"status\": \"STALE\""}, {"old": "\"topics\": [\"technology\"]", "new": "\"topics\": []"}, {"old": "\"content_type\": \"news_report\"", "new": "\"content_type\": null"}, {"old": "\"event_relevance\": \"actionable_event\"", "new": "\"event_relevance\": null"}, {"old": "\"suggested_tags\": [\"discovery\"]", "new": "\"suggested_tags\": []"}, {"old": "\"field_confidence\": [{\"field\": \"topics\", \"confidence\": 1.0}]", "new": "\"field_confidence\": []"}],
+      "valid": false,
+      "error_type": "stale_invalid_metadata"
+    },
+    {
       "name": "valid_article_bundle",
       "contract": "article_bundle.v1",
       "fixture": "fixtures/article_bundle.v1.json",

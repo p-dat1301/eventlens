@@ -8,8 +8,12 @@ from pydantic import BaseModel
 from eventlens_contracts import (
     Article,
     ArticleBatchManifest,
+    ArticleDocument,
+    ArticleEnrichment,
     ArticleMedia,
     ArticleRejected,
+    BriefingAnswer,
+    BriefingQuery,
     Event,
 )
 
@@ -43,10 +47,34 @@ def event_schema_json() -> str:
     return _schema_json(Event)
 
 
+def article_document_schema_json() -> str:
+    """Render ArticleDocument v1 JSON Schema."""
+    return _schema_json(ArticleDocument)
+
+
+def article_enrichment_schema_json() -> str:
+    """Render ArticleEnrichment v1 JSON Schema."""
+    return _schema_json(ArticleEnrichment)
+
+
+def briefing_query_schema_json() -> str:
+    """Render BriefingQuery v1 JSON Schema."""
+    return _schema_json(BriefingQuery)
+
+
+def briefing_answer_schema_json() -> str:
+    """Render BriefingAnswer v1 JSON Schema."""
+    return _schema_json(BriefingAnswer)
+
+
 SCHEMA_RENDERERS: tuple[tuple[str, Callable[[], str]], ...] = (
     ("article.v1.schema.json", article_schema_json),
     ("article_media.v1.schema.json", article_media_schema_json),
     ("article_rejected.v1.schema.json", article_rejected_schema_json),
     ("article_batch_manifest.v1.schema.json", article_batch_manifest_schema_json),
     ("event.v1.schema.json", event_schema_json),
+    ("article_document.v1.schema.json", article_document_schema_json),
+    ("article_enrichment.v1.schema.json", article_enrichment_schema_json),
+    ("briefing_query.v1.schema.json", briefing_query_schema_json),
+    ("briefing_answer.v1.schema.json", briefing_answer_schema_json),
 )

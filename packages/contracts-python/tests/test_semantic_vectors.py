@@ -4,12 +4,22 @@ from typing import ClassVar, Literal
 import pytest
 from pydantic import BaseModel, ConfigDict, ValidationError
 
-from eventlens_contracts import ArticleBatchManifest, ArticleBundle, Event
+from eventlens_contracts import (
+    ArticleBatchManifest,
+    ArticleBundle,
+    ArticleDocument,
+    ArticleEnrichment,
+    Event,
+)
 
 CONTRACTS_DIRECTORY = Path(__file__).parents[3] / "contracts"
 REPOSITORY_ROOT = Path(__file__).parents[3]
 type ContractName = Literal[
-    "article_bundle.v1", "article_batch_manifest.v1", "event.v1"
+    "article_bundle.v1",
+    "article_batch_manifest.v1",
+    "event.v1",
+    "article_document.v1",
+    "article_enrichment.v1",
 ]
 
 
@@ -57,6 +67,8 @@ def _validate_vector(vector: SemanticVector) -> None:
         "article_bundle.v1": ArticleBundle,
         "article_batch_manifest.v1": ArticleBatchManifest,
         "event.v1": Event,
+        "article_document.v1": ArticleDocument,
+        "article_enrichment.v1": ArticleEnrichment,
     }
     _ = models[vector.contract].model_validate_json(payload)
 
@@ -92,6 +104,13 @@ def test_semantic_vectors_cover_publish_cross_field_rules() -> None:
         "invalid_event_duplicate_entity_role",
         "invalid_event_non_utc_timestamp",
         "invalid_event_whitespace_title",
+        "valid_article_document",
+        "invalid_document_span_offsets",
+        "valid_article_enrichment_ready",
+        "invalid_enrichment_duplicate_topic",
+        "invalid_enrichment_pending_output",
+        "invalid_enrichment_ready_empty_output",
+        "invalid_enrichment_stale_empty_output",
     }
 
 

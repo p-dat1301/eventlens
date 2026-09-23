@@ -1,10 +1,17 @@
+from collections.abc import Callable
 from pathlib import Path
+
+import pytest
 
 from eventlens_contracts.schema import (
     article_batch_manifest_schema_json,
+    article_document_schema_json,
+    article_enrichment_schema_json,
     article_media_schema_json,
     article_rejected_schema_json,
     article_schema_json,
+    briefing_answer_schema_json,
+    briefing_query_schema_json,
     event_schema_json,
 )
 
@@ -70,6 +77,22 @@ def test_event_schema_artifact_matches_model() -> None:
 
     # Then
     assert artifact == generated
+
+
+@pytest.mark.parametrize(
+    ("artifact_name", "renderer"),
+    [
+        ("article_document.v1.schema.json", article_document_schema_json),
+        ("article_enrichment.v1.schema.json", article_enrichment_schema_json),
+        ("briefing_query.v1.schema.json", briefing_query_schema_json),
+        ("briefing_answer.v1.schema.json", briefing_answer_schema_json),
+    ],
+)
+def test_rag_schema_artifacts_match_models(
+    artifact_name: str, renderer: Callable[[], str]
+) -> None:
+    artifact = (SCHEMA_DIRECTORY / artifact_name).read_text(encoding="utf-8")
+    assert artifact == renderer()
 
 
 def test_event_schema_exposes_storage_and_text_constraints() -> None:
