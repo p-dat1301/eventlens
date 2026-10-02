@@ -3,6 +3,8 @@
   "article_id": "550e8400-e29b-41d4-a716-446655440000",
   "source_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
   "title": "Title",
+  "raw_content": "hello world",
+  "normalization_version": "nfc.v1",
   "normalized_content": "hello world",
   "canonical_url": "https://example.com/article",
   "source_name": "Example",
@@ -10,7 +12,8 @@
   "source_published_at": "2026-09-23T10:00:00Z",
   "ingested_at": "2026-09-23T10:00:00Z",
   "processed_at": "2026-09-23T10:00:00Z",
-  "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "content_hash": "sha256:b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+  "content_fingerprint": "sha256:b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
   "visibility": "internal",
-  "evidence_spans": [{"span_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7", "article_id": "550e8400-e29b-41d4-a716-446655440000", "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "start_offset": 0, "end_offset": 5, "excerpt": "hello", "offset_basis": "unicode_codepoint"}]
+  "evidence_spans": [{"span_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7", "article_id": "550e8400-e29b-41d4-a716-446655440000", "content_hash": "sha256:b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9", "start_offset": 0, "end_offset": 5, "excerpt": "hello", "span_fingerprint": "sha256:2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "offset_basis": "unicode_codepoint"}]
 }

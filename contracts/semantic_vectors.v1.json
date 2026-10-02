@@ -18,6 +18,22 @@
       "error_type": "greater_than_equal"
     },
     {
+      "name": "invalid_document_normalized_identity",
+      "contract": "article_document.v1",
+      "fixture": "fixtures/rag_article_document.v1.json",
+      "replacements": [{"old": "sha256:b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9", "new": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}],
+      "valid": false,
+      "error_type": "normalized_content_identity_mismatch"
+    },
+    {
+      "name": "invalid_document_span_fingerprint",
+      "contract": "article_document.v1",
+      "fixture": "fixtures/rag_article_document.v1.json",
+      "replacements": [{"old": "sha256:2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "new": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}],
+      "valid": false,
+      "error_type": "evidence_span_fingerprint_mismatch"
+    },
+    {
       "name": "valid_article_enrichment_ready",
       "contract": "article_enrichment.v1",
       "fixture": "fixtures/rag_article_enrichment.v1.json",

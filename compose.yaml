@@ -25,7 +25,7 @@ services:
       - ./fixtures:/fixtures:ro
 
   postgres:
-    image: postgres:17-alpine
+    image: pgvector/pgvector:0.8.0-pg17
     environment:
       POSTGRES_DB: eventlens
       POSTGRES_USER: eventlens

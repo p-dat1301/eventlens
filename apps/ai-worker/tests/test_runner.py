@@ -5,7 +5,7 @@ from uuid import UUID
 
 import pytest
 
-from eventlens_contracts import ArticleBundle
+from eventlens_worker.bundle import ArticleBundle
 from eventlens_worker.fake_extractor import FakeEventExtractor
 from eventlens_worker.memory_writer import InMemoryEventWriter
 from eventlens_worker.models import (

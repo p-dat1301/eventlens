@@ -4,7 +4,7 @@ from typing import NoReturn
 import pytest
 from typer.testing import CliRunner
 
-from eventlens_contracts import ArticleBundle
+from eventlens_worker.bundle import ArticleBundle
 from eventlens_worker.cli import app
 from eventlens_worker.models import GateVerdict, ProcessingTrace
 

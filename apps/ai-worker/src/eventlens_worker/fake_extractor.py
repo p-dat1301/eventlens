@@ -3,7 +3,8 @@
 from typing import Final
 from uuid import NAMESPACE_URL, uuid5
 
-from eventlens_contracts import ArticleBundle, Event
+from eventlens_contracts import Event
+from eventlens_worker.bundle import ArticleBundle
 from eventlens_worker.models import EventProposal
 
 EXTRACTOR_VERSION: Final = "fake.v1"

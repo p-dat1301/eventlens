@@ -140,7 +140,7 @@ before RAG Q&A demonstrates analyst value.
 
 ## Reuse From Current Project
 
-- `packages/contracts-python`: validate ArticleBundle and preserve boundary contracts.
+- `apps/ai-worker`: validate ArticleBundle; `contracts/python` preserves shared boundary contracts.
 - New shared contracts: `ArticleDocument`, `EvidenceSpan`, `BriefingQuery`, `BriefingAnswer`,
   `Claim`, `Citation`, and `Uncertainty`, with machine-linkage invariants.
 - `contracts/*.schema.json`: language-neutral input artifacts.

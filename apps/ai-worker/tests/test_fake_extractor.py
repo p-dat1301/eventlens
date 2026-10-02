@@ -1,7 +1,7 @@
 from pathlib import Path
 from uuid import NAMESPACE_URL, uuid5
 
-from eventlens_contracts import ArticleBundle
+from eventlens_worker.bundle import ArticleBundle
 from eventlens_worker.fake_extractor import FakeEventExtractor
 from eventlens_worker.ports import EventExtractor
 

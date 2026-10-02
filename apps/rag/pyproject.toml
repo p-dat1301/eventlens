@@ -1,0 +1,23 @@
+[project]
+name = "eventlens-rag"
+version = "0.1.0"
+description = "EventLens reusable RAG foundation"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "eventlens-contracts",
+    "langgraph>=1.0,<2",
+    "pydantic>=2.11,<3",
+    "psycopg[binary]>=3.2,<4",
+    "typer>=0.15,<1",
+]
+
+[project.scripts]
+eventlens-rag = "eventlens_rag.cli:app"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+eventlens-contracts = { workspace = true, editable = true }

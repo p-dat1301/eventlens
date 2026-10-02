@@ -2,7 +2,7 @@
   "$defs": {
     "EvidenceSpan": {
       "additionalProperties": false,
-      "description": "Immutable Unicode code-point range in one document content revision.",
+      "description": "Unicode code-point half-open range in one normalized content revision.",
       "properties": {
         "article_id": {
           "format": "uuid",
@@ -31,6 +31,11 @@
           "title": "Offset Basis",
           "type": "string"
         },
+        "span_fingerprint": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Span Fingerprint",
+          "type": "string"
+        },
         "span_id": {
           "format": "uuid",
           "title": "Span Id",
@@ -50,6 +55,7 @@
         "start_offset",
         "end_offset",
         "excerpt",
+        "span_fingerprint",
         "offset_basis"
       ],
       "title": "EvidenceSpan",
@@ -57,7 +63,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "Immutable searchable document separate from canonical Article v1.",
+  "description": "Searchable NFC content plus immutable original-source provenance.",
   "properties": {
     "article_id": {
       "format": "uuid",
@@ -69,6 +75,11 @@
       "maxLength": 2083,
       "minLength": 1,
       "title": "Canonical Url",
+      "type": "string"
+    },
+    "content_fingerprint": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Content Fingerprint",
       "type": "string"
     },
     "content_hash": {
@@ -88,6 +99,11 @@
       "title": "Ingested At",
       "type": "string"
     },
+    "normalization_version": {
+      "const": "nfc.v1",
+      "title": "Normalization Version",
+      "type": "string"
+    },
     "normalized_content": {
       "minLength": 1,
       "pattern": "\\S",
@@ -97,6 +113,12 @@
     "processed_at": {
       "format": "date-time",
       "title": "Processed At",
+      "type": "string"
+    },
+    "raw_content": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Raw Content",
       "type": "string"
     },
     "schema_version": {
@@ -149,6 +171,8 @@
     "article_id",
     "source_id",
     "title",
+    "raw_content",
+    "normalization_version",
     "normalized_content",
     "canonical_url",
     "source_name",
@@ -157,6 +181,7 @@
     "ingested_at",
     "processed_at",
     "content_hash",
+    "content_fingerprint",
     "visibility",
     "evidence_spans"
   ],

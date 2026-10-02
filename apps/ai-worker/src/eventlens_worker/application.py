@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from eventlens_contracts import ArticleBundle
+from eventlens_worker.bundle import ArticleBundle
 from eventlens_worker.models import ProcessingTrace
 from eventlens_worker.runner import PipelineRunner
 

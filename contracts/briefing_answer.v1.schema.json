@@ -2,7 +2,7 @@
   "$defs": {
     "ArticleDocument": {
       "additionalProperties": false,
-      "description": "Immutable searchable document separate from canonical Article v1.",
+      "description": "Searchable NFC content plus immutable original-source provenance.",
       "properties": {
         "article_id": {
           "format": "uuid",
@@ -14,6 +14,11 @@
           "maxLength": 2083,
           "minLength": 1,
           "title": "Canonical Url",
+          "type": "string"
+        },
+        "content_fingerprint": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Content Fingerprint",
           "type": "string"
         },
         "content_hash": {
@@ -33,6 +38,11 @@
           "title": "Ingested At",
           "type": "string"
         },
+        "normalization_version": {
+          "const": "nfc.v1",
+          "title": "Normalization Version",
+          "type": "string"
+        },
         "normalized_content": {
           "minLength": 1,
           "pattern": "\\S",
@@ -42,6 +52,12 @@
         "processed_at": {
           "format": "date-time",
           "title": "Processed At",
+          "type": "string"
+        },
+        "raw_content": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Raw Content",
           "type": "string"
         },
         "schema_version": {
@@ -94,6 +110,8 @@
         "article_id",
         "source_id",
         "title",
+        "raw_content",
+        "normalization_version",
         "normalized_content",
         "canonical_url",
         "source_name",
@@ -102,6 +120,7 @@
         "ingested_at",
         "processed_at",
         "content_hash",
+        "content_fingerprint",
         "visibility",
         "evidence_spans"
       ],
@@ -159,12 +178,22 @@
     },
     "Claim": {
       "additionalProperties": false,
-      "description": "One material factual proposition in a briefing.",
+      "description": "One material factual proposition with optional occurrence-time claim.",
       "properties": {
         "claim_id": {
           "format": "uuid",
           "title": "Claim Id",
           "type": "string"
+        },
+        "temporal_claim": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TemporalClaim"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "text": {
           "minLength": 1,
@@ -175,14 +204,37 @@
       },
       "required": [
         "claim_id",
-        "text"
+        "text",
+        "temporal_claim"
       ],
       "title": "Claim",
       "type": "object"
     },
+    "ClaimDisplayBlock": {
+      "additionalProperties": false,
+      "description": "Display one validated claim exactly once.",
+      "properties": {
+        "claim_id": {
+          "format": "uuid",
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "claim",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "claim_id"
+      ],
+      "title": "ClaimDisplayBlock",
+      "type": "object"
+    },
     "EvidenceSpan": {
       "additionalProperties": false,
-      "description": "Immutable Unicode code-point range in one document content revision.",
+      "description": "Unicode code-point half-open range in one normalized content revision.",
       "properties": {
         "article_id": {
           "format": "uuid",
@@ -211,6 +263,11 @@
           "title": "Offset Basis",
           "type": "string"
         },
+        "span_fingerprint": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Span Fingerprint",
+          "type": "string"
+        },
         "span_id": {
           "format": "uuid",
           "title": "Span Id",
@@ -230,9 +287,124 @@
         "start_offset",
         "end_offset",
         "excerpt",
+        "span_fingerprint",
         "offset_basis"
       ],
       "title": "EvidenceSpan",
+      "type": "object"
+    },
+    "TemporalClaim": {
+      "additionalProperties": false,
+      "description": "Known temporal value or explicit unknown, always evidence-backed.",
+      "properties": {
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "end_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "End At"
+        },
+        "evidence_span_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Span Ids",
+          "type": "array"
+        },
+        "precision": {
+          "enum": [
+            "minute",
+            "hour",
+            "day",
+            "month",
+            "year",
+            "unknown"
+          ],
+          "title": "Precision",
+          "type": "string"
+        },
+        "reference_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reference At"
+        },
+        "relative_expression": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Relative Expression"
+        },
+        "start_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Start At"
+        },
+        "timezone_basis": {
+          "anyOf": [
+            {
+              "const": "UTC",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Timezone Basis"
+        },
+        "value_state": {
+          "enum": [
+            "known",
+            "unknown"
+          ],
+          "title": "Value State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value_state",
+        "start_at",
+        "end_at",
+        "precision",
+        "confidence",
+        "evidence_span_ids",
+        "relative_expression",
+        "reference_at",
+        "timezone_basis"
+      ],
+      "title": "TemporalClaim",
       "type": "object"
     },
     "Uncertainty": {
@@ -281,10 +453,32 @@
       ],
       "title": "Uncertainty",
       "type": "object"
+    },
+    "UncertaintyDisplayBlock": {
+      "additionalProperties": false,
+      "description": "Display one validated uncertainty exactly once.",
+      "properties": {
+        "kind": {
+          "const": "uncertainty",
+          "title": "Kind",
+          "type": "string"
+        },
+        "uncertainty_id": {
+          "format": "uuid",
+          "title": "Uncertainty Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "uncertainty_id"
+      ],
+      "title": "UncertaintyDisplayBlock",
+      "type": "object"
     }
   },
   "additionalProperties": false,
-  "description": "Grounded answer with deterministic claim-to-evidence validation.",
+  "description": "Grounded answer rendered only from validated claim and uncertainty blocks.",
   "properties": {
     "answer": {
       "minLength": 1,
@@ -304,6 +498,27 @@
         "$ref": "#/$defs/Claim"
       },
       "title": "Claims",
+      "type": "array"
+    },
+    "display_blocks": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "claim": "#/$defs/ClaimDisplayBlock",
+            "uncertainty": "#/$defs/UncertaintyDisplayBlock"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/ClaimDisplayBlock"
+          },
+          {
+            "$ref": "#/$defs/UncertaintyDisplayBlock"
+          }
+        ]
+      },
+      "title": "Display Blocks",
       "type": "array"
     },
     "index_version": {
@@ -345,10 +560,11 @@
   },
   "required": [
     "schema_version",
-    "answer",
     "claims",
     "citations",
     "uncertainties",
+    "display_blocks",
+    "answer",
     "source_documents",
     "retrieved_at",
     "model_version",

@@ -4,7 +4,7 @@ Monorepo foundation for event intelligence built from normalized news articles.
 
 ## Architecture
 
-Deployable units live under `apps/`; reusable boundary code lives under `packages/`.
+Application units live under `apps/`; shared boundary code lives under `contracts/`.
 Dependencies point inward:
 
 ```text
@@ -12,9 +12,10 @@ presentation / adapters -> application -> domain contracts
 ```
 
 - `apps/api`: FastAPI HTTP adapter and framework-free use cases.
-- `apps/ai-worker`: Typer adapter and framework-free local event-processing pipeline.
+- `apps/ai-worker`: Typer adapter, local ArticleBundle validation, and framework-free event-processing pipeline.
+- `apps/rag`: RAG CLI, app-owned document/briefing models, graph, and persistence adapters.
 - `apps/web`: React presentation with Zod parsing at external boundaries.
-- `packages/contracts-python`: frozen Pydantic models shared by Python processes.
+- `contracts/python`: frozen Pydantic models shared by Python processes.
 - `contracts`: checked-in JSON Schema and Arrow descriptor artifacts for language-neutral integration.
 - `fixtures`: canonical contract fixtures plus worker-local trace fixtures for local
   development and tests. Contract fixtures represent shared boundary payloads;

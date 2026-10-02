@@ -5,7 +5,8 @@ from uuid import UUID
 import pytest
 from pydantic import ValidationError
 
-from eventlens_contracts import ArticleBundle, Event
+from eventlens_contracts import Event
+from eventlens_worker.bundle import ArticleBundle
 from eventlens_worker.models import (
     EventProposal,
     GateDecision,

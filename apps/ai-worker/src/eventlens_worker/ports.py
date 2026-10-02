@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Protocol, override, runtime_checkable
 from uuid import UUID
 
-from eventlens_contracts import ArticleBundle
+from eventlens_worker.bundle import ArticleBundle
 from eventlens_worker.models import EventProposal, WriteResult
 
 

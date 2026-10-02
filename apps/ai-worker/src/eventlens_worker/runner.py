@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import assert_never, final, override
 from uuid import UUID
 
-from eventlens_contracts import ArticleBundle
+from eventlens_worker.bundle import ArticleBundle
 from eventlens_worker.gate import decide_event
 from eventlens_worker.models import GateVerdict, ProcessingTrace
 from eventlens_worker.ports import EventExtractor, EventWriteConflictError, EventWriter
