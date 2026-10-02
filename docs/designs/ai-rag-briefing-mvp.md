@@ -143,7 +143,7 @@ before RAG Q&A demonstrates analyst value.
 - `apps/ai-worker`: validate ArticleBundle; `contracts/python` preserves shared boundary contracts.
 - New shared contracts: `ArticleDocument`, `EvidenceSpan`, `BriefingQuery`, `BriefingAnswer`,
   `Claim`, `Citation`, and `Uncertainty`, with machine-linkage invariants.
-- `contracts/*.schema.json`: language-neutral input artifacts.
+- Pydantic contract models: source for JSON Schemas generated on demand; no checked-in schema snapshots.
 - `fixtures/`: deterministic corpus fixtures and test cases.
 - `apps/api`: FastAPI adapter and framework-free application boundary.
 - `apps/ai-worker/src/eventlens_worker/ports.py`: adapter boundary pattern.

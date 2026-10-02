@@ -16,7 +16,7 @@ presentation / adapters -> application -> domain contracts
 - `apps/rag`: RAG CLI, app-owned document/briefing models, graph, and persistence adapters.
 - `apps/web`: React presentation with Zod parsing at external boundaries.
 - `contracts/python`: frozen Pydantic models shared by Python processes.
-- `contracts`: checked-in JSON Schema and Arrow descriptor artifacts for language-neutral integration.
+- `contracts`: semantic vectors for cross-field rules; Python Pydantic models generate JSON Schemas and Arrow descriptors on demand, not as checked-in snapshots.
 - `fixtures`: canonical contract fixtures plus worker-local trace fixtures for local
   development and tests. Contract fixtures represent shared boundary payloads;
   `*.trace.v1.json` files represent worker behavior, not cross-language contracts.
@@ -44,9 +44,10 @@ Data team publishes Silver data independently. Current frozen inputs:
 - `article_batch_manifest.v1`
 
 This foundation implements four frozen Data input contracts plus downstream `event.v1`,
-with JSON Schemas, Arrow descriptors for the three Parquet datasets, and representative
-fixtures. Cross-record rules remain semantic vectors tested by the Python package; JSON
-Schema alone cannot express them.
+with model-generated JSON Schemas, Arrow descriptors for the three Parquet datasets,
+and representative JSON fixtures. Generated schemas and descriptors are not checked in.
+Cross-record rules remain semantic vectors tested by the Python package; JSON Schema
+alone cannot express them.
 Production MinIO and Parquet readers, database event writers, model or LLM extractors,
 MCP integration, retries, Kafka, living-event updates, and final product UI remain
 intentionally out of scope. Current worker adapters are local fakes, not production-ready

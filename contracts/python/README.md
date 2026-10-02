@@ -8,18 +8,21 @@ Shared frozen boundary for Data Collection and downstream consumers.
 Entity identity (`entity_type`, `canonical_name`) with EventEntity relation fields.
 Canonical Entity and EventEntity remain separate database tables.
 
-## Artifacts
+## Contracts and Generated Schemas
 
-- JSON Schemas: `article.v1`, `article_media.v1`, `article_rejected.v1`,
-  JSON-only `article_batch_manifest.v1`, and canonical current-state `event.v1`.
-- Arrow schema descriptors: `article.v1`, `article_media.v1`, and
-  `article_rejected.v1`. Each descriptor reconstructs an exact PyArrow schema,
+- Frozen Pydantic models are source of truth. JSON Schemas are generated on demand for
+  `article.v1`, `article_media.v1`, `article_rejected.v1`, JSON-only
+  `article_batch_manifest.v1`, `event.v1`, and `article_enrichment.v1`.
+  RAG-owned models generate `article_document.v1`, `briefing_query.v1`, and
+  `briefing_answer.v1` schemas. No generated schema files are checked in.
+- Arrow descriptors are generated in memory for `article.v1`, `article_media.v1`,
+  and `article_rejected.v1`. Each descriptor reconstructs an exact PyArrow schema,
   including field order, nested structs, nullability, integer width,
-  `list<string>`, and `timestamp[us, UTC]`.
+  `list<string>`, and `timestamp[us, UTC]`. No descriptor snapshots are checked in.
 - Semantic vectors: `contracts/semantic_vectors.v1.json` describes valid and
   invalid cross-field examples for bundle, manifest, and event relation rules.
 
-Manifest and event have no Arrow artifacts because their frozen formats are JSON.
+Manifest and event have no Arrow schemas because their frozen formats are JSON.
 JSON Schema validates structural constraints such as required fields, types,
 ranges, and string lengths. Semantic vectors define rules JSON Schema cannot
 enforce, including UTC normalization, media count, media foreign keys, unique and

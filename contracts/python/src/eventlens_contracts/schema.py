@@ -1,4 +1,4 @@
-"""Deterministic JSON Schema rendering for checked-in contracts."""
+"""Deterministic JSON Schema rendering from contract models."""
 
 import json
 from collections.abc import Callable
