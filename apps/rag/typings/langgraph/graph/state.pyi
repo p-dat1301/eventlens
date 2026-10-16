@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 from langgraph.runtime import Runtime
 
-from eventlens_rag.graph.context import PersistenceContext
+from eventlens_rag.graph.context import EnrichmentContext, PersistenceContext
 from eventlens_rag.graph.state import GraphContext
 
 type ConditionalRoute[StateT] = Callable[[StateT], str]
@@ -11,7 +11,12 @@ class CompiledStateGraph[StateT, ContextT, InputT, OutputT]:
     checkpointer: None
     def invoke(self, payload: InputT, /, *, context: ContextT) -> OutputT: ...
 
-class StateGraph[StateT, ContextT: GraphContext | PersistenceContext, InputT, OutputT]:
+class StateGraph[
+    StateT,
+    ContextT: GraphContext | PersistenceContext | EnrichmentContext,
+    InputT,
+    OutputT,
+]:
     def __init__(
         self,
         state_schema: type[StateT],

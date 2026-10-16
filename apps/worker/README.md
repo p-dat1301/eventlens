@@ -66,7 +66,45 @@ exercises this worker-local schema; canonical contract fixtures are described in
 README. For `REJECT` and `REVIEW`, `event_id` identifies proposed event even though no
 event was persisted; absence of `write_disposition` records that no write occurred.
 
+## RAG ingest and enrichment (T4)
+
+`validate` and `process` above are unchanged and never touch the RAG database. Two
+further commands compose services and adapters from `apps/rag`
+(`eventlens_worker/enrichment.py` is the composition root). Both read
+`EVENTLENS_RAG_DATABASE_URL` (or `--database-url`) and first apply the
+checksum-verified RAG migrations; use the separate `eventlens_rag` database, never
+the legacy Compose `eventlens` database.
+
+```bash
+export EVENTLENS_RAG_DATABASE_URL=postgresql://eventlens:eventlens-local@127.0.0.1:5432/eventlens_rag
+uv run --package eventlens-worker eventlens-worker ingest fixtures/article_bundle.v1.json
+uv run --package eventlens-worker eventlens-worker enrich --max-jobs 5
+uv run --package eventlens-worker eventlens-worker enrich --provider fake-timeout --max-jobs 5
+```
+
+- `ingest BUNDLE_PATH`: validates the bundle, converts its `Article` to an
+  `ArticleDocument`, and commits the document (lexical search available at once) and
+  its PENDING enrichment job in one transaction. Prints one JSON line
+  `{"event": "article_ingested", "article_id", "content_hash", "job_id",
+  "job_created", "current"}`. Re-delivery returns the same `job_id` with
+  `job_created: false`.
+- `enrich [--max-jobs N] [--provider fake|fake-timeout]`: reconciles current articles
+  without a job, then claims and processes at most `N` eligible jobs (1-25, default
+  25 = policy `max_jobs_per_pass`). Prints one `enrichment_job` JSON line per job
+  (IDs, outcome, failure code, retry delay, index generation; never article text)
+  and a final `enrichment_pass` summary. `fake` is the deterministic local enricher;
+  `fake-timeout` is fault injection with the same identity whose every call times
+  out (retry 30 s, 120 s, then FAILED). No live provider can be selected; an API key
+  in the environment changes nothing.
+
+Exit codes: `0` success, including FAILED/RETRY outcomes (they are pipeline output);
+`2` invalid bundle or option; `3` `rag_storage_unavailable`; `1`
+`rag_migration_failed`. Retry/lease policy and lifecycle are documented in
+`apps/rag/README.md`. The enrichment path does not use `FakeEventExtractor`,
+`InMemoryEventWriter` or `event.v1`.
+
 ## Deferred adapters
 
-Production MinIO and Parquet readers, database writers, model or LLM extractors, MCP
-integration, retries, queues, and living-event updates remain intentionally deferred.
+Production MinIO and Parquet readers, event database writers, model or LLM event
+extractors, MCP integration, a live enrichment provider transport, and living-event
+updates remain intentionally deferred.

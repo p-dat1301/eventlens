@@ -38,3 +38,21 @@ def test_importing_domain_does_not_load_langgraph() -> None:
 
     # Then: domain import stays framework-free.
     assert result.returncode == 0, result.stderr
+
+
+def test_core_layers_never_import_typer_graph_or_concrete_adapters() -> None:
+    # Given: framework-free domain/application/ports (T4 adds enrichment modules).
+    restricted = ROOT / "apps/rag/src/eventlens_rag"
+    forbidden = ("import typer", "eventlens_rag.adapters", "eventlens_rag.graph")
+
+    # When
+    violations = [
+        (path.name, token)
+        for area in ("domain", "application", "ports")
+        for path in (restricted / area).rglob("*.py")
+        for token in forbidden
+        if token in path.read_text(encoding="utf-8")
+    ]
+
+    # Then
+    assert violations == []

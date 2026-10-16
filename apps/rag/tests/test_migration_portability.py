@@ -63,7 +63,7 @@ def test_wheel_migrates_outside_checkout(database_url: str, tmp_path: Path) -> N
             for name in archive.namelist()
             if name.startswith("eventlens_rag/migrations/") and name.endswith(".sql")
         )
-    assert len(scripts) == 5
+    assert len(scripts) == 6
     # When: run packaged migration against fresh isolated schema outside checkout.
     schema = "wheel_" + uuid4().hex
     with psycopg.connect(database_url) as connection:
@@ -95,7 +95,7 @@ def test_wheel_migrates_outside_checkout(database_url: str, tmp_path: Path) -> N
         count = connection.execute(
             "SELECT count(*) FROM rag_schema_migrations"
         ).fetchone()
-    assert count == (5,)
+    assert count == (6,)
 
 
 def test_bundled_sql_preserves_original_migration_bytes() -> None:

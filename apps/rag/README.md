@@ -1,6 +1,7 @@
 # EventLens RAG
 
-Reusable T3 foundation. Domain, application, and ports are framework-free.
+Reusable T3 foundation plus the T4 enrichment lifecycle. Domain, application, and
+ports are framework-free (no LangGraph, Typer, psycopg or concrete adapters).
 LangGraph resides only in `graph`; PostgreSQL and fake adapters reside in `adapters`.
 All embeddings are deterministic local fakes with 1536 dimensions.
 
@@ -26,6 +27,89 @@ All commands read `EVENTLENS_RAG_DATABASE_URL` and exit `3` with
 - `eventlens-rag rebuild` stages fake-embedding generations for current articles
   (reusing complete matching generations) and activates them in one transaction.
 
+## T4 enrichment lifecycle
+
+Flow: `ArticleBundle -> Article -> ArticleDocument -> persist (lexical now) + PENDING
+job (same transaction) -> claim PROCESSING -> provider draft -> structural
+validation -> stage vectors (EnsureGeneration) -> fenced publish READY`.
+The model never runs during ingest; a failed enrichment leaves the document and its
+lexical row untouched. Worker commands live in `apps/worker` (`eventlens-worker
+ingest` / `enrich`, see its README).
+
+Layers: `domain/{article_ingest,enrichment_lifecycle,enrichment_draft}.py`,
+`ports/enrichment.py` (`ArticleEnricher`, `EnrichmentRepository`, `TelemetrySink`),
+`application/{ingest,enrichment}.py`, `graph/enrichment.py` (compiled `StateGraph`
+`load -> enrich -> validate -> stage -> publish | fail`, no checkpointer, no retry
+loop) and adapters `fake_enricher`, `openai_enricher` (injected transport only),
+`postgres_enrichment`, `memory_enrichment` (unit-test fake), `telemetry`.
+
+Article -> ArticleDocument mapping (`domain/article_ingest.py`):
+
+| ArticleDocument field | Source |
+|---|---|
+| `raw_content` / `normalized_content` | `Article.content` / NFC of it |
+| `content_hash`, `content_fingerprint` | RAG `normalized_content_hash` of the NFC text; the upstream `Article.content_hash` is not reused |
+| `source_published_at` | `Article.published_at` (publisher time; `None` stays `None`) |
+| `ingested_at` | RAG clock when ingest received the article |
+| `processed_at` | RAG clock after normalization (never before `ingested_at`) |
+| `evidence_spans` | empty; no provenance is invented |
+
+Upstream `raw.fetched_at`, `processing.extracted_at` and `updated_at_source` are not
+mapped. Entities/locations never carry canonical IDs (`entity_id`/`location_id` are
+`None`) because no ID source exists yet.
+
+Identity: `(article_id, content_hash, enrichment_version, model_version,
+prompt_version)`; `enrichment_version` is `article-enrichment.v1`, model/prompt come
+from the enricher. A worker claims only jobs of its own identity. Enqueueing a new
+identity marks other PENDING/PROCESSING jobs of that article STALE; publishing marks
+older READY jobs STALE. Correction (`persist_article` with a new hash) and tombstones
+block old publication. Every publication is appended to the immutable
+`rag_enrichment_publications` table (migration `006`), so history survives
+STALE -> PENDING requeues. Metadata-only revisions reuse the complete embedding
+generation (zero embedding calls).
+
+Retry policy `src/eventlens_rag/policies/enrichment-retry.v1.json`
+(`enrichment-retry.v1`): 3 total attempts (each claim counts, including a claim whose
+lease expired), 30 s provider deadline per attempt, 120 s lease, backoff 30 s then
+120 s (x4, cap 600 s, no jitter) measured on the database clock, at most 25 jobs per
+pass. Only `provider_timeout`/`provider_unavailable` retry; malformed output,
+taxonomy, evidence/metadata grounding, refusal, rejected requests and invalid
+staging go straight to FAILED. A lease that expires at budget becomes FAILED
+`lease_expired`. Only the job table owns the budget/schedule; neither graph nor
+transport retries.
+
+Fencing: every load/retry/failure/STALE/publish write matches `job_id`,
+`claim_generation`, `status = 'PROCESSING'`, `lease_expires_at > clock_timestamp()`,
+no recorded cancellation for that generation and a current non-tombstoned revision.
+Zero rows means lost ownership: the result is discarded. No transaction stays open
+across a provider call. Claims use `FOR UPDATE SKIP LOCKED`.
+
+Cancellation: every model, embedding and DB operation of a run is admitted through
+`CancellationScope` (reconcile, claim, load, provider call, generation lookup, each
+embedding call, stage write, publish, retry/failure write). `cancel()` takes the same
+lock, so after it acknowledges no new operation starts; writes (stage, claim,
+reconcile, retry/FAILED) are serialized and commit before a concurrent cancel can
+acknowledge. `cancel()` records `cancel_requested_generation` under the job row lock;
+the publish transaction locks that row first and re-checks it. Cancel first: no READY, no retry/FAILED write, no further model/DB work; lease
+recovery reclaims later. Publish first: READY stands and cancel reports
+`ALREADY_PUBLISHED`.
+
+Durability (persist -> enqueue): the document and its job commit in one
+transaction; documents persisted by other paths (for example `load-fixtures`) are
+picked up by the reconciliation sweep `enqueue_missing` at the start of every
+`enrich` pass. No broker is used. Every enqueue first locks the article's
+`rag_article_current` row and re-reads the current revision: reconciliation always
+enqueues the revision that is current under the lock (never an obsolete candidate),
+never revives a STALE job, and supersedes other jobs only after it actually inserted
+(or, for explicit ingest, requeued) the current revision's job. Duplicate delivery
+never touches attempts, failure code, retry schedule or fence.
+
+Provider boundary: only `article_id`, `title`, `normalized_content`, `source_name`,
+`source_domain`, `source_published_at` are sent. No HTTP transport ships; the
+OpenAI-compatible adapter is exercised only with a mocked transport and no setting
+or API key can select it from the worker CLI. Validation is structural/linkage only;
+semantic entailment and model quality remain T9.
+
 ## Local Compose database
 
 The Compose `eventlens` database may hold untracked pre-ledger RAG tables, so the
@@ -48,8 +132,9 @@ requires the owner's explicit approval.
 
 ## Test harness
 
-- `make rag-db-test` runs the full suite against an isolated, auto-removed
-  `pgvector/pgvector:0.8.0-pg17` container; any skipped test fails the run.
+- `make rag-db-test` runs the full RAG suite plus `apps/worker/tests` (T4 worker CLI
+  flows) against an isolated, auto-removed `pgvector/pgvector:0.8.0-pg17`
+  container; any skipped test fails the run. T4 DB tests each use a fresh schema.
 - `make gate-g1` runs the G1 technical checks (worker regression, migrate,
   load-fixtures, rebuild twice with generation reuse, DB suite, unavailable-DB
   exit 3) against an isolated database. Exit 1 means a technical failure; exit 2
