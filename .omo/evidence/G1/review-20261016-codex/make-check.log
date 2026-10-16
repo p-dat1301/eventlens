@@ -1,0 +1,124 @@
+uv run ruff format --check .
+129 files already formatted
+uv run ruff check .
+All checks passed!
+cd apps/web && bun run check
+$ biome check .
+Checked 13 files in 47ms. No fixes applied.
+uv run basedpyright
+0 errors, 0 warnings, 0 notes
+cd apps/web && bun run typecheck
+$ tsc --noEmit
+uv run pytest
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-8.4.2, pluggy-1.6.0
+rootdir: /Users/phungdinhdat/Documents/git/eventlens
+configfile: pyproject.toml
+testpaths: contracts/python/tests, apps/rag/tests, apps/api/tests, apps/worker/tests
+plugins: langsmith-0.14.1, anyio-4.15.1
+collected 424 items
+
+contracts/python/tests/test_arrow_schema.py .........                    [  2%]
+contracts/python/tests/test_enrichment_edges.py ....................     [  6%]
+contracts/python/tests/test_enrichment_models.py ....................... [ 12%]
+.......                                                                  [ 13%]
+contracts/python/tests/test_event.py ...............................     [ 21%]
+contracts/python/tests/test_event_constraints.py .........               [ 23%]
+contracts/python/tests/test_event_entity.py ..........                   [ 25%]
+contracts/python/tests/test_models.py .......                            [ 27%]
+contracts/python/tests/test_schema.py ....................               [ 32%]
+contracts/python/tests/test_semantic_vectors.py ...................      [ 36%]
+apps/rag/tests/test_access.py .                                          [ 36%]
+apps/rag/tests/test_architecture.py ..                                   [ 37%]
+apps/rag/tests/test_chunking.py ..                                       [ 37%]
+apps/rag/tests/test_embedding_identity.py ..                             [ 38%]
+apps/rag/tests/test_embeddings.py .                                      [ 38%]
+apps/rag/tests/test_generation_reuse.py ....ss                           [ 39%]
+apps/rag/tests/test_graph_routes.py ...                                  [ 40%]
+apps/rag/tests/test_graph_state.py ...                                   [ 41%]
+apps/rag/tests/test_legacy_schema.py ss                                  [ 41%]
+apps/rag/tests/test_migration_portability.py s.s.ss                      [ 43%]
+apps/rag/tests/test_migrations.py .                                      [ 43%]
+apps/rag/tests/test_persistence_graph.py ..                              [ 43%]
+apps/rag/tests/test_postgres_publication.py ssssss                       [ 45%]
+apps/rag/tests/test_postgres_reactivation.py sss                         [ 45%]
+apps/rag/tests/test_postgres_storage.py sssssssss                        [ 48%]
+apps/rag/tests/test_rag_answer_edges.py .............                    [ 51%]
+apps/rag/tests/test_rag_answer_linkage.py .                              [ 51%]
+apps/rag/tests/test_rag_fixture_linkage.py ..............                [ 54%]
+apps/rag/tests/test_rag_fixtures.py ............                         [ 57%]
+apps/rag/tests/test_rag_models.py ............                           [ 60%]
+apps/rag/tests/test_rag_ownership.py .                                   [ 60%]
+apps/rag/tests/test_rag_schema.py ........                               [ 62%]
+apps/rag/tests/test_rag_semantic_vectors.py .....                        [ 63%]
+apps/rag/tests/test_rag_t1_contracts.py ..........                       [ 66%]
+apps/rag/tests/test_stage.py ..                                          [ 66%]
+apps/rag/tests/test_storage_primitives.py ..                             [ 66%]
+apps/api/tests/test_health.py .                                          [ 67%]
+apps/api/tests/test_health_use_case.py .                                 [ 67%]
+apps/worker/tests/test_bundle.py .....                                   [ 68%]
+apps/worker/tests/test_cli.py ..........                                 [ 70%]
+apps/worker/tests/test_fake_extractor.py ...                             [ 71%]
+apps/worker/tests/test_gate.py ........                                  [ 73%]
+apps/worker/tests/test_memory_writer.py .......                          [ 75%]
+apps/worker/tests/test_processing_trace.py ....................          [ 79%]
+apps/worker/tests/test_processing_trace_reasons.py ..................... [ 84%]
+.............................                                            [ 91%]
+apps/worker/tests/test_runner.py ............                            [ 94%]
+apps/worker/tests/test_runner_batches.py ...                             [ 95%]
+apps/worker/tests/test_validation.py ....                                [ 96%]
+apps/worker/tests/test_worker_models.py .........                        [ 98%]
+apps/worker/tests/test_worker_ownership.py .                             [ 98%]
+apps/worker/tests/test_worker_semantic_vectors.py ......                 [100%]
+
+=========================== short test summary info ============================
+SKIPPED [1] apps/rag/tests/test_generation_reuse.py:93: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_generation_reuse.py:107: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_legacy_schema.py:64: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_legacy_schema.py:84: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_migration_portability.py:26: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_migration_portability.py:48: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_migration_portability.py:114: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_migration_portability.py:159: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_publication.py:88: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_publication.py:106: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_publication.py:133: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_publication.py:156: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_publication.py:179: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_publication.py:203: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_reactivation.py:45: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_reactivation.py:81: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_reactivation.py:114: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:42: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:50: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:62: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:73: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:98: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:106: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:152: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:182: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:201: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+======================= 398 passed, 26 skipped in 1.62s ========================
+cd apps/web && bun test
+bun test v1.4.0 (1381054db)
+
+src/foundation.test.ts:
+(pass) parseFoundationState > accepts article.v1 when foundation boundary is valid [3.94ms]
+(pass) parseFoundationState > rejects unknown fields when foundation boundary is not exact [2.22ms]
+
+ 2 pass
+ 0 fail
+ 2 expect() calls
+Ran 2 tests across 1 file. [92.00ms]
+cd apps/web && bun run build
+$ vite build
+vite v8.3.0 building client environment for production...
+transforming...
+✓ 112 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.64 kB │ gzip:  0.37 kB
+dist/assets/index-CWoaGQiP.css    4.82 kB │ gzip:  1.48 kB
+dist/assets/index-DAdOxTMK.js   285.19 kB │ gzip: 87.79 kB
+
+✓ built in 139ms

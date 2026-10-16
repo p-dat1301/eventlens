@@ -12,7 +12,7 @@ presentation / adapters -> application -> domain contracts
 ```
 
 - `apps/api`: FastAPI HTTP adapter and framework-free use cases.
-- `apps/ai-worker`: Typer adapter, local ArticleBundle validation, and framework-free event-processing pipeline.
+- `apps/worker`: Typer adapter, local ArticleBundle validation, and framework-free event-processing pipeline.
 - `apps/rag`: RAG CLI, app-owned document/briefing models, graph, and persistence adapters.
 - `apps/web`: React presentation with Zod parsing at external boundaries.
 - `contracts/python`: frozen Pydantic models shared by Python processes.
@@ -94,5 +94,7 @@ make infra
 make down
 ```
 
-`infra` starts local PostgreSQL and MinIO placeholders bound to localhost only. Application code does not use
-them yet. Never reuse development credentials outside local environments.
+`infra` starts local PostgreSQL (pgvector) and a MinIO placeholder bound to localhost only. The RAG index uses a
+separate `eventlens_rag` database on that server (`make rag-db-create rag-migrate rag-load-fixtures rag-rebuild`,
+see `apps/rag/README.md`); MinIO is unused. The `ai-worker` Compose service name is kept for compatibility; it
+builds from `apps/worker`. Never reuse development credentials outside local environments.

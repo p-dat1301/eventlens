@@ -1,3 +1,6 @@
+import json
+import shutil
+import sys
 from pathlib import Path
 from typing import Literal
 from uuid import UUID
@@ -64,11 +67,12 @@ def assert_linkage(manifest: ManifestFixture, questions: QuestionsFixture) -> No
         for claim in registry["claims"]
     }
     assert len(links) == len(registry["claims"])
-    articles = {
-        article.article_id: article
+    article_records = [
+        ArticleDocument.model_validate_json(path.read_text("utf-8"))
         for path in (FIXTURE_PATH / "articles").glob("*.json")
-        for article in (ArticleDocument.model_validate_json(path.read_text("utf-8")),)
-    }
+    ]
+    articles = {article.article_id: article for article in article_records}
+    assert len(articles) == len(article_records), "duplicate source article"
     for claim in registry["claims"]:
         assert claim["label"].strip()
         article = articles[claim["article_id"]]
@@ -105,7 +109,11 @@ def assert_linkage(manifest: ManifestFixture, questions: QuestionsFixture) -> No
     }
     assert len(question_by_id) == len(questions["questions"])
     for case in coverage["cases"]:
-        assert bool(case["question_ids"]) != bool(case["fixture_only_reason"])
+        reason = case["fixture_only_reason"]
+        assert bool(case["question_ids"]) != bool(reason and reason.strip()), (
+            "fixture_only_reason"
+        )
+        assert reason is None or reason.strip(), "fixture_only_reason"
         assert set(case["question_ids"]) <= question_by_id.keys()
         expected = expected_by_purpose[case["purpose"]]
         triple: Reference = {
@@ -133,6 +141,44 @@ def test_fixture_linkage_when_loaded_then_exact_triples_and_purposes_resolve() -
     manifest, questions = fixture_labels()
     # Then
     assert_linkage(manifest, questions)
+
+
+def test_fixture_linkage_when_duplicate_source_id_then_rejects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Given
+    fixture_copy = tmp_path / "rag"
+    _ = shutil.copytree(FIXTURE_PATH, fixture_copy)
+    _ = shutil.copyfile(
+        fixture_copy / "articles" / "23.json",
+        fixture_copy / "articles" / "duplicate.json",
+    )
+    monkeypatch.setattr(sys.modules[__name__], "FIXTURE_PATH", fixture_copy)
+    manifest, questions = fixture_labels()
+
+    # When / Then
+    with pytest.raises(AssertionError, match="duplicate source article"):
+        assert_linkage(manifest, questions)
+
+
+def test_fixture_linkage_when_fixture_only_reason_is_whitespace_then_rejects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Given
+    fixture_copy = tmp_path / "rag"
+    _ = shutil.copytree(FIXTURE_PATH, fixture_copy)
+    coverage_file = fixture_copy / "coverage.v1.json"
+    coverage = TypeAdapter(CoverageFixture).validate_json(
+        coverage_file.read_text("utf-8")
+    )
+    coverage["cases"][0]["fixture_only_reason"] = "   "
+    _ = coverage_file.write_text(json.dumps(coverage, default=str), encoding="utf-8")
+    monkeypatch.setattr(sys.modules[__name__], "FIXTURE_PATH", fixture_copy)
+    manifest, questions = fixture_labels()
+
+    # When / Then
+    with pytest.raises(AssertionError, match="fixture_only_reason"):
+        assert_linkage(manifest, questions)
 
 
 @pytest.mark.parametrize("question_reference", [False, True])

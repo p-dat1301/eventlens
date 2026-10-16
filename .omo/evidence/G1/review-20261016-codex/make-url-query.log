@@ -1,0 +1,7 @@
+EVENTLENS_RAG_DATABASE_URL=postgresql://rag_test:rag-test-only@127.0.0.1:1/rag_test?connect_timeout=1&application_name=g1_review uv run --package eventlens-rag eventlens-rag migrate
+Usage: eventlens-rag migrate [OPTIONS]
+Try 'eventlens-rag migrate --help' for help.
+╭─ Error ──────────────────────────────────────────────────────────────────────╮
+│ Missing option '--database-url' (env var: 'EVENTLENS_RAG_DATABASE_URL').     │
+╰──────────────────────────────────────────────────────────────────────────────╯
+make: *** [rag-migrate] Error 2

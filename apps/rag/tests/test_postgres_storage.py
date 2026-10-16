@@ -1,185 +1,204 @@
-import os
-from datetime import UTC, datetime
+from collections.abc import Callable
 from pathlib import Path
 from uuid import UUID, uuid4
 
 import psycopg
 import pytest
-from psycopg.errors import RaiseException
+from psycopg.errors import RaiseException, UniqueViolation
 from psycopg.rows import scalar_row
 
 from eventlens_rag.adapters.fake_embeddings import FakeEmbeddings
 from eventlens_rag.adapters.migrations import MigrationChangedError
 from eventlens_rag.adapters.postgres import PostgresRagStore
 from eventlens_rag.adapters.staging import PostgresStaging
-from eventlens_rag.domain.article_document import (
-    ArticleDocument,
-    normalized_content_hash,
-)
+from eventlens_rag.domain.article_document import ArticleDocument
 from eventlens_rag.domain.chunking import chunk_document
 from eventlens_rag.domain.embedding import EmbeddingIdentity
 from eventlens_rag.domain.staging import StageRequest
 
-
-def database_url() -> str:
-    value = os.environ.get("EVENTLENS_RAG_DATABASE_URL")
-    if value is None:
-        pytest.skip("EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test")
-    return value
+type Factory = Callable[[str], ArticleDocument]
+MIGRATIONS = Path(__file__).parents[1] / "src/eventlens_rag/migrations"
 
 
-def document() -> ArticleDocument:
-    content = "PostgreSQL lexical article"
-    digest = normalized_content_hash(content)
-    return ArticleDocument.model_validate(
-        {
-            "schema_version": "article_document.v1",
-            "article_id": UUID("00000000-0000-4000-8000-000000000011"),
-            "source_id": UUID("00000000-0000-4000-8000-000000000012"),
-            "title": "Database article",
-            "raw_content": content,
-            "normalization_version": "nfc.v1",
-            "normalized_content": content,
-            "canonical_url": "https://example.test/database",
-            "source_name": "Example",
-            "source_domain": "example.test",
-            "source_published_at": None,
-            "ingested_at": datetime(2026, 9, 29, tzinfo=UTC),
-            "processed_at": datetime(2026, 9, 29, tzinfo=UTC),
-            "content_hash": digest,
-            "content_fingerprint": digest,
-            "visibility": "internal",
-            "evidence_spans": (),
-        }
+def stage(
+    url: str, article: ArticleDocument, identity: EmbeddingIdentity | None = None
+) -> int:
+    chunks = chunk_document(article)
+    vectors = tuple(FakeEmbeddings().embed(chunk.content) for chunk in chunks)
+    return PostgresStaging(url).stage(
+        StageRequest(article, identity or EmbeddingIdentity(), chunks, vectors)
     )
 
 
-def test_postgres_storage_uses_immutable_revision_jobs_and_tombstones() -> None:
-    # Given
-    store = PostgresRagStore(database_url())
-    migrations = Path(__file__).parents[1] / "migrations"
-    article = document()
-    store.migrate(migrations)
+def scalar(url: str, query: str, params: tuple[object, ...]) -> object:
+    with (
+        psycopg.connect(url) as connection,
+        connection.cursor(row_factory=scalar_row) as cursor,
+    ):
+        _ = cursor.execute(query.encode(), params)
+        return cursor.fetchone()
 
-    # When
+
+def test_applied_migration_checksum_rejects_modified_source(
+    database_url: str, tmp_path: Path
+) -> None:
+    _ = (tmp_path / "001_enable_vector.sql").write_text("SELECT 1;", encoding="utf-8")
+    with pytest.raises(MigrationChangedError):
+        PostgresRagStore(database_url).migrate(tmp_path)
+
+
+def test_database_enforces_immutable_revisions(
+    database_url: str, make_article: Factory
+) -> None:
+    article = make_article("Immutable revision")
+    PostgresRagStore(database_url).persist_article(article)
+    with psycopg.connect(database_url) as connection, pytest.raises(RaiseException):
+        _ = connection.execute(
+            "UPDATE rag_article_documents SET title = 'mutated' WHERE article_id = %s",
+            (article.article_id,),
+        )
+
+
+def test_duplicate_document_delivery_is_suppressed(
+    database_url: str, make_article: Factory
+) -> None:
+    store = PostgresRagStore(database_url)
+    article = make_article("Duplicate delivery text")
     store.persist_article(article)
-    job_id = store.enqueue_job(
+    store.persist_article(article)
+    count = "SELECT count(*) FROM rag_article_documents WHERE article_id = %s"
+    assert scalar(database_url, count, (article.article_id,)) == 1
+
+
+def test_five_field_key_is_unique_and_each_field_distinguishes_jobs(
+    database_url: str, make_article: Factory
+) -> None:
+    store = PostgresRagStore(database_url)
+    article = make_article("Five field identity")
+    store.persist_article(article)
+    key = (article.article_id, article.content_hash)
+    first = store.enqueue_job(*key, "e1", "m1", "p1")
+    assert store.enqueue_job(*key, "e1", "m1", "p1") == first
+    distinct = {
+        store.enqueue_job(*key, "e2", "m1", "p1"),
+        store.enqueue_job(*key, "e1", "m2", "p1"),
+        store.enqueue_job(*key, "e1", "m1", "p2"),
+    }
+    assert first not in distinct
+    assert len(distinct) == 3
+    with psycopg.connect(database_url) as connection, pytest.raises(UniqueViolation):
+        _ = connection.execute(
+            """INSERT INTO rag_enrichment_jobs (job_id, article_id, content_hash,
+            enrichment_version, model_version, prompt_version)
+            VALUES (%s, %s, %s, 'e1', 'm1', 'p1')""",
+            (uuid4(), *key),
+        )
+
+
+def test_real_vector_sql_preserves_baseline_dimension(database_url: str) -> None:
+    values = "[" + ",".join(["1"] + ["0"] * 1535) + "]"
+    dims = "SELECT vector_dims(%s::vector(1536))"
+    assert scalar(database_url, dims, (values,)) == 1536
+    distance = "SELECT %s::vector(1536) <=> %s::vector(1536)"
+    assert scalar(database_url, distance, (values, values)) == 0
+
+
+def test_lexical_first_then_hnsw_query_exposes_index_metadata(
+    database_url: str, make_article: Factory
+) -> None:
+    store = PostgresRagStore(database_url)
+    article = make_article("Harbor flooding closes the eastern ferry terminal")
+    store.persist_article(article)
+    fts = """SELECT count(*) FROM rag_current_lexical WHERE article_id = %s
+        AND search_vector @@ plainto_tsquery('simple', 'ferry')"""
+    assert scalar(database_url, fts, (article.article_id,)) == 1
+    vectors = "SELECT count(*) FROM rag_current_vectors WHERE article_id = %s"
+    staging = PostgresStaging(database_url)
+    generation = stage(database_url, article)
+    assert stage(database_url, article) == generation
+    assert scalar(database_url, vectors, (article.article_id,)) == 0
+    assert staging.activate(generation)
+    query = FakeEmbeddings().embed(article.normalized_content).values
+    literal = "[" + ",".join(map(str, query)) + "]"
+    with psycopg.connect(database_url) as connection:
+        _ = connection.execute("SET LOCAL enable_seqscan = off")
+        plan = connection.execute(
+            """EXPLAIN SELECT chunk_id FROM rag_chunks
+            ORDER BY embedding <=> %s::vector(1536) LIMIT 1""",
+            (literal,),
+        ).fetchall()
+        row = connection.execute(
+            """SELECT vec.article_id, vec.content_hash, vec.start_offset,
+                vec.end_offset, meta.corpus_generation, meta.chunker_version,
+                meta.embedding_model, meta.indexed_at IS NOT NULL
+            FROM rag_current_vectors vec
+            JOIN rag_index_generations meta USING (generation)
+            ORDER BY vec.embedding <=> %s::vector(1536) LIMIT 1""",
+            (literal,),
+        ).fetchone()
+    assert "rag_chunks_embedding_hnsw_idx" in str(plan)
+    assert row == (
         article.article_id,
         article.content_hash,
-        "enrichment.v1",
-        "model.v1",
-        "prompt.v1",
+        0,
+        len(article.normalized_content),
+        "rag-fixture-corpus.v1",
+        "codepoint-1200-200.v1",
+        "fixture-embedding",
+        True,
     )
-    first_claim = store.claim_job(job_id)
-    assert first_claim is not None
-    store.tombstone_article(article.article_id)
-
-    # Then
-    assert store.complete_job(job_id, first_claim) is False
-    assert store.publish_generation(article.article_id, 1) is False
 
 
-def test_applied_migration_checksum_rejects_modified_source(tmp_path: Path) -> None:
-    store = PostgresRagStore(database_url())
-    migrations = Path(__file__).parents[1] / "migrations"
-    store.migrate(migrations)
-    source = migrations / "001_enable_vector.sql"
-    _ = (tmp_path / source.name).write_text("SELECT 1;", encoding="utf-8")
-    with pytest.raises(MigrationChangedError):
-        store.migrate(tmp_path)
+def test_correction_during_rebuild_hides_old_vectors_and_stales_jobs(
+    database_url: str, make_article: Factory
+) -> None:
+    store = PostgresRagStore(database_url)
+    old = make_article("Original bridge report")
+    article_id = old.article_id
+    store.persist_article(old)
+    old_job = store.enqueue_job(old.article_id, old.content_hash, "v1", "v1", "v1")
+    old_generation = stage(database_url, old)
+    assert PostgresStaging(database_url).activate(old_generation)
+    rebuild = EmbeddingIdentity(corpus_generation="rag-fixture-corpus.v2")
+    pending_generation = stage(database_url, old, rebuild)
+    corrected = make_article("Corrected tunnel report").model_copy(
+        update={"article_id": article_id}
+    )
+    store.persist_article(corrected)
+    lexical = """SELECT count(*) FROM rag_current_lexical WHERE article_id = %s
+        AND search_vector @@ plainto_tsquery('simple', %s)"""
+    assert scalar(database_url, lexical, (article_id, "bridge")) == 0
+    assert scalar(database_url, lexical, (article_id, "tunnel")) == 1
+    vectors = "SELECT count(*) FROM rag_current_vectors WHERE article_id = %s"
+    assert scalar(database_url, vectors, (article_id,)) == 0
+    status = "SELECT status FROM rag_enrichment_jobs WHERE job_id = %s"
+    assert scalar(database_url, status, (old_job,)) == "STALE"
+    assert store.claim_job(old_job) is None
+    staging = PostgresStaging(database_url)
+    assert staging.activate_all([old_generation, pending_generation]) == 0
+    assert scalar(database_url, vectors, (article_id,)) == 0
 
 
-def test_database_enforces_immutable_revisions() -> None:
-    url = database_url()
-    store = PostgresRagStore(url)
-    store.migrate(Path(__file__).parents[1] / "migrations")
-    store.persist_article(document())
-    with psycopg.connect(url) as connection, pytest.raises(RaiseException):
-        _ = connection.execute("UPDATE rag_article_documents SET title = 'mutated'")
-
-
-def test_real_vector_sql_preserves_baseline_dimension() -> None:
-    url = database_url()
-    PostgresRagStore(url).migrate(Path(__file__).parents[1] / "migrations")
-    values = "[" + ",".join(["1"] + ["0"] * 1535) + "]"
-    with (
-        psycopg.connect(url) as connection,
-        connection.cursor(row_factory=scalar_row) as cursor,
-    ):
-        _ = cursor.execute("SELECT vector_dims(%s::vector(1536))", (values,))
-        assert cursor.fetchone() == 1536
-        _ = cursor.execute(
-            "SELECT %s::vector(1536) <=> %s::vector(1536)", (values, values)
-        )
-        assert cursor.fetchone() == 0
-
-
-def test_staging_retry_keeps_lexical_visible_then_atomically_activates() -> None:
-    url = database_url()
-    store = PostgresRagStore(url)
-    store.migrate(Path(__file__).parents[1] / "migrations")
-    article = document().model_copy(update={"article_id": uuid4()})
+def test_tombstone_is_synchronous_and_survives_stale_replay(
+    database_url: str, make_article: Factory
+) -> None:
+    store = PostgresRagStore(database_url)
+    article = make_article("Tombstoned article text")
     store.persist_article(article)
-    chunks = chunk_document(article)
-    request = StageRequest(
-        article,
-        EmbeddingIdentity(),
-        chunks,
-        tuple(FakeEmbeddings().embed(chunk.content) for chunk in chunks),
-    )
-    staging = PostgresStaging(url)
-    generation = staging.stage(request)
-    assert staging.stage(request) == generation
-    with (
-        psycopg.connect(url) as connection,
-        connection.cursor(row_factory=scalar_row) as cursor,
-    ):
-        _ = cursor.execute(
-            """SELECT count(*) FROM rag_current_lexical
-                WHERE article_id = %s
-                AND search_vector @@ plainto_tsquery('simple', 'lexical')""",
-            (article.article_id,),
-        )
-        assert cursor.fetchone() == 1
-        _ = cursor.execute(
-            "SELECT count(*) FROM rag_current_vectors WHERE article_id = %s",
-            (article.article_id,),
-        )
-        assert cursor.fetchone() == 0
+    generation = stage(database_url, article)
+    staging = PostgresStaging(database_url)
     assert staging.activate(generation)
     store.tombstone_article(article.article_id)
+    lexical = "SELECT count(*) FROM rag_current_lexical WHERE article_id = %s"
+    vectors = "SELECT count(*) FROM rag_current_vectors WHERE article_id = %s"
+    assert scalar(database_url, lexical, (article.article_id,)) == 0
+    assert scalar(database_url, vectors, (article.article_id,)) == 0
     assert not staging.activate(generation)
     store.persist_article(article)
-    with (
-        psycopg.connect(url) as connection,
-        connection.cursor(row_factory=scalar_row) as cursor,
-    ):
-        _ = cursor.execute(
-            "SELECT count(*) FROM rag_current_lexical WHERE article_id = %s",
-            (article.article_id,),
-        )
-        assert cursor.fetchone() == 0
+    assert scalar(database_url, lexical, (article.article_id,)) == 0
 
 
-def test_expired_claim_cannot_complete_after_reclaim() -> None:
-    url = database_url()
-    store = PostgresRagStore(url)
-    store.migrate(Path(__file__).parents[1] / "migrations")
-    article = document().model_copy(update={"article_id": uuid4()})
-    store.persist_article(article)
-    job = store.enqueue_job(article.article_id, article.content_hash, "v1", "v1", "v1")
-    first = store.claim_job(job)
-    assert first is not None
-    assert store.claim_job(job) is None
-    with psycopg.connect(url) as connection:
-        _ = connection.execute(
-            """UPDATE rag_enrichment_jobs SET lease_expires_at = clock_timestamp()
-            - interval '1 second' WHERE job_id = %s""",
-            (job,),
-        )
-    assert not store.complete_job(job, first)
-    second = store.claim_job(job)
-    assert second is not None
-    assert second > first
-    assert not store.complete_job(job, first)
-    assert store.complete_job(job, second)
+def test_unknown_article_cannot_be_activated(database_url: str) -> None:
+    assert PostgresStaging(database_url).activate_all([-1]) == 0
+    missing = "SELECT count(*) FROM rag_article_current WHERE article_id = %s"
+    assert scalar(database_url, missing, (UUID(int=0),)) == 0

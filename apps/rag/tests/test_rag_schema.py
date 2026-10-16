@@ -1,9 +1,17 @@
 from collections.abc import Callable
-from typing import TypedDict
+from datetime import UTC, datetime
+from typing import Protocol, TypedDict
+from uuid import UUID
 
 import pytest
-from pydantic import TypeAdapter
+from jsonschema import Draft202012Validator, ValidationError
+from pydantic import JsonValue, TypeAdapter
 
+from eventlens_rag.domain.answer import (
+    BriefingAnswer,
+    Uncertainty,
+    UncertaintyDisplayBlock,
+)
 from eventlens_rag.schema import (
     article_document_schema_json,
     briefing_answer_schema_json,
@@ -31,7 +39,39 @@ class SchemaShape(TypedDict):
     properties: dict[str, SchemaProperty]
 
 
+class PayloadValidator(Protocol):
+    def validate(self, instance: dict[str, JsonValue]) -> None: ...
+
+
+def validate_payload(
+    validator: PayloadValidator, payload: dict[str, JsonValue]
+) -> None:
+    validator.validate(payload)
+
+
 SCHEMA_ADAPTER: TypeAdapter[SchemaShape] = TypeAdapter(SchemaShape)
+JSON_ADAPTER: TypeAdapter[dict[str, JsonValue]] = TypeAdapter(dict[str, JsonValue])
+UNCERTAINTY_ID = UUID("a6c5d6e7-f809-4a1b-8c2d-3e4f50617283")
+ABSTENTION_ANSWER = BriefingAnswer(
+    schema_version="briefing_answer.v1",
+    claims=(),
+    citations=(),
+    uncertainties=(
+        Uncertainty(
+            uncertainty_id=UNCERTAINTY_ID,
+            category="insufficient_evidence",
+            explanation="No supporting evidence found.",
+        ),
+    ),
+    display_blocks=(
+        UncertaintyDisplayBlock(kind="uncertainty", uncertainty_id=UNCERTAINTY_ID),
+    ),
+    answer="No supporting evidence found.",
+    source_documents=(),
+    retrieved_at=datetime(2026, 9, 23, 10, tzinfo=UTC),
+    model_version="model-1",
+    index_version="index-1",
+)
 
 
 @pytest.mark.parametrize(
@@ -150,3 +190,27 @@ def test_rag_schema_keeps_structural_contract(
     assert required == set(schema["required"])
     for name, expected in expected_properties.items():
         assert expected.items() <= schema["properties"][name].items()
+
+
+def test_briefing_answer_schema_accepts_serialized_answer() -> None:
+    # Given
+    schema = JSON_ADAPTER.validate_json(briefing_answer_schema_json())
+    Draft202012Validator.check_schema(schema)
+
+    # When
+    payload = JSON_ADAPTER.validate_json(ABSTENTION_ANSWER.model_dump_json())
+
+    # Then
+    validate_payload(Draft202012Validator(schema), payload)
+
+
+def test_briefing_answer_schema_rejects_missing_citations() -> None:
+    # Given
+    schema = JSON_ADAPTER.validate_json(briefing_answer_schema_json())
+    Draft202012Validator.check_schema(schema)
+    payload = JSON_ADAPTER.validate_json(ABSTENTION_ANSWER.model_dump_json())
+    del payload["citations"]
+
+    # When / Then
+    with pytest.raises(ValidationError, match="citations"):
+        validate_payload(Draft202012Validator(schema), payload)

@@ -10,6 +10,7 @@ dependencies = []
 dev = [
     "basedpyright>=1.31,<2",
     "httpx2>=2.12.0",
+    "jsonschema>=4.25,<5",
     "pyarrow-stubs>=19",
     "pytest>=8.4,<9",
     "ruff>=0.12,<1",
@@ -33,7 +34,7 @@ target-version = "py312"
 line-length = 88
 src = [
     "apps/api/src",
-    "apps/ai-worker/src",
+    "apps/worker/src",
     "contracts/python/src",
     "apps/rag/src",
 ]
@@ -59,7 +60,7 @@ testpaths = [
     "contracts/python/tests",
     "apps/rag/tests",
     "apps/api/tests",
-    "apps/ai-worker/tests",
+    "apps/worker/tests",
 ]
 addopts = ["-ra", "--strict-config", "--strict-markers"]
 filterwarnings = ["error"]
@@ -69,7 +70,7 @@ members = [
     "contracts/python",
     "apps/rag",
     "apps/api",
-    "apps/ai-worker",
+    "apps/worker",
 ]
 
 [tool.uv]

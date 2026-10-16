@@ -1,0 +1,8 @@
+rag migrations applied
+rag persisted 30 fixture articles
+rag fake rebuild published 30 current articles (0 reused generations)
+rag fake rebuild published 30 current articles (30 reused generations)
+published/reused: 30 30
+........................................................................ [ 55%]
+.........................................................                [100%]
+129 passed in 6.81s

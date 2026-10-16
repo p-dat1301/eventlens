@@ -18,7 +18,7 @@ services:
   ai-worker:
     build:
       context: .
-      dockerfile: apps/ai-worker/Dockerfile
+      dockerfile: apps/worker/Dockerfile
     command: ["validate", "/fixtures/article_bundle.v1.json"]
     profiles: ["tools"]
     volumes:

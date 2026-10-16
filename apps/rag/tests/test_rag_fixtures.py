@@ -1,3 +1,5 @@
+import shutil
+import sys
 from collections.abc import Callable, Sequence
 from copy import deepcopy
 from pathlib import Path
@@ -134,6 +136,7 @@ def fixture_graph() -> tuple[
     )
     articles = index_articles(article_records)
     enrichments = index_enrichments(enrichment_records)
+    assert len(articles) == manifest["corpus_count"], "missing source article"
     return manifest, articles, enrichments, questions
 
 
@@ -240,6 +243,20 @@ def test_rag_fixture_graph_when_loaded_then_all_contract_and_label_links_resolve
     assert_fixture_graph(manifest, articles, enrichments, questions)
 
 
+def test_fixture_graph_when_source_article_file_missing_then_rejects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Given
+    fixture_copy = tmp_path / "rag"
+    _ = shutil.copytree(RAG_FIXTURE_PATH, fixture_copy)
+    (fixture_copy / "articles" / "23.json").unlink()
+    monkeypatch.setattr(sys.modules[__name__], "RAG_FIXTURE_PATH", fixture_copy)
+
+    # When / Then
+    with pytest.raises(AssertionError, match="missing source article"):
+        _ = fixture_graph()
+
+
 def test_article_index_when_duplicate_document_ids_then_rejects() -> None:
     # Given
     article = ArticleDocument.model_validate_json(
@@ -300,6 +317,10 @@ def remove_provenance(manifest: ManifestFixture, _questions: QuestionsFixture) -
     manifest["provenance"] = ""
 
 
+def remove_license(manifest: ManifestFixture, _questions: QuestionsFixture) -> None:
+    manifest["license"] = ""
+
+
 def reduce_count(manifest: ManifestFixture, _questions: QuestionsFixture) -> None:
     manifest["corpus_count"] = 29
 
@@ -326,6 +347,7 @@ def leak_scope(manifest: ManifestFixture, _questions: QuestionsFixture) -> None:
     "mutation",
     [
         remove_provenance,
+        remove_license,
         reduce_count,
         remove_coverage,
         remove_expected_source,

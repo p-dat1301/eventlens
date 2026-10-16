@@ -189,3 +189,52 @@ def test_ready_rejects_duplicate_contract_values(
     payload[field] = value
     with pytest.raises(ValidationError):
         _ = ArticleEnrichment.model_validate(payload)
+
+
+@pytest.mark.parametrize(
+    ("status", "field", "value", "error"),
+    [
+        (
+            EnrichmentStatus.PENDING,
+            "failure_code",
+            "timeout",
+            "pending_invalid_metadata",
+        ),
+        (
+            EnrichmentStatus.PROCESSING,
+            "attempt_count",
+            0,
+            "processing_invalid_metadata",
+        ),
+        (
+            EnrichmentStatus.PROCESSING,
+            "enriched_at",
+            UTC_VALUE,
+            "processing_invalid_metadata",
+        ),
+        (EnrichmentStatus.FAILED, "attempt_count", 0, "failed_invalid_metadata"),
+        (EnrichmentStatus.READY, "failure_code", "timeout", "ready_invalid_metadata"),
+        (EnrichmentStatus.STALE, "enriched_at", None, "stale_invalid_metadata"),
+        (EnrichmentStatus.STALE, "failure_code", "timeout", "stale_invalid_metadata"),
+    ],
+)
+def test_lifecycle_rejects_each_invalid_metadata_combination(
+    status: EnrichmentStatus, field: str, value: str | int | datetime | None, error: str
+) -> None:
+    payload = enrichment(status).model_dump()
+    payload[field] = value
+    with pytest.raises(ValidationError, match=error):
+        _ = ArticleEnrichment.model_validate(payload)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [("content_type", "blog"), ("event_relevance", "viral")],
+)
+def test_controlled_classifications_reject_unknown_values(
+    field: str, value: str
+) -> None:
+    payload = enrichment(EnrichmentStatus.READY).model_dump()
+    payload[field] = value
+    with pytest.raises(ValidationError, match="literal_error"):
+        _ = ArticleEnrichment.model_validate(payload)

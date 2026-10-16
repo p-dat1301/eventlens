@@ -3,9 +3,8 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-import psycopg
-
 from eventlens_contracts import ArticleEnrichment, EnrichmentStatus
+from eventlens_rag.adapters.connection import connect
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,7 +27,7 @@ class PostgresPublication:
         """Commit READY, metadata and active vector pointer together or not at all."""
         if request.metadata.status is not EnrichmentStatus.READY:
             return False
-        with psycopg.connect(self.database_url) as connection:
+        with connect(self.database_url) as connection:
             row = connection.execute(
                 """SELECT current.article_id
                 FROM rag_article_current current

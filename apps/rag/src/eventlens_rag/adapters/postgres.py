@@ -4,18 +4,17 @@ from pathlib import Path
 from typing import final
 from uuid import UUID, uuid4
 
-import psycopg
 from psycopg.rows import scalar_row
 from pydantic import TypeAdapter
 
+from eventlens_rag.adapters.connection import connect
 from eventlens_rag.adapters.migrations import migrate
-from eventlens_rag.adapters.staging import PostgresStaging
 from eventlens_rag.domain.article_document import ArticleDocument
 
 
 @final
 class PostgresRagStore:
-    """Own atomic document, job, and active-generation writes."""
+    """Own atomic document, job, and job-claim writes."""
 
     def __init__(self, database_url: str) -> None:
         """Retain explicit connection configuration."""
@@ -26,11 +25,13 @@ class PostgresRagStore:
         migrate(self._database_url, directory)
 
     def persist_article(self, document: ArticleDocument) -> None:
-        """Persist immutable revision and make lexical current pointer immediately."""
-        with (
-            psycopg.connect(self._database_url) as connection,
-            connection.cursor() as cursor,
-        ):
+        """Persist immutable revision and make lexical current pointer immediately.
+
+        A new content hash clears the active vector pointer and marks enrichment
+        jobs for older hashes STALE in the same transaction, so old metadata and
+        vectors never join the corrected text.
+        """
+        with connect(self._database_url) as connection, connection.cursor() as cursor:
             _ = cursor.execute(
                 """
                     INSERT INTO rag_article_documents (
@@ -65,10 +66,19 @@ class PostgresRagStore:
                     """,
                 (document.article_id, document.content_hash),
             )
+            _ = cursor.execute(
+                """
+                    UPDATE rag_enrichment_jobs
+                    SET status = 'STALE', lease_expires_at = NULL
+                    WHERE article_id = %s AND content_hash <> %s
+                      AND status <> 'STALE'
+                    """,
+                (document.article_id, document.content_hash),
+            )
 
     def tombstone_article(self, article_id: UUID) -> None:
         """Synchronously invalidate current lexical/vector visibility."""
-        with psycopg.connect(self._database_url) as connection:
+        with connect(self._database_url) as connection:
             _ = connection.execute(
                 """
                 UPDATE rag_article_current
@@ -86,8 +96,13 @@ class PostgresRagStore:
         model_version: str,
         prompt_version: str,
     ) -> UUID:
-        """Insert one five-field idempotent enrichment job."""
-        with psycopg.connect(self._database_url) as connection:
+        """Insert or requeue a stale job only when its revision is current again."""
+        with connect(self._database_url) as connection:
+            _ = connection.execute(
+                """SELECT article_id FROM rag_article_current
+                WHERE article_id = %s FOR UPDATE""",
+                (article_id,),
+            ).fetchone()
             row = (
                 connection.cursor(row_factory=scalar_row)
                 .execute(
@@ -99,7 +114,13 @@ class PostgresRagStore:
                 ON CONFLICT (
                     article_id, content_hash, enrichment_version,
                     model_version, prompt_version
-                ) DO UPDATE SET job_id = rag_enrichment_jobs.job_id
+                ) DO UPDATE SET status = CASE
+                    WHEN rag_enrichment_jobs.status = 'STALE'
+                     AND EXISTS (SELECT 1 FROM rag_article_current current
+                         WHERE current.article_id = EXCLUDED.article_id
+                           AND current.content_hash = EXCLUDED.content_hash
+                           AND current.tombstoned_at IS NULL)
+                    THEN 'PENDING' ELSE rag_enrichment_jobs.status END
                 RETURNING job_id
                 """,
                     (
@@ -113,21 +134,35 @@ class PostgresRagStore:
                 )
                 .fetchone()
             )
-            return TypeAdapter(UUID).validate_python(row)
+            job_id = TypeAdapter(UUID).validate_python(row)
+            _ = connection.execute(
+                """DELETE FROM rag_enrichment_versions
+                WHERE job_id = %s AND EXISTS (
+                    SELECT 1 FROM rag_enrichment_jobs
+                    WHERE job_id = %s AND status = 'PENDING')""",
+                (job_id, job_id),
+            )
+            return job_id
 
     def claim_job(self, job_id: UUID, lease_seconds: int = 30) -> int | None:
-        """Claim job only when no valid lease exists, incrementing generation."""
-        with psycopg.connect(self._database_url) as connection:
+        """Claim a pending or lease-expired job, incrementing its fence generation.
+
+        The single conditional UPDATE is the transaction-safe claim: concurrent
+        callers serialize on the row lock and only one sees a matching predicate.
+        """
+        with connect(self._database_url) as connection:
             row = (
                 connection.cursor(row_factory=scalar_row)
                 .execute(
                     """
                 UPDATE rag_enrichment_jobs
                 SET status = 'PROCESSING', claim_generation = claim_generation + 1,
-                    lease_expires_at = now() + make_interval(secs => %s)
+                    lease_expires_at = clock_timestamp()
+                        + make_interval(secs => %s)
                 WHERE job_id = %s
-                  AND (lease_expires_at IS NULL OR lease_expires_at <= now())
-                  AND status <> 'READY'
+                  AND status IN ('PENDING', 'PROCESSING')
+                  AND (lease_expires_at IS NULL
+                       OR lease_expires_at <= clock_timestamp())
                 RETURNING claim_generation
                 """,
                     (lease_seconds, job_id),
@@ -136,33 +171,3 @@ class PostgresRagStore:
             )
             adapter: TypeAdapter[int | None] = TypeAdapter(int | None)
             return adapter.validate_python(row)
-
-    def complete_job(self, job_id: UUID, generation: int) -> bool:
-        """Fence completion against current unexpired lease owner."""
-        with psycopg.connect(self._database_url) as connection:
-            result = connection.execute(
-                """
-                UPDATE rag_enrichment_jobs
-                SET status = 'READY', lease_expires_at = NULL
-                WHERE job_id = %s AND claim_generation = %s
-                  AND lease_expires_at > clock_timestamp() AND status = 'PROCESSING'
-                  AND EXISTS (SELECT 1 FROM rag_article_current current
-                    WHERE current.article_id = rag_enrichment_jobs.article_id
-                    AND current.content_hash = rag_enrichment_jobs.content_hash
-                    AND current.tombstoned_at IS NULL)
-                """,
-                (job_id, generation),
-            )
-            return result.rowcount == 1
-
-    def publish_generation(self, article_id: UUID, generation: int) -> bool:
-        """Activate only a complete generation belonging to this current article."""
-        with psycopg.connect(self._database_url) as connection:
-            row = connection.execute(
-                """SELECT generation FROM rag_index_generations
-                WHERE generation = %s AND article_id = %s""",
-                (generation, article_id),
-            ).fetchone()
-        return row is not None and PostgresStaging(self._database_url).activate(
-            generation
-        )

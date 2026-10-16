@@ -178,3 +178,64 @@ def test_query_rejects_non_utc_and_reversed_range() -> None:
                 "context_budget": 100,
             }
         )
+
+
+@pytest.mark.parametrize(
+    ("field", "error"),
+    [
+        ("claims", "duplicate_claim_id"),
+        ("citations", "duplicate_citation_id"),
+        ("uncertainties", "duplicate_uncertainty_id"),
+    ],
+)
+def test_answer_rejects_duplicate_link_ids(field: str, error: str) -> None:
+    claim = Claim(claim_id=CLAIM_ID, text="A fact", temporal_claim=None)
+    citation = Citation.model_validate(
+        {
+            "citation_id": UUID("9c9e6679-7425-40de-944b-e07fc1f90ae7"),
+            "claim_id": CLAIM_ID,
+            "article_id": ARTICLE_ID,
+            "evidence_span_id": SPAN_ID,
+            "source_title": "Title",
+            "source_reference": "https://example.com/article",
+        }
+    )
+    uncertainty = Uncertainty(
+        uncertainty_id=UUID("ac9e6679-7425-40de-944b-e07fc1f90ae7"),
+        category="ambiguity",
+        explanation="Uncertain detail",
+        claim_id=CLAIM_ID,
+    )
+    answer = BriefingAnswer.model_validate(
+        {
+            "schema_version": "briefing_answer.v1",
+            "answer": "A fact\n\nUncertain detail",
+            "claims": (claim.model_dump(),),
+            "citations": (citation.model_dump(),),
+            "uncertainties": (uncertainty.model_dump(),),
+            "display_blocks": (
+                ClaimDisplayBlock(kind="claim", claim_id=CLAIM_ID).model_dump(),
+                UncertaintyDisplayBlock(
+                    kind="uncertainty", uncertainty_id=uncertainty.uncertainty_id
+                ).model_dump(),
+            ),
+            "source_documents": (document().model_dump(),),
+            "retrieved_at": UTC_VALUE,
+            "model_version": "model-1",
+            "index_version": "index-1",
+        }
+    )
+    item = {"claims": claim, "citations": citation, "uncertainties": uncertainty}[field]
+    payload = {**answer.model_dump(), field: (item.model_dump(), item.model_dump())}
+    with pytest.raises(ValidationError, match=error):
+        _ = BriefingAnswer.model_validate(payload)
+
+
+def test_document_rejects_duplicate_span_id() -> None:
+    payload = document().model_dump()
+    payload["evidence_spans"] = (
+        *payload["evidence_spans"],
+        payload["evidence_spans"][0],
+    )
+    with pytest.raises(ValidationError, match="duplicate_span_id"):
+        _ = ArticleDocument.model_validate(payload)

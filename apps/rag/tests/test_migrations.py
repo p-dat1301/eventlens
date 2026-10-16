@@ -7,7 +7,9 @@ def test_migrations_define_fts_vector_jobs_and_active_generation() -> None:
     # Given
     migrations = "\n".join(
         path.read_text(encoding="utf-8")
-        for path in sorted((ROOT / "apps/rag/migrations").glob("*.sql"))
+        for path in sorted(
+            (ROOT / "apps/rag/src/eventlens_rag/migrations").glob("*.sql")
+        )
     )
 
     # When / Then

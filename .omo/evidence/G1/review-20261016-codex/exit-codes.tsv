@@ -1,0 +1,8 @@
+make-check	0	rtk proxy make check
+make-gate-g1	2	rtk proxy make gate-g1
+make-url-query	2	rtk proxy make rag-migrate RAG_DATABASE_URL=<unreachable-local-URI-with-two-query-parameters>
+manual-qa	0	rtk proxy sh apps/rag/with-test-db.sh uv run --package eventlens-rag python .omo/evidence/G1/review-20261016-codex/qa.py
+worker-digests	0	rtk proxy shasum -a 256 -c .omo/evidence/G1/selfcheck-20261016/worker-receipt-digests.txt
+git-diff-check	0	rtk git diff --check
+docker-server	0	rtk proxy docker info --format '{{.ServerVersion}}'
+owned-container-cleanup	0	rtk proxy docker ps -a --filter name=eventlens-rag-test- --format '{{.Names}} {{.Status}}' (empty)
