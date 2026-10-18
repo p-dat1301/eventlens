@@ -1,13 +1,17 @@
 import os
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID, uuid4
 
+import psycopg
 import pytest
+from psycopg import sql
+from psycopg.conninfo import make_conninfo
 from pydantic import TypeAdapter
 
 from eventlens_contracts import ArticleEnrichment
+from eventlens_rag.adapters.migrations import migrate
 from eventlens_rag.adapters.postgres import PostgresRagStore
 from eventlens_rag.domain.article_document import (
     ArticleDocument,
@@ -82,3 +86,20 @@ type MetadataFactory = Callable[[ArticleDocument], ArticleEnrichment]
 @pytest.fixture
 def make_metadata() -> MetadataFactory:
     return ready_metadata
+
+
+@pytest.fixture
+def retrieval_url(database_url: str) -> Generator[str]:
+    """T5: fresh schema per test inside the isolated test container."""
+    schema = "t5_" + uuid4().hex
+    with psycopg.connect(database_url, autocommit=True) as connection:
+        _ = connection.execute(
+            sql.SQL("CREATE SCHEMA {}").format(sql.Identifier(schema))
+        )
+    scoped = make_conninfo(database_url, options=f"-c search_path={schema},public")
+    migrate(scoped)
+    yield scoped
+    with psycopg.connect(database_url, autocommit=True) as connection:
+        _ = connection.execute(
+            sql.SQL("DROP SCHEMA {} CASCADE").format(sql.Identifier(schema))
+        )

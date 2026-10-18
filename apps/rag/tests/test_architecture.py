@@ -56,3 +56,37 @@ def test_core_layers_never_import_typer_graph_or_concrete_adapters() -> None:
 
     # Then
     assert violations == []
+
+
+def test_t5_retrieval_core_never_imports_frameworks_worker_or_event_writes() -> None:
+    # Given: T5 domain/application/ports retrieval modules.
+    core = ROOT / "apps/rag/src/eventlens_rag"
+    modules = [
+        core / "domain/retrieval.py",
+        core / "domain/fusion.py",
+        core / "application/retrieve.py",
+        core / "application/evidence_context.py",
+        core / "ports/retrieval.py",
+        core / "ports/reranker.py",
+        core / "ports/tokens.py",
+    ]
+    forbidden = (
+        "langgraph",
+        "fastapi",
+        "psycopg",
+        "eventlens_rag.adapters",
+        "eventlens_rag.graph",
+        "eventlens_worker",
+        "eventlens_contracts.event",
+    )
+
+    # When
+    violations = [
+        (path.name, token)
+        for path in modules
+        for token in forbidden
+        if token in path.read_text(encoding="utf-8")
+    ]
+
+    # Then
+    assert violations == []

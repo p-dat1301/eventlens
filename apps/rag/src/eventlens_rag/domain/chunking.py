@@ -72,3 +72,20 @@ def chunk_document(
         if end == len(document.normalized_content):
             break
     return tuple(chunks)
+
+
+def chunk_bounds(
+    length: int, index: int, policy: ChunkingPolicy = DEFAULT_POLICY
+) -> tuple[int, int] | None:
+    """Offsets ``chunk_document`` gives chunk ``index`` of ``length`` code points.
+
+    Pure arithmetic, so callers can validate one chunk without materializing
+    every chunk of a long document. ``None`` when no such chunk exists.
+    """
+    step = policy.size - policy.overlap
+    if index < 0 or length <= 0:
+        return None
+    if index > 0 and (index - 1) * step + policy.size >= length:
+        return None
+    start = index * step
+    return start, min(start + policy.size, length)

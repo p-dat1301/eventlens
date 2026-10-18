@@ -91,6 +91,10 @@ Retrieval should support:
 - metadata filters for source, topic, entity, and time range;
 - freshness weighting;
 - duplicate or near-duplicate suppression;
+- reciprocal rank fusion (RRF, k=60) of the lexical and semantic branches;
+- a reranker stage behind a port, applied after fusion and dedup to a bounded candidate
+  set; the baseline reranker keeps fused order and a reranker failure degrades to fused
+  order (cancellation or deadline expiry still stops the query);
 - deterministic top-k ordering for reproducible tests, including explicit tie-breaking and
   index-version metadata.
 
@@ -106,8 +110,10 @@ change without changing application code.
 ArticleBundle
   -> article repository
   -> chunk/index adapter
-  -> hybrid retriever (lexical + semantic)
-  -> optional reranker within budget
+  -> hybrid retriever (lexical branch + semantic branch, filtered separately)
+  -> RRF fusion (k=60) + dedup
+  -> reranker port (top 40 candidates, own deadline; failure -> fused order)
+  -> article aggregation + budget cut (20 articles, 12k tokens)
   -> evidence context
   -> structured LLM synthesis
   -> citation validator
@@ -287,6 +293,7 @@ trúc chưa chốt:
 | Path | Failure | Test | Handling | User sees |
 |---|---|---|---|---|
 | Retrieval | index unavailable/stale | adapter and freshness tests | typed retrieval error or stale marker | clear retry/stale-data state |
+| Rerank | reranker timeout/error/invalid IDs | reranker fake tests | keep fused order, mark `rerank_status=degraded` | normal answer, ranking basis in metadata |
 | Model call | timeout/provider error | transport tests | bounded retry then fail closed | stable model-unavailable error |
 | Model parse | malformed structured output | contract tests | reject answer | invalid-answer error, no raw fallback |
 | Citation | unknown claim/span or offset mismatch | citation validator tests | reject answer | evidence-validation error |
@@ -315,6 +322,7 @@ an excuse to omit measurement.
 Query
   -> validate [empty, oversized, forbidden metadata]
   -> retrieve [lexical, semantic, hybrid, ties, stale index, zero hits]
+  -> fuse + rerank [RRF arithmetic, missing branch, reorder only, timeout -> fused order]
   -> build context [dedup, allowlist, injection text, token budget]
   -> model [success, timeout, provider error, malformed output]
   -> validate answer [claim IDs, span IDs, offsets, unsupported claim]
@@ -370,6 +378,8 @@ demo.
 
 - Citation boundary: structured claim IDs and evidence-span IDs.
 - Retrieval: hybrid lexical + semantic from MVP, with independent stage metrics.
+- Ranking: RRF fusion then a reranker port; real reranker enabled only after a paired eval
+  gain over RRF (plan D43).
 - Runtime: fail closed with stable typed errors; no raw model fallback.
 - Corpus boundary: dedicated ArticleDocument and repository.
 - Relative time filters: `source_published_at` for MVP, explicit in response metadata.

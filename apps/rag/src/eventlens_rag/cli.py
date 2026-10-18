@@ -1,5 +1,6 @@
 """T3 local database maintenance CLI."""
 
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -107,6 +108,77 @@ def rebuild(database_url: DatabaseUrl) -> None:
     reused = sum(item.reused for item in staged)
     summary = f"{published} current articles ({reused} reused generations)"
     typer.echo(f"rag fake rebuild published {summary}")
+
+
+@app.command("retrieval-smoke")
+def retrieval_smoke(
+    database_url: DatabaseUrl,
+    output: Annotated[Path | None, typer.Option()] = None,
+) -> None:
+    """T5 smoke on an EMPTY isolated DB: cases + fixture mode measurement."""
+    from eventlens_rag.adapters.retrieval_smoke import (  # noqa: PLC0415
+        SmokeDatabaseNotEmptyError,
+        dump,
+        run_smoke,
+    )
+
+    try:
+        report = run_smoke(database_url, ROOT / "fixtures/rag")
+    except StorageUnavailableError as error:
+        raise _unavailable(error) from error
+    except SmokeDatabaseNotEmptyError as error:
+        typer.echo(f"rag_smoke_refused: {error}", err=True)
+        raise typer.Exit(1) from error
+    text = dump(report)
+    if output is not None:
+        _ = output.write_text(text + "\n", encoding="utf-8")
+    typer.echo(text)
+
+
+@app.command("vector-route-report")
+def vector_route_report(
+    database_url: DatabaseUrl,
+    output: Annotated[Path, typer.Option()],
+    articles: Annotated[int, typer.Option()] = 3000,
+    queries: Annotated[int, typer.Option()] = 20,
+    k: Annotated[int, typer.Option()] = 10,
+) -> None:
+    """Exact vs HNSW ANN on a synthetic corpus in an EMPTY isolated DB."""
+    from eventlens_rag.adapters.vector_routes import (  # noqa: PLC0415
+        CorpusNotEmptyError,
+        load_corpus,
+        measure,
+        pgvector_version,
+        report_rows,
+    )
+
+    output.mkdir(parents=True, exist_ok=True)
+    try:
+        apply_migrations(database_url)
+        load_corpus(database_url, articles, seed=5)
+        results = measure(database_url, output, queries=queries, k=k, seed=5)
+        version = pgvector_version(database_url)
+    except StorageUnavailableError as error:
+        raise _unavailable(error) from error
+    except CorpusNotEmptyError as error:
+        typer.echo(f"rag_report_refused: {error}", err=True)
+        raise typer.Exit(1) from error
+    report = {
+        "pgvector_version": version,
+        "articles": articles,
+        "queries": queries,
+        "k": k,
+        "production_route": "exact (retrieval-policy.v3, ann_enabled=false)",
+        "ann_settings": {
+            "hnsw.ef_search": 40,
+            "hnsw.iterative_scan": "relaxed_order",
+            "hnsw.max_scan_tuples": 20000,
+        },
+        "results": report_rows(results),
+    }
+    text = json.dumps(report, indent=2, sort_keys=True)
+    _ = (output / "vector-route-report.json").write_text(text + "\n", encoding="utf-8")
+    typer.echo(text)
 
 
 @app.command("db-test")
