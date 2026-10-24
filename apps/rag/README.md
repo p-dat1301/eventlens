@@ -174,6 +174,73 @@ sh apps/rag/with-test-db.sh uv run --package eventlens-rag eventlens-rag \
 The production vector route is exact; HNSW iterative scan is measured by
 `vector-route-report` only and stays disabled in `retrieval-policy.v3`.
 
+## T6 grounded synthesis, citation validation and model budgets
+
+Status (2026-10-24): implementation and independent integration review are
+complete in fixture/fake scope. T6 is committed in `5d2ac29`; G2 remains OPEN
+until T7 API/graph composition is complete. No live provider was called.
+Evidence: `.omo/evidence/T6-rereview-20261024-codex/review.md`,
+`.omo/evidence/task-6-eventlens-ai-rag-mvp.md` and the frozen contract
+`.omo/evidence/T6/interfaces.md`.
+
+Call order for T7 (process-local; T7 owns API/graph composition):
+
+```text
+lease  = ProcessConcurrencyLimiter(30).try_acquire()   # one shared limiter per runtime
+control = QueryControl(policy.deadlines.request_deadline_seconds)
+ledger  = RequestTokenLedger(counter, policy)          # same counter as RetrieveEvidence
+plan    = PrepareSynthesis(counter, policy).execute(query, ledger)
+result  = RetrieveEvidence(...).execute(query, caller, control,
+            RetrievalOptions(remaining_context_budget=plan.remaining_context_budget))
+answer  = SynthesizeAnswer(...).execute(query, result, caller, control, ledger, lease)
+lease.release()                                        # pinned in-flight calls keep the slot
+```
+
+- `SynthesizeAnswer` returns a `SynthesisResult`, which is one of three
+  outcomes: `answered`, `abstained_no_evidence` or `abstained_by_model`. Every
+  failure is a typed `SynthesisError` with a stable `code` and `.reason`.
+  `answer.source_documents` is internal; T7 must map a public DTO.
+- The provider receives only five field groups: article ID, title, the selected
+  span texts with their span IDs, source name/domain, and
+  `source_published_at`. Hashes, offsets, canonical URLs, storage URIs and
+  metadata stay on the server.
+- The model returns the strict `synthesis_draft.v1` (claim text, span refs,
+  temporal claim, reason codes). Citations, titles, URLs and uncertainty text
+  are rendered by the server. Uncertainty text comes from versioned templates.
+- Current-evidence boundary: one batched `current_articles` read happens before
+  the call and one after it. Access is checked at entry, after each read, and
+  at every return. No transaction is held across the model call.
+- Policies:
+  - `policies/synthesis-policy.v1.json` (label `fixture`): 12,000 cumulative
+    input tokens; 1,500 output tokens; 20 articles; 30 concurrent requests; one
+    call; zero retries; 20 s request deadline and 15 s per-call timeout.
+  - Fixture pricing: 1/4 per token plus 2,000 per call, cap 20,000
+    `fixture_micro_usd`. These numbers exist for admission tests only. They are
+    not a price.
+  - `policies/provider-activation.fixture.v1.json`: fixture mode with an
+    `.invalid` endpoint. Live mode always fails closed. T6 ships no trusted
+    issuer and no approved live pricing.
+- Adapters: `DeterministicFakeSynthesizer` (the default),
+  `ScriptedSynthesizer`, and `OpenAICompatibleSynthesizer`, which uses an
+  injected transport and refuses a non-live decision. It never retries or
+  follows redirects. An API key alone never enables live mode.
+
+Smoke (refuses a non-empty database; fake/scripted model ports only):
+
+```sh
+sh apps/rag/with-test-db.sh uv run --package eventlens-rag eventlens-rag \
+    synthesis-smoke --output "$TMPDIR/t6-smoke.json" --evidence "$TMPDIR/t6-evidence.json"
+```
+
+The smoke covers seven cases: happy cited answer, no-evidence abstention
+(zero calls), lexical-only answer, invalid citation blocked, provider timeout,
+budget failure (zero calls) and revoked access. It asserts each case and exits
+2 if any expectation fails.
+
+Not measured: real model tokenizer and drift, real cost, live latency (the 8 s
+p95 is a target, not an SLO), and semantic support of claims (T9).
+Mechanical grounding does not prove that a claim is true.
+
 ## Local Compose database
 
 The Compose `eventlens` database may hold untracked pre-ledger RAG tables, so the

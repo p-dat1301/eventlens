@@ -1,0 +1,6 @@
+command	exit
+ruff-format-check	0
+ruff-check	0
+basedpyright	0
+pytest-b	0
+pytest-arch-contracts	0

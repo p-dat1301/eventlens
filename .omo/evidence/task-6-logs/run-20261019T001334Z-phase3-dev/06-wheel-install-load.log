@@ -1,0 +1,3 @@
+# installed-wheel check: wheel installed --no-deps into a fresh venv; third-party deps (pydantic, psycopg...) resolved from the workspace .venv site-packages via a .pth line (offline; network disabled). eventlens_rag/eventlens_contracts must load from the fresh venv, not the source checkout.
+module /var/folders/8g/v6hblscd16xczwt29872t33w0000gn/T/t6venv/lib/python3.12/site-packages/eventlens_rag/__init__.py
+policies synthesis-policy.v1 provider-activation.fixture.v1 00db09d36658b8836e4b433dfadde4f19aa3771c3baf7090127422a420742336 retrieval-policy.v3 schema_bytes 3231

@@ -1,0 +1,219 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+____ test_retrieval_counted_with_another_tokenizer_is_rejected_before_call _____
+
+    def test_retrieval_counted_with_another_tokenizer_is_rejected_before_call() -> None:
+        """Regression (phase 3): T5 and T6 must share one TokenCounter mapping."""
+        store = _store()
+        query = briefing(QUESTION)
+        retrieval = service(store).execute(query, CALLER, control())  # fixture identity
+        transport = RecordingTransport([])
+    
+        with pytest.raises(SynthesisConfigurationError):
+>           _ = _execute(
+                transport,
+                store,
+                query,
+                retrieval,
+                RequestTokenLedger(COUNTER, SYNTH_POLICY),
+            )
+
+apps/rag/tests/test_synthesis_integration.py:253: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/rag/tests/test_synthesis_integration.py:130: in _execute
+    return use_case.execute(
+apps/rag/src/eventlens_rag/application/synthesize.py:254: in execute
+    result = self._execute(
+apps/rag/src/eventlens_rag/application/synthesize.py:342: in _execute
+    response = self._call(serialized, control, ledger, lease, run)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/rag/src/eventlens_rag/application/synthesize.py:499: in _call
+    raise slot.error
+apps/rag/src/eventlens_rag/application/synthesize.py:527: in target
+    slot.response = self.model.synthesize(request)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = OpenAICompatibleSynthesizer(transport=RecordingTransport(script=[], calls=[{'url': 'https://provider.example.invalid:4....v1', source='synthesis_policy'), cost=CostApproval(basis='approved_live', pricing_source='synthesis_policy.pricing')))
+request = SynthesisRequest(serialized=SerializedModelInput(serialization='synthesis-input-json.v1', prompt_version='synthesis-pr...sent_span_ids=frozenset({UUID('33caf26a-d756-52f6-a5a5-75989776ef2c')})), max_output_tokens=1500, timeout_seconds=15.0)
+
+    def synthesize(self, request: SynthesisRequest) -> SynthesisResponse:
+        """POST once; map every failure to a stable ``ProviderFailureCode``."""
+        payload = self._payload(request)
+        url = self._endpoint.url(self.policy.transport.chat_path)
+        failure: ProviderFailureCode | None = None
+        response: TransportResponse | None = None
+        try:
+            response = self.transport.post_json(
+                url, self._headers, payload, request.timeout_seconds
+            )
+        except TransportTimeoutError:
+            failure = ProviderFailureCode.TIMEOUT
+        except Exception:  # noqa: BLE001 - transport boundary: drop everything but a code
+            failure = ProviderFailureCode.UNAVAILABLE
+        parsed: _Parsed | None = None
+        if failure is None:
+            failure, parsed = self._interpret(response)
+        if failure is not None or parsed is None:
+            code = failure or ProviderFailureCode.BAD_SHAPE
+            LOGGER.warning("synthesis provider failed", extra={"provider_code": code})
+            # Raised outside every except block: no __cause__/__context__ chain.
+>           raise SynthesisProviderError(code)
+E           eventlens_rag.domain.synthesis_errors.SynthesisProviderError: provider_unavailable
+
+apps/rag/src/eventlens_rag/adapters/openai_synthesis.py:337: SynthesisProviderError
+------------------------------ Captured log call -------------------------------
+WARNING  eventlens_rag.adapters.openai_synthesis:openai_synthesis.py:335 synthesis provider failed
+_________ test_typed_non_provider_adapter_error_keeps_code_and_settles _________
+
+    def test_typed_non_provider_adapter_error_keeps_code_and_settles() -> None:
+        """Regression (phase 3, request B-4): any SynthesisError from the port is
+        re-raised as-is and its reservation is settled as a failure."""
+        store = store_with(
+            article("Harbor crane inspection closes the East Pier gate on Monday.")
+        )
+        query = briefing(QUESTION)
+        retrieval, request_ledger = prepared_retrieval(store, query)
+        model = ScriptedSynthesizer(IDENTITY, [SynthesisConfigurationError("x")])
+        lease = ProcessConcurrencyLimiter(30).try_acquire()
+    
+        with pytest.raises(SynthesisConfigurationError):
+>           _ = synthesizer(model, store).execute(
+                query, retrieval, CALLER, control(), request_ledger, lease
+            )
+
+apps/rag/tests/test_synthesis_integration.py:276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/rag/src/eventlens_rag/application/synthesize.py:254: in execute
+    result = self._execute(
+apps/rag/src/eventlens_rag/application/synthesize.py:342: in _execute
+    response = self._call(serialized, control, ledger, lease, run)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SynthesizeAnswer(model=<eventlens_rag.adapters.scripted_synthesis.ScriptedSynthesizer object at 0x10baca5a0>, sources=... telemetry=None, ids=<function sequential_ids.<locals>.next_id at 0x10bb45c60>, timer=<built-in function perf_counter>)
+serialized = SerializedModelInput(serialization='synthesis-input-json.v1', prompt_version='synthesis-prompt.v1', messages=(ChatMess...ict":true},"type":"json_schema"},"tools":[]}', sent_span_ids=frozenset({UUID('72f12d67-4ddb-5462-847b-5caf1f32e52a')}))
+control = <eventlens_rag.domain.retrieval.QueryControl object at 0x10bacaae0>
+ledger = <eventlens_rag.application.ledger.RequestTokenLedger object at 0x10baca2d0>
+lease = <eventlens_rag.application.concurrency._Lease object at 0x10baca6f0>
+run = _Run(timer=<built-in function perf_counter>, started=813182.10592475, stages=[StageMetric(stage='precheck', latency_ms...okens=1500, cost=9688), usage=None, usage_status=<UsageStatus.NOT_CALLED: 'not_called'>, articles_sent=1, spans_sent=1)
+
+    def _call(
+        self,
+        serialized: SerializedModelInput,
+        control: QueryControl,
+        ledger: TokenLedger,
+        lease: AdmissionLease,
+        run: _Run,
+    ) -> SynthesisResponse:
+        """At most one pinned, reserved, time-sliced provider call."""
+        budget = self.policy.budget
+        if ledger.snapshot().admissions >= budget.max_model_calls_per_request:
+            raise SynthesisBudgetError(BudgetFailureReason.CALL_CAP)
+        _admit(control)
+        run.counted = ledger.count(serialized)
+        reservation = ledger.reserve(serialized, budget.output_reservation_per_call)
+        run.reservation = reservation
+        _admit(control)
+        seconds = min(self.policy.deadlines.call_timeout_seconds, control.remaining())
+        request = SynthesisRequest(
+            serialized=serialized,
+            max_output_tokens=reservation.output_tokens,
+            timeout_seconds=seconds,
+        )
+        with run.stage("model_call", 1):
+            slot = self._run_pinned(request, control, lease)
+            run.calls += 1
+        if not slot.done.is_set() or slot.response is None:
+            ledger.settle(reservation, "failure", None)
+            _admit(control)
+            if slot.error is not None:
+>               raise slot.error
+E               eventlens_rag.domain.synthesis_errors.SynthesisProviderError: provider_unavailable
+
+apps/rag/src/eventlens_rag/application/synthesize.py:499: SynthesisProviderError
+_________ test_provider_reporting_model_version_is_accepted_end_to_end _________
+
+    def test_provider_reporting_model_version_is_accepted_end_to_end() -> None:
+        """Regression (phase 3): B accepts model_id or model_version; A must too."""
+        store = _store()
+        query = briefing(QUESTION)
+        retrieval, request_ledger = _retrieve(store, query)
+        version = DECISION.chat_model.model_version
+        transport = RecordingTransport([ok(completion(_cited(retrieval), model=version))])
+    
+>       result = _execute(transport, store, query, retrieval, request_ledger)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/rag/tests/test_synthesis_integration.py:295: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/rag/tests/test_synthesis_integration.py:130: in _execute
+    return use_case.execute(
+apps/rag/src/eventlens_rag/application/synthesize.py:254: in execute
+    result = self._execute(
+apps/rag/src/eventlens_rag/application/synthesize.py:342: in _execute
+    response = self._call(serialized, control, ledger, lease, run)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SynthesizeAnswer(model=OpenAICompatibleSynthesizer(transport=RecordingTransport(script=[], calls=[{'url': 'https://pro... telemetry=None, ids=<function sequential_ids.<locals>.next_id at 0x10baeef20>, timer=<built-in function perf_counter>)
+serialized = SerializedModelInput(serialization='synthesis-input-json.v1', prompt_version='synthesis-prompt.v1', messages=(ChatMess...ict":true},"type":"json_schema"},"tools":[]}', sent_span_ids=frozenset({UUID('7f284529-e583-5109-94b7-228f8091df9e')}))
+control = <eventlens_rag.domain.retrieval.QueryControl object at 0x10baca570>
+ledger = <eventlens_rag.application.ledger.RequestTokenLedger object at 0x10bacb410>
+lease = <eventlens_rag.application.concurrency._Lease object at 0x10bac98b0>
+run = _Run(timer=<built-in function perf_counter>, started=813182.129582375, stages=[StageMetric(stage='precheck', latency_m...rted_model='test-chat-model-2026-10-01'), usage_status=<UsageStatus.MISSING: 'missing'>, articles_sent=1, spans_sent=1)
+
+    def _call(
+        self,
+        serialized: SerializedModelInput,
+        control: QueryControl,
+        ledger: TokenLedger,
+        lease: AdmissionLease,
+        run: _Run,
+    ) -> SynthesisResponse:
+        """At most one pinned, reserved, time-sliced provider call."""
+        budget = self.policy.budget
+        if ledger.snapshot().admissions >= budget.max_model_calls_per_request:
+            raise SynthesisBudgetError(BudgetFailureReason.CALL_CAP)
+        _admit(control)
+        run.counted = ledger.count(serialized)
+        reservation = ledger.reserve(serialized, budget.output_reservation_per_call)
+        run.reservation = reservation
+        _admit(control)
+        seconds = min(self.policy.deadlines.call_timeout_seconds, control.remaining())
+        request = SynthesisRequest(
+            serialized=serialized,
+            max_output_tokens=reservation.output_tokens,
+            timeout_seconds=seconds,
+        )
+        with run.stage("model_call", 1):
+            slot = self._run_pinned(request, control, lease)
+            run.calls += 1
+        if not slot.done.is_set() or slot.response is None:
+            ledger.settle(reservation, "failure", None)
+            _admit(control)
+            if slot.error is not None:
+                raise slot.error
+            raise SynthesisProviderError(ProviderFailureCode.TIMEOUT)
+        response = slot.response
+        usage = valid_usage(response.usage)
+        status = response.usage_status
+        if status is UsageStatus.REPORTED and usage is None:
+            status = UsageStatus.INVALID
+        ledger.settle(
+            reservation, "success", usage if status is UsageStatus.REPORTED else None
+        )
+        run.usage = response
+        run.usage_status = status
+        _admit(control)
+        identity = self.model.identity
+        if response.reported_model is not None and response.reported_model != identity.model_id:
+>           raise SynthesisProviderError(ProviderFailureCode.MODEL_MISMATCH)
+E           eventlens_rag.domain.synthesis_errors.SynthesisProviderError: provider_model_mismatch
+
+apps/rag/src/eventlens_rag/application/synthesize.py:514: SynthesisProviderError
+=========================== short test summary info ============================
+FAILED apps/rag/tests/test_synthesis_integration.py::test_retrieval_counted_with_another_tokenizer_is_rejected_before_call
+FAILED apps/rag/tests/test_synthesis_integration.py::test_typed_non_provider_adapter_error_keeps_code_and_settles
+FAILED apps/rag/tests/test_synthesis_integration.py::test_provider_reporting_model_version_is_accepted_end_to_end
+3 failed, 6 deselected in 0.24s

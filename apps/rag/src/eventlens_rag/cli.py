@@ -30,6 +30,7 @@ app = typer.Typer(no_args_is_help=True)
 ROOT = Path(__file__).parents[4]
 FIXTURE_ARTICLES = ROOT / "fixtures/rag/articles"
 UNAVAILABLE_EXIT = 3
+SMOKE_FAILED_EXIT = 2
 
 DatabaseUrl = Annotated[str, typer.Option(envvar="EVENTLENS_RAG_DATABASE_URL")]
 
@@ -133,6 +134,39 @@ def retrieval_smoke(
     if output is not None:
         _ = output.write_text(text + "\n", encoding="utf-8")
     typer.echo(text)
+
+
+@app.command("synthesis-smoke")
+def synthesis_smoke(
+    database_url: DatabaseUrl,
+    output: Annotated[Path | None, typer.Option()] = None,
+    evidence: Annotated[Path | None, typer.Option()] = None,
+) -> None:
+    """T6 smoke on an EMPTY isolated DB: T5 retrieval -> T6 fake synthesis."""
+    from eventlens_rag.adapters.retrieval_smoke import (  # noqa: PLC0415
+        SmokeDatabaseNotEmptyError,
+    )
+    from eventlens_rag.adapters.synthesis_smoke import (  # noqa: PLC0415
+        dump,
+        run_smoke,
+    )
+
+    try:
+        report, excerpts = run_smoke(database_url, ROOT / "fixtures/rag")
+    except StorageUnavailableError as error:
+        raise _unavailable(error) from error
+    except SmokeDatabaseNotEmptyError as error:
+        typer.echo(f"rag_smoke_refused: {error}", err=True)
+        raise typer.Exit(1) from error
+    text = dump(report)
+    if output is not None:
+        _ = output.write_text(text + "\n", encoding="utf-8")
+    if evidence is not None:
+        _ = evidence.write_text(dump(excerpts) + "\n", encoding="utf-8")
+    typer.echo(text)
+    if report.get("all_passed") is not True:
+        typer.echo("synthesis_smoke_failed: an expected case did not hold", err=True)
+        raise typer.Exit(SMOKE_FAILED_EXIT)
 
 
 @app.command("vector-route-report")

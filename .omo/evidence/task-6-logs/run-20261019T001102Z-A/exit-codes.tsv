@@ -1,0 +1,15 @@
+step	command	exit
+pytest-owned-1	pytest <5 owned files> -q	4
+pytest-owned-2	pytest <5 owned files> -q	4
+pytest-owned-3	pytest <5 owned files> -q	4
+pytest-owned-4	pytest <5 owned files> -q	4
+pytest-owned-5	pytest <5 owned files> -q	4
+pytest-guards	pytest test_architecture.py test_synthesis_contracts.py -q	0
+ruff-format	ruff format --check <13 owned files>	0
+ruff-check	ruff check <13 owned files>	0
+basedpyright	basedpyright <13 owned files>	0
+pytest-owned-r1	pytest test_synthesis.py test_citations.py test_synthesis_budget.py test_synthesis_ledger.py test_synthesis_concurrency.py -q	0
+pytest-owned-r2	pytest test_synthesis.py test_citations.py test_synthesis_budget.py test_synthesis_ledger.py test_synthesis_concurrency.py -q	0
+pytest-owned-r3	pytest test_synthesis.py test_citations.py test_synthesis_budget.py test_synthesis_ledger.py test_synthesis_concurrency.py -q	0
+pytest-owned-r4	pytest test_synthesis.py test_citations.py test_synthesis_budget.py test_synthesis_ledger.py test_synthesis_concurrency.py -q	0
+pytest-owned-r5	pytest test_synthesis.py test_citations.py test_synthesis_budget.py test_synthesis_ledger.py test_synthesis_concurrency.py -q	0

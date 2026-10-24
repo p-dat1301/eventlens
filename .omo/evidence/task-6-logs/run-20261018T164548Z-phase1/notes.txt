@@ -1,0 +1,9 @@
+T6 phase 1 (interface freeze) run notes, 2026-10-18 UTC.
+- Base commit 45051be669a95651d66eb701a725daf05cca41e3, branch feature/rag-synthesis-t6; nothing committed.
+- Worktree had no .venv / web node_modules: ran `uv sync --all-packages --group dev --frozen` and
+  `bun install --frozen-lockfile` (apps/web) once before make check (lockfiles unchanged).
+- uv commands needed the Claude Code sandbox disabled (sandbox denies ~/.cache/uv); rtk prefix worked.
+- 01 make check: 597 passed / 105 skipped (baseline 594/105 + 3 new phase-1 guard tests in
+  test_synthesis_contracts.py). Skips are DB-dependent (no DSN) and are NOT DB evidence.
+- No make rag-db-test in phase 1 (no DB code added). No network/provider use.
+- Protected files (migrations, retrieval-policy v1/v2/v3, enrichment-retry.v1) byte-identical vs HEAD.
