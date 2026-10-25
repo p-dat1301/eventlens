@@ -8,8 +8,9 @@ else
     trap 'rm -f "$log"' EXIT HUP INT TERM
 fi
 status=0
-# apps/worker/tests holds the T4 worker CLI real-DB flows (ingest/enrich).
-uv run --package eventlens-rag pytest apps/rag/tests apps/worker/tests -q -rs \
+# apps/worker/tests holds the T4 worker CLI real-DB flows (ingest/enrich);
+# apps/api/tests holds the T7 HTTP path on PostgreSQL (test_briefing_db.py).
+uv run --all-packages pytest apps/rag/tests apps/worker/tests apps/api/tests -q -rs \
     >"$log" 2>&1 || status=$?
 tail -n 15 "$log"
 if grep -q "skipped" "$log"; then

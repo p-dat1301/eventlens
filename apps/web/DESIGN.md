@@ -8,7 +8,7 @@
 
 ## 1. Atmosphere & Identity
 
-Quiet editorial infrastructure. Warm paper surfaces make event data feel legible rather than mechanical. Signature: a thin terracotta timeline connecting project states.
+Quiet editorial infrastructure. Warm paper surfaces make event data feel legible rather than mechanical. Signature: thin terracotta rules marking cited evidence.
 
 ## 2. Color
 
@@ -61,28 +61,36 @@ Content max width: `72rem`. Desktop uses asymmetric two-column grid; below `48re
 
 ## 5. Components
 
-### Status Ledger
+### Query Panel
 
-- **Structure**: semantic ordered list of project milestones.
-- **Variants**: current, defined, placeholder.
-- **Spacing**: `--space-3`, `--space-4`, `--space-6`.
-- **States**: static status only; placeholder explicitly says no request occurs.
-- **Accessibility**: text conveys state independently of color.
-- **Motion**: none in foundation scaffold.
-- **Layout**: vertical stack with timeline marker.
+- **Structure**: display heading + labelled `textarea` + hint + submit button inside a `<form>`.
+- **States**: idle; invalid (inline `role="alert"`, `aria-invalid`, described-by link, no request sent); loading (button reads "Briefing…").
+- **Layout**: asymmetric 3fr/2fr grid; one column below `48rem`.
 
-### Contract Plate
+### Briefing Result
 
-- **Structure**: section heading, machine-readable contract name, short explanation.
-- **Variants**: single foundation contract.
-- **States**: static.
-- **Accessibility**: semantic heading and readable contrast.
-- **Motion**: none.
-- **Layout**: horizontal cluster, stacks on narrow screens.
+- **Structure**: outcome tag row, coverage warning, answer (or abstention notice), ordered claims with nested citations, uncertainty list, retrieval audit `<dl>`.
+- **Variants**: `answered`, `abstained_no_evidence`, `abstained_by_model`. Abstentions never render under the "Answer" heading.
+- **States**: loading (`role="status"`, `aria-busy`), failed (`role="alert"` with code/HTTP/attempt and Retry when retryable), malformed response (error only; nothing rendered as an answer).
+- **Accessibility**: every state tag carries text plus a glyph (✓ ! ×); accent color only reinforces it.
+
+### Citation
+
+- **Structure**: source title, name · domain · published time, cited excerpt `<blockquote>`, "Inspect source" toggle (`aria-pressed`, `aria-controls`), external "Open original" link.
+
+### Source Viewer
+
+- **Structure**: `<aside id="source-viewer">` beside the result on desktop (sticky), stacked below on narrow screens.
+- **States**: loading, open (cited span in `<mark>` with screen-reader start/end markers), failed (`source_not_found`, `source_stale`, others).
+- **Keyboard**: focus moves to the viewer heading on open; Escape or "Close source" closes and returns focus to the citation button.
+
+### Accent usage
+
+Accent marks the current/attention state: active citation, warning/error tags, cited span underline, claim index.
 
 ## 6. Motion & Interaction
 
-No motion in scaffold. Future interactions may use `--duration-fast: 150ms`; only transform and opacity. Respect reduced motion.
+Only motion: the loading bar slide (`background-position`), disabled under `prefers-reduced-motion`.
 
 ## 7. Depth & Surface
 

@@ -17,6 +17,7 @@ EXPECTED_MIGRATIONS = (
     "004_staged_publication.sql",
     "005_current_lexical_document.sql",
     "006_enrichment_lifecycle.sql",
+    "007_source_references.sql",
 )
 
 

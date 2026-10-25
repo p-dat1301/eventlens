@@ -630,7 +630,7 @@ def test_upgrade_from_g1_schema_keeps_rows_and_adds_lifecycle(
         )
         migrate(scoped)
         assert job_state(scoped, job) == ("PENDING", 0, 0, None)
-        assert one(scoped, "SELECT count(*) FROM rag_schema_migrations") == 6
+        assert one(scoped, "SELECT count(*) FROM rag_schema_migrations") == 7
         assert one(scoped, "SELECT count(*) FROM rag_enrichment_publications") == 0
         assert lexical(scoped, "harbor") == [article.article_id]
     finally:

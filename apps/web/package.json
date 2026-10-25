@@ -8,7 +8,8 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "build": "vite build",
-    "check": "biome check ."
+    "check": "biome check .",
+    "test:e2e": "vite build && cd e2e && bun test ./layout.e2e.ts"
   },
   "dependencies": {
     "react": "19.3.0",
@@ -17,10 +18,12 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.13",
+    "@happy-dom/global-registrator": "21.0.4",
     "@types/bun": "1.4.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.1",
+    "playwright-core": "1.64.1",
     "typescript": "7.0.2",
     "vite": "8.3.0"
   }

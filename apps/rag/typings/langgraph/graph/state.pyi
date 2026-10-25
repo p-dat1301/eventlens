@@ -2,6 +2,7 @@ from collections.abc import Callable
 
 from langgraph.runtime import Runtime
 
+from eventlens_rag.graph.briefing_state import BriefingContext
 from eventlens_rag.graph.context import EnrichmentContext, PersistenceContext
 from eventlens_rag.graph.state import GraphContext
 
@@ -13,7 +14,7 @@ class CompiledStateGraph[StateT, ContextT, InputT, OutputT]:
 
 class StateGraph[
     StateT,
-    ContextT: GraphContext | PersistenceContext | EnrichmentContext,
+    ContextT: GraphContext | PersistenceContext | EnrichmentContext | BriefingContext,
     InputT,
     OutputT,
 ]:
