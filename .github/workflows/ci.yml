@@ -129,6 +129,21 @@ jobs:
         if: always()
         run: cat "$RUNNER_TEMP/g3-db/exit-codes.tsv" || true
 
+      # Separate database: historical runner -> refused -> preflight -> adopt ->
+      # migrate -> rebuild -> worker -> rag-api citation smoke.
+      - name: Create adoption database
+        run: |
+          PGPASSWORD=rag-test-only psql -h 127.0.0.1 -U rag_test -d rag_test \
+            -v ON_ERROR_STOP=1 -c 'CREATE DATABASE rag_adopt'
+
+      - name: Legacy adoption smoke
+        env:
+          EVENTLENS_RAG_DATABASE_URL: postgresql://rag_test:rag-test-only@127.0.0.1:5432/rag_adopt
+        run: |
+          export ADOPT_EVIDENCE_DIR="$RUNNER_TEMP/adopt"
+          mkdir -p "$ADOPT_EVIDENCE_DIR"
+          sh scripts/rag/adopt-smoke.sh
+
   eval:
     name: Enrichment and RAG evals
     runs-on: ubuntu-latest

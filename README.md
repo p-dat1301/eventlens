@@ -92,7 +92,7 @@ make down
 ```
 
 `infra` starts local PostgreSQL (pgvector) and a MinIO placeholder bound to localhost only. The RAG index uses a
-separate `eventlens_rag` database on that server (`make rag-db-create rag-migrate rag-load-fixtures rag-rebuild`,
+separate `eventlens_rag` database on that server (`make rag-db-create rag-migrate rag-load-fixtures rag-rebuild`; Alembic migrations,
 see `docs/rag.md`); MinIO is unused. `make up` starts `crud-api`, `rag-api` and `web`. Never reuse development
 credentials outside local environments.
 

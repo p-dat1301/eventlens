@@ -76,8 +76,9 @@ event was persisted; absence of `write_disposition` records that no write occurr
 `validate` and `process` above are unchanged and never touch the RAG database. Two
 further commands belong to the RAG context; adapters are composed in
 `backend/rag/composition.py` (the RAG composition root). Both read
-`EVENTLENS_RAG_DATABASE_URL` (or `--database-url`) and first apply the
-checksum-verified RAG migrations; use the separate `eventlens_rag` database, never
+`EVENTLENS_RAG_DATABASE_URL` (or `--database-url`) and first apply pending
+Alembic revisions (a pre-Alembic database is refused until adopted, see
+`docs/rag.md`); use the separate `eventlens_rag` database, never
 the legacy Compose `eventlens` database.
 
 ```bash
@@ -103,8 +104,8 @@ uv run eventlens-rag-worker enrich --provider fake-timeout --max-jobs 5
   in the environment changes nothing.
 
 Exit codes: `0` success, including FAILED/RETRY outcomes (they are pipeline output);
-`2` invalid bundle or option; `3` `rag_storage_unavailable`; `1`
-`rag_migration_failed`. Retry/lease policy and lifecycle are documented in
+`2` invalid bundle or option; `3` `rag_storage_unavailable`; `4`
+`rag_storage_failed` (statement rolled back); `1` `rag_migration_failed`. Retry/lease policy and lifecycle are documented in
 `docs/rag.md`. The enrichment path does not use `FakeEventExtractor`,
 `InMemoryEventWriter` or `event.v1`.
 

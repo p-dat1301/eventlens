@@ -20,9 +20,8 @@ from pathlib import Path
 from typing import LiteralString
 from uuid import UUID
 
-import psycopg
-from psycopg.rows import TupleRow
 from pydantic import TypeAdapter
+from sqlalchemy import Connection
 
 from backend.rag.application.ports.retrieval import RetrievalScope
 from backend.rag.domain.article_document import (
@@ -30,7 +29,14 @@ from backend.rag.domain.article_document import (
     normalized_content_hash,
 )
 from backend.rag.domain.embedding import EmbeddingIdentity
-from backend.rag.infra.postgres.connection import connect
+from backend.rag.infra.postgres.engine import (
+    execute,
+    first,
+    rag_engine,
+    rows,
+    scalar,
+    transaction,
+)
 from backend.rag.infra.postgres.store import persist_revision
 from backend.rag.infra.retrieval.postgres_retrieval import (
     SCOPE_FILTER,
@@ -155,33 +161,38 @@ def load_corpus(database_url: str, articles: int, seed: int) -> None:
     """Persist ``articles`` one-chunk documents with active synthetic vectors."""
     identity = EmbeddingIdentity()
     rng = random.Random(seed)  # noqa: S311 - deterministic synthetic data
-    with connect(database_url) as connection:
-        count = connection.execute("SELECT count(*) FROM rag_article_documents")
-        row = count.fetchone()
-        if row is None or row[0] != 0:
+    with transaction(rag_engine(database_url)) as connection:
+        count = scalar(
+            execute(connection, "SELECT count(*) FROM rag_article_documents")
+        )
+        if count != 0:
             raise CorpusNotEmptyError
         for index in range(articles):
             document = _document(index)
             persist_revision(connection, document)
-            generation = connection.execute(
-                """INSERT INTO rag_index_generations (
+            generation = first(
+                execute(
+                    connection,
+                    """INSERT INTO rag_index_generations (
                     article_id, content_hash, embedding_model, embedding_version,
                     embedding_dimension, chunker_version, normalization_version,
                     corpus_generation, expected_chunks, status
                 ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,1,'ACTIVE') RETURNING generation""",
-                (
-                    document.article_id,
-                    document.content_hash,
-                    identity.model,
-                    identity.version,
-                    identity.dimension,
-                    identity.chunker_version,
-                    identity.normalization_version,
-                    identity.corpus_generation,
-                ),
-            ).fetchone()
+                    (
+                        document.article_id,
+                        document.content_hash,
+                        identity.model,
+                        identity.version,
+                        identity.dimension,
+                        identity.chunker_version,
+                        identity.normalization_version,
+                        identity.corpus_generation,
+                    ),
+                )
+            )
             assert generation is not None  # noqa: S101 - RETURNING row
-            _ = connection.execute(
+            _ = execute(
+                connection,
                 """INSERT INTO rag_chunks (
                     chunk_id, article_id, content_hash, generation, chunk_index,
                     start_offset, end_offset, content, fingerprint, embedding
@@ -197,21 +208,22 @@ def load_corpus(database_url: str, articles: int, seed: int) -> None:
                     vector_literal(unit_vector(rng)),
                 ),
             )
-            _ = connection.execute(
+            _ = execute(
+                connection,
                 """UPDATE rag_article_current SET active_index_generation = %s
                 WHERE article_id = %s""",
                 (generation[0], document.article_id),
             )
-        _ = connection.execute("ANALYZE")
+        _ = execute(connection, "ANALYZE")
 
 
 def _plan(
-    connection: psycopg.Connection[TupleRow],
+    connection: Connection,
     query: LiteralString,
     params: dict[str, object],
 ) -> str:
-    rows = connection.execute("EXPLAIN (ANALYZE, COSTS) " + query, params).fetchall()
-    return "\n".join(TypeAdapter(str).validate_python(row[0]) for row in rows)
+    lines = rows(execute(connection, "EXPLAIN (ANALYZE, COSTS) " + query, params))
+    return "\n".join(TypeAdapter(str).validate_python(line[0]) for line in lines)
 
 
 def _ann(
@@ -224,15 +236,14 @@ def _ann(
     # Forcing (seqscan/sort off) exists only here, to exercise the HNSW
     # mechanism on small corpora; it is never used by the production path.
     settings = {"ef": "40", "scan": "20000", "force": "off" if force_index else "on"}
-    with connect(database_url) as connection:
-        connection.read_only = True
-        _ = connection.execute(ANN_SETTINGS, settings)
+    with transaction(rag_engine(database_url), read_only=True) as connection:
+        _ = execute(connection, ANN_SETTINGS, settings)
         if explain:
             return [], _plan(connection, ANN_SQL, params)
-        rows = TypeAdapter(list[tuple[str, int, float]]).validate_python(
-            connection.execute(ANN_SQL, params).fetchall()
+        found = TypeAdapter(list[tuple[str, int, float]]).validate_python(
+            rows(execute(connection, ANN_SQL, params))
         )
-    return [(article, chunk) for article, chunk, _ in rows], ""
+    return [(article, chunk) for article, chunk, _ in found], ""
 
 
 def _percentile(values: list[float], fraction: float) -> float:
@@ -266,16 +277,15 @@ def measure(
     identity = EmbeddingIdentity()
     rng = random.Random(seed + 1)  # noqa: S311 - deterministic query vectors
     vectors = [unit_vector(rng) for _ in range(queries)]
-    with connect(database_url) as connection:
-        count = connection.execute("SELECT count(*) FROM rag_current_vectors")
-        row = count.fetchone()
-    articles = 0 if row is None else TypeAdapter(int).validate_python(row[0])
+    with transaction(rag_engine(database_url), read_only=True) as connection:
+        count = scalar(execute(connection, "SELECT count(*) FROM rag_current_vectors"))
+    articles = TypeAdapter(int).validate_python(count or 0)
     results: list[RouteResult] = []
     for scenario in _scenarios(articles):
         exact: list[set[tuple[str, int]]] = []
         exact_ms: list[float] = []
         for vector in vectors:
-            store = PostgresRetrievalStore(database_url)
+            store = PostgresRetrievalStore(rag_engine(database_url))
             started = time.perf_counter()
             hits = store.vector_chunks(vector, identity, scenario.scope, k)
             exact_ms.append((time.perf_counter() - started) * 1000)
@@ -286,7 +296,7 @@ def measure(
             "embedding": vector_literal(vectors[0]),
             "limit": k,
         }
-        with connect(database_url) as connection:
+        with transaction(rag_engine(database_url), read_only=True) as connection:
             exact_plan = _plan(connection, VECTOR_EXACT_SQL, params)
         plan_name = f"explain-{scenario.name}-exact.txt"
         _ = (output / plan_name).write_text(exact_plan, encoding="utf-8")
@@ -344,11 +354,14 @@ def measure(
 
 def pgvector_version(database_url: str) -> str:
     """Installed pgvector extension version."""
-    with connect(database_url) as connection:
-        row = connection.execute(
-            "SELECT extversion FROM pg_extension WHERE extname = 'vector'"
-        ).fetchone()
-    return "" if row is None else TypeAdapter(str).validate_python(row[0])
+    with transaction(rag_engine(database_url), read_only=True) as connection:
+        version = scalar(
+            execute(
+                connection,
+                "SELECT extversion FROM pg_extension WHERE extname = 'vector'",
+            )
+        )
+    return "" if version is None else TypeAdapter(str).validate_python(version)
 
 
 def report_rows(results: list[RouteResult]) -> list[dict[str, object]]:

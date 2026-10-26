@@ -7,35 +7,26 @@ purged opportunistically when new references are issued.
 
 import secrets
 from dataclasses import dataclass
+from datetime import timedelta
 from hashlib import sha256
-from typing import LiteralString
 from uuid import UUID
 
-import psycopg
-from psycopg.rows import TupleRow
 from pydantic import TypeAdapter
+from sqlalchemy import DateTime, Engine, delete, func, insert, select
 
 from backend.rag.application.ports.source_references import SourceReference
 from backend.rag.domain.access import CallerScope
 from backend.rag.domain.retrieval import RetrievalStorageError
-from backend.rag.infra.postgres.connection import StorageUnavailableError, connect
+from backend.rag.infra.postgres.connection import (
+    StorageOperationError,
+    StorageUnavailableError,
+)
+from backend.rag.infra.postgres.engine import transaction
+from backend.rag.infra.postgres.models import SourceReferenceRow as Ref
 from backend.shared.contracts.evidence import EvidenceSpan
 
 DEFAULT_TTL_SECONDS = 86_400
 _ROW = TypeAdapter(tuple[str, str, UUID, str, UUID, int, int, str, str])
-_PURGE_SQL: LiteralString = (
-    "DELETE FROM rag_source_references WHERE expires_at <= clock_timestamp()"
-)
-_INSERT_SQL: LiteralString = """INSERT INTO rag_source_references (
-    token_sha256, principal_id, scope_id, article_id, content_hash, span_id,
-    start_offset, end_offset, excerpt, span_fingerprint, expires_at)
-VALUES (%(token)s, %(principal)s, %(scope)s, %(article)s, %(hash)s, %(span)s,
-    %(start)s, %(end)s, %(excerpt)s, %(fingerprint)s,
-    clock_timestamp() + make_interval(secs => %(ttl)s))"""
-_SELECT_SQL: LiteralString = """SELECT principal_id, scope_id, article_id,
-    content_hash, span_id, start_offset, end_offset, excerpt, span_fingerprint
-FROM rag_source_references
-WHERE token_sha256 = %(token)s AND expires_at > clock_timestamp()"""
 
 
 def _digest(token: str) -> str:
@@ -46,58 +37,61 @@ def _digest(token: str) -> str:
 class PostgresSourceReferences:
     """Opaque, caller-bound, expiring references in ``rag_source_references``."""
 
-    database_url: str
+    engine: Engine
     ttl_seconds: int = DEFAULT_TTL_SECONDS
-
-    def _run(
-        self, statements: tuple[tuple[LiteralString, dict[str, object]], ...]
-    ) -> list[TupleRow]:
-        rows: list[TupleRow] = []
-        try:
-            with connect(self.database_url) as connection:
-                for query, params in statements:
-                    cursor = connection.execute(query, params)
-                    if cursor.description is not None:
-                        rows = cursor.fetchall()
-        except StorageUnavailableError as error:
-            raise RetrievalStorageError from error
-        except psycopg.Error as error:
-            raise RetrievalStorageError from error
-        return rows
 
     def issue(self, caller: CallerScope, span: EvidenceSpan) -> str:
         """Insert a new reference; the raw token is never persisted."""
         token = secrets.token_urlsafe(24)
-        _ = self._run(
-            (
-                (_PURGE_SQL, {}),
-                (
-                    _INSERT_SQL,
-                    {
-                        "token": _digest(token),
-                        "principal": caller.principal_id,
-                        "scope": caller.scope_id,
-                        "article": span.article_id,
-                        "hash": span.content_hash,
-                        "span": span.span_id,
-                        "start": span.start_offset,
-                        "end": span.end_offset,
-                        "excerpt": span.excerpt,
-                        "fingerprint": span.span_fingerprint,
-                        "ttl": self.ttl_seconds,
-                    },
-                ),
-            )
-        )
+        now = func.clock_timestamp(type_=DateTime(timezone=True))
+        try:
+            with transaction(self.engine) as connection:
+                _ = connection.execute(delete(Ref).where(Ref.expires_at <= now))
+                _ = connection.execute(
+                    insert(Ref).values(
+                        token_sha256=_digest(token),
+                        principal_id=caller.principal_id,
+                        scope_id=caller.scope_id,
+                        article_id=span.article_id,
+                        content_hash=span.content_hash,
+                        span_id=span.span_id,
+                        start_offset=span.start_offset,
+                        end_offset=span.end_offset,
+                        excerpt=span.excerpt,
+                        span_fingerprint=span.span_fingerprint,
+                        expires_at=now + timedelta(seconds=self.ttl_seconds),
+                    )
+                )
+        except (StorageUnavailableError, StorageOperationError) as error:
+            raise RetrievalStorageError from error
         return token
 
     def resolve(self, token: str) -> SourceReference | None:
         """Return an unexpired reference, or ``None``."""
-        rows = self._run(((_SELECT_SQL, {"token": _digest(token)}),))
-        if not rows:
+        query = select(
+            Ref.principal_id,
+            Ref.scope_id,
+            Ref.article_id,
+            Ref.content_hash,
+            Ref.span_id,
+            Ref.start_offset,
+            Ref.end_offset,
+            Ref.excerpt,
+            Ref.span_fingerprint,
+        ).where(
+            Ref.token_sha256 == _digest(token),
+            Ref.expires_at > func.clock_timestamp(),
+        )
+        try:
+            with transaction(self.engine) as connection:
+                row = connection.execute(query).first()
+                found = None if row is None else tuple(row)
+        except (StorageUnavailableError, StorageOperationError) as error:
+            raise RetrievalStorageError from error
+        if found is None:
             return None
         principal, scope, article, digest, span_id, start, end, excerpt, mark = (
-            _ROW.validate_python(rows[0])
+            _ROW.validate_python(found)
         )
         span = EvidenceSpan.model_validate(
             {

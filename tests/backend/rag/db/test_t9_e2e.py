@@ -45,6 +45,7 @@ from backend.rag.domain.retrieval import RetrievalMode, RetrievalStorageError
 from backend.rag.infra.embeddings.fake_embeddings import FakeEmbeddings
 from backend.rag.infra.llm.fake_enricher import ScriptedArticleEnricher
 from backend.rag.infra.postgres.connection import StorageUnavailableError
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.postgres.staging import PostgresStaging
 from backend.rag.infra.repositories.postgres_enrichment import (
     PostgresEnrichmentRepository,
@@ -89,7 +90,8 @@ def _query() -> BriefingQuery:
 
 def _briefing(url: str) -> BriefingRuntime:
     return compose_briefing(
-        PostgresRetrievalStore(url), references=PostgresSourceReferences(url)
+        PostgresRetrievalStore(rag_engine(url)),
+        references=PostgresSourceReferences(rag_engine(url)),
     )
 
 
@@ -207,10 +209,12 @@ def test_rejected_metadata_never_publishes_and_lexical_still_answers(
         return make(request.context.normalized_content)
 
     steps = EnrichmentSteps(
-        repository=PostgresEnrichmentRepository(retrieval_url),
+        repository=PostgresEnrichmentRepository(rag_engine(retrieval_url)),
         enricher=ScriptedArticleEnricher([respond]),
         generations=EnsureGeneration(
-            PostgresStaging(retrieval_url), FakeEmbeddings(), EmbeddingIdentity()
+            PostgresStaging(rag_engine(retrieval_url)),
+            FakeEmbeddings(),
+            EmbeddingIdentity(),
         ),
         policy=bundled_retry_policy(),
         clock=build_runtime(retrieval_url).steps.clock,

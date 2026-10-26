@@ -22,6 +22,9 @@ from backend.rag.infra.postgres.migrations import (
     MigrationResourcesError,
     migrate,
 )
+from backend.rag.infra.postgres.revisions.versions.rag_0001_baseline import (
+    LEGACY_CHECKSUMS,
+)
 
 MIGRATION_SOURCE = "src/backend/rag/infra/postgres/migrations"
 PACKAGED_PREFIX = "backend/rag/infra/postgres/migrations/"
@@ -202,3 +205,78 @@ def test_migrate_rejects_existing_null_document_json(database_url: str) -> None:
     # When/Then: rerunning migration rejects NULL instead of claiming success.
     with pytest.raises(LegacyDocumentError, match="approved source"):
         migrate(scoped_url)
+
+
+def test_alembic_baseline_records_the_pinned_ledger_checksums() -> None:
+    assert dict(LEGACY_CHECKSUMS) == RECORDED_CHECKSUMS
+
+
+ALEMBIC_RESOURCES = (
+    "backend/rag/infra/postgres/revisions/env.py",
+    "backend/rag/infra/postgres/revisions/script.py.mako",
+    "backend/rag/infra/postgres/revisions/versions/rag_0001_baseline.py",
+    "backend/rag/infra/postgres/expected_schema.json",
+)
+
+
+def test_wheel_runs_alembic_migrate_outside_checkout(
+    database_url: str, tmp_path: Path
+) -> None:
+    # Given: a built wheel unpacked outside the checkout (Alembic loads its
+    # revisions from the filesystem, as in an installed environment).
+    project = Path(__file__).parents[4]
+    uv = shutil.which("uv")
+    assert uv is not None
+    _ = subprocess.run(  # noqa: S603
+        [uv, "build", "--wheel", "--out-dir", str(tmp_path / "dist"), str(project)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    wheel = next((tmp_path / "dist").glob("eventlens-*.whl"))
+    site = tmp_path / "site"
+    with zipfile.ZipFile(wheel) as archive:
+        names = set(archive.namelist())
+        archive.extractall(site)
+    assert set(ALEMBIC_RESOURCES) <= names
+    schema = "wheel_alembic_" + uuid4().hex
+    with psycopg.connect(database_url) as connection:
+        _ = connection.execute(
+            sql.SQL("CREATE SCHEMA {}").format(sql.Identifier(schema))
+        )
+    scoped_url = make_conninfo(database_url, options=f"-c search_path={schema},public")
+    probe = (
+        "import backend, sys; assert backend.__file__.startswith(sys.argv[1]); "
+        "from backend.rag.cli_main import app; "
+        "app(['migrate'])"
+    )
+
+    # When: the packaged CLI migrates twice.
+    runs = [
+        subprocess.run(  # noqa: S603
+            [sys.executable, "-c", probe, str(site)],
+            cwd=tmp_path,
+            env={
+                **os.environ,
+                "PYTHONPATH": str(site),
+                "EVENTLENS_RAG_DATABASE_URL": scoped_url,
+            },
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        for _ in range(2)
+    ]
+
+    # Then: baseline applied from packaged revisions, then a no-op.
+    assert [run.returncode for run in runs] == [0, 0], runs[0].stderr
+    assert all("alembic rag_0001_baseline" in run.stdout for run in runs)
+    with psycopg.connect(scoped_url) as connection:
+        version = connection.execute(
+            "SELECT version_num FROM alembic_version"
+        ).fetchall()
+        ledger = connection.execute(
+            "SELECT count(*) FROM rag_schema_migrations"
+        ).fetchone()
+    assert version == [("rag_0001_baseline",)]
+    assert ledger == (7,)

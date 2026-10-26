@@ -41,6 +41,7 @@ from backend.rag.domain.retrieval import (
 )
 from backend.rag.domain.tokenizer import TokenizerIdentity
 from backend.rag.infra.llm.fixture_tokens import FixtureTokenCounter
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.postgres.store import PostgresRagStore
 from backend.rag.infra.retrieval.postgres_retrieval import PostgresRetrievalStore
 from backend.rag.infra.retrieval.scripted_reranker import (
@@ -116,7 +117,7 @@ class BarrierStore:
 
 
 def persist(url: str, *texts: str) -> list[UUID]:
-    store = PostgresRagStore(url)
+    store = PostgresRagStore(rag_engine(url))
     ids: list[UUID] = []
     for text in texts:
         document = article(text, title="Neutral title")
@@ -133,7 +134,7 @@ def test_r1_access_revoked_during_final_fetch_returns_no_evidence(
 ) -> None:
     _ = persist(retrieval_url, "Harbor crane inspection closes the gate.")
     access = MutableAccess()
-    store = BarrierStore(PostgresRetrievalStore(retrieval_url))
+    store = BarrierStore(PostgresRetrievalStore(rag_engine(retrieval_url)))
     retrieve = service(store, access=access)
 
     with ThreadPoolExecutor(max_workers=1) as pool:
@@ -277,7 +278,7 @@ def test_r2_malformed_output_on_real_db_degrades(retrieval_url: str) -> None:
     _ = persist(retrieval_url, "Harbor crane one.", "Harbor crane two again.")
 
     result = service(
-        PostgresRetrievalStore(retrieval_url),
+        PostgresRetrievalStore(rag_engine(retrieval_url)),
         reranker=ScriptedReranker(three_element_row),
     ).execute(briefing("harbor crane"), CALLER, control(), LEXICAL)
 
@@ -322,7 +323,7 @@ def test_r3_query_lexemes_match_the_index_config(
 ) -> None:
     (article_id,) = persist(retrieval_url, content)
 
-    result = service(PostgresRetrievalStore(retrieval_url)).execute(
+    result = service(PostgresRetrievalStore(rag_engine(retrieval_url))).execute(
         briefing(query), CALLER, control(), LEXICAL
     )
 
@@ -335,7 +336,7 @@ def test_r3_query_lexemes_match_the_index_config(
 def test_r3_stopword_only_query_reports_no_query_terms(retrieval_url: str) -> None:
     _ = persist(retrieval_url, "What is the harbor status?")
 
-    result = service(PostgresRetrievalStore(retrieval_url)).execute(
+    result = service(PostgresRetrievalStore(rag_engine(retrieval_url))).execute(
         briefing("what is the"), CALLER, control(), LEXICAL
     )
 
@@ -375,7 +376,7 @@ def test_r4_exact_and_one_over_scan_limit(
 ) -> None:
     (article_id,) = persist(retrieval_url, long_text(chunks, needle_in_last=True))
 
-    result = service(PostgresRetrievalStore(retrieval_url)).execute(
+    result = service(PostgresRetrievalStore(rag_engine(retrieval_url))).execute(
         briefing("harborword"), CALLER, control(), LEXICAL
     )
 
@@ -398,7 +399,7 @@ def test_r4_long_article_intermediate_pool_is_bounded(retrieval_url: str) -> Non
     text = ("harborword crane inspection notice. " * 9000)[:312_000]
     _ = persist(retrieval_url, text, *(f"harborword item {i}" for i in range(60)))
 
-    result = service(PostgresRetrievalStore(retrieval_url)).execute(
+    result = service(PostgresRetrievalStore(rag_engine(retrieval_url))).execute(
         briefing("harborword"), CALLER, control(), LEXICAL
     )
 
@@ -415,7 +416,7 @@ def test_r4_cancel_and_deadline_after_long_scan_stop_the_query(
 ) -> None:
     _ = persist(retrieval_url, long_text(45, needle_in_last=False) + " harborword")
     ctl = control()
-    store = BarrierStore(PostgresRetrievalStore(retrieval_url))
+    store = BarrierStore(PostgresRetrievalStore(rag_engine(retrieval_url)))
     store.release.set()
     store.on_lexical.append(ctl.cancel)
 
@@ -425,7 +426,7 @@ def test_r4_cancel_and_deadline_after_long_scan_stop_the_query(
 
     clock = FakeMonotonic()
     timed = QueryControl(deadline_seconds=1.0, monotonic=clock)
-    late = BarrierStore(PostgresRetrievalStore(retrieval_url))
+    late = BarrierStore(PostgresRetrievalStore(rag_engine(retrieval_url)))
     late.release.set()
     late.on_lexical.append(lambda: setattr(clock, "now", 5.0))
     with pytest.raises(RetrievalDeadlineExceededError):

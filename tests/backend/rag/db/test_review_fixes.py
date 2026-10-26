@@ -9,7 +9,6 @@ from collections.abc import Callable, Generator
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from threading import Event, current_thread
-from typing import Self, final
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -17,7 +16,7 @@ import psycopg
 import pytest
 from psycopg import sql
 from psycopg.conninfo import make_conninfo
-from psycopg.rows import TupleRow
+from sqlalchemy import Connection, CursorResult
 
 import backend.rag.infra.repositories.postgres_enrichment as pg_enrichment
 from backend.rag.application.ports.enrichment import EnrichmentRequest
@@ -38,8 +37,8 @@ from backend.rag.domain.enrichment_lifecycle import (
 )
 from backend.rag.domain.staging import StageRequest
 from backend.rag.infra.llm.fake_enricher import FakeArticleEnricher
-from backend.rag.infra.postgres.connection import connect
-from backend.rag.infra.postgres.migrations import migrate
+from backend.rag.infra.postgres.engine import Params, Row, rag_engine
+from backend.rag.infra.postgres.engine import execute as engine_execute
 from backend.rag.infra.postgres.staging import PostgresStaging
 from backend.rag.infra.postgres.store import PostgresRagStore
 from backend.rag.infra.repositories.postgres_enrichment import (
@@ -52,6 +51,7 @@ from enrichment_support import (
     document,
     identity_of,
 )
+from schema_support import prepare_schema
 
 FAKE = FakeArticleEnricher()
 IDENTITY = identity_of(FAKE)
@@ -68,7 +68,7 @@ def url(database_url: str) -> Generator[str]:
             sql.SQL("CREATE SCHEMA {}").format(sql.Identifier(schema))
         )
     scoped = make_conninfo(database_url, options=f"-c search_path={schema},public")
-    migrate(scoped)
+    prepare_schema(scoped)
     yield scoped
     with psycopg.connect(database_url, autocommit=True) as connection:
         _ = connection.execute(
@@ -81,35 +81,10 @@ def rows(url: str, query: str, params: tuple[object, ...] = ()) -> list[object]:
         return list(connection.execute(query.encode(), params).fetchall())
 
 
-@final
-class _GatedConnection:
-    """Pause the reconciler thread once, right before its article row lock."""
-
-    def __init__(
-        self, inner: psycopg.Connection[TupleRow], gate: Callable[[str], None]
-    ) -> None:
-        self._inner = inner
-        self._gate = gate
-
-    def __enter__(self) -> Self:
-        _ = self._inner.__enter__()
-        return self
-
-    def __exit__(self, *exc: object) -> None:
-        self._inner.__exit__(None, None, None)
-
-    def execute(self, query: str, params: object = None) -> object:
-        self._gate(query)
-        return self._inner.execute(query, params)  # pyright: ignore[reportArgumentType]
-
-    def cursor(self, *args: object, **kwargs: object) -> object:
-        return self._inner.cursor(*args, **kwargs)
-
-
 def _pause_reconciler_before_article_lock(
     paused: Event, release: Event
-) -> Callable[[str], object]:
-    real_connect = connect
+) -> Callable[[Connection, str, Params], CursorResult[Row]]:
+    real_execute = engine_execute
     fired: list[bool] = []
 
     def gate(query: str) -> None:
@@ -123,23 +98,26 @@ def _pause_reconciler_before_article_lock(
             paused.set()
             assert release.wait(WAIT)
 
-    def gated_connect(database_url: str) -> object:
-        return _GatedConnection(real_connect(database_url), gate)
+    def gated_execute(
+        connection: Connection, query: str, params: Params = ()
+    ) -> CursorResult[Row]:
+        gate(query)
+        return real_execute(connection, query, params)
 
-    return gated_connect
+    return gated_execute
 
 
 def test_r1_obsolete_reconciliation_candidate_cannot_strand_current_revision(
     url: str,
 ) -> None:
-    repository = PostgresEnrichmentRepository(url)
+    repository = PostgresEnrichmentRepository(rag_engine(url))
     old = document("Old Harbor Authority report")
     new = document("Corrected Harbor Authority report", article_id=old.article_id)
-    PostgresRagStore(url).persist_article(old)
+    PostgresRagStore(rag_engine(url)).persist_article(old)
     paused, release = Event(), Event()
     gated = _pause_reconciler_before_article_lock(paused, release)
     with (
-        patch.object(pg_enrichment, "connect", gated),
+        patch.object(pg_enrichment, "execute", gated),
         ThreadPoolExecutor(1, thread_name_prefix=RECONCILER) as pool,
     ):
         future = pool.submit(repository.enqueue_missing, IDENTITY, 25)
@@ -170,15 +148,15 @@ def test_r1_obsolete_reconciliation_candidate_cannot_strand_current_revision(
 def test_r1_reconciliation_enqueues_the_current_revision_not_the_candidate(
     url: str,
 ) -> None:
-    repository = PostgresEnrichmentRepository(url)
-    store = PostgresRagStore(url)
+    repository = PostgresEnrichmentRepository(rag_engine(url))
+    store = PostgresRagStore(rag_engine(url))
     old = document("Old Harbor Authority report")
     new = document("Corrected Harbor Authority report", article_id=old.article_id)
     store.persist_article(old)
     paused, release = Event(), Event()
     gated = _pause_reconciler_before_article_lock(paused, release)
     with (
-        patch.object(pg_enrichment, "connect", gated),
+        patch.object(pg_enrichment, "execute", gated),
         ThreadPoolExecutor(1, thread_name_prefix=RECONCILER) as pool,
     ):
         future = pool.submit(repository.enqueue_missing, IDENTITY, 25)
@@ -196,15 +174,15 @@ def test_r1_reconciliation_enqueues_the_current_revision_not_the_candidate(
 def test_r2_concurrent_reconciliation_never_resets_budget_or_backoff(
     url: str,
 ) -> None:
-    repository = PostgresEnrichmentRepository(url)
+    repository = PostgresEnrichmentRepository(rag_engine(url))
     article = document("Harbor Authority retry race")
-    PostgresRagStore(url).persist_article(article)
+    PostgresRagStore(rag_engine(url)).persist_article(article)
     paused, release = Event(), Event()
     gated = _pause_reconciler_before_article_lock(paused, release)
     state = """SELECT attempt_count, failure_code, next_attempt_at > clock_timestamp(),
         claim_generation FROM rag_enrichment_jobs"""
     with (
-        patch.object(pg_enrichment, "connect", gated),
+        patch.object(pg_enrichment, "execute", gated),
         ThreadPoolExecutor(1, thread_name_prefix=RECONCILER) as pool,
     ):
         future = pool.submit(repository.enqueue_missing, IDENTITY, 25)
@@ -226,7 +204,7 @@ def test_r2_concurrent_reconciliation_never_resets_budget_or_backoff(
 
 
 def test_r2_duplicate_ingest_preserves_scheduled_retry(url: str) -> None:
-    repository = PostgresEnrichmentRepository(url)
+    repository = PostgresEnrichmentRepository(rag_engine(url))
     article = document("Harbor Authority duplicate delivery")
     key = IDENTITY.key_for(article.article_id, article.content_hash)
     _ = repository.ingest(article, key)
@@ -245,7 +223,7 @@ def test_r2_duplicate_ingest_preserves_scheduled_retry(url: str) -> None:
 def _runner(
     url: str, staging: GenerationStaging, embeddings: CountingEmbeddings
 ) -> tuple[EnrichmentRunner, PostgresEnrichmentRepository]:
-    repository = PostgresEnrichmentRepository(url)
+    repository = PostgresEnrichmentRepository(rag_engine(url))
     steps = EnrichmentSteps(
         repository,
         FAKE,
@@ -261,7 +239,7 @@ def test_r3_cancel_acknowledged_inside_stage_starts_no_embedding_or_rows(
 ) -> None:
     scope = CancellationScope()
     reached, release = Event(), Event()
-    inner = PostgresStaging(url)
+    inner = PostgresStaging(rag_engine(url))
     stage_calls: list[bool] = []
 
     class PausedStaging:
@@ -303,8 +281,10 @@ def test_r3_cancel_acknowledged_inside_stage_starts_no_embedding_or_rows(
 
 
 def test_r3_already_cancelled_run_does_no_reconcile_or_claim(url: str) -> None:
-    worker, _ = _runner(url, PostgresStaging(url), CountingEmbeddings())
-    PostgresRagStore(url).persist_article(document("Harbor Authority cancelled"))
+    worker, _ = _runner(url, PostgresStaging(rag_engine(url)), CountingEmbeddings())
+    PostgresRagStore(rag_engine(url)).persist_article(
+        document("Harbor Authority cancelled")
+    )
     scope = CancellationScope()
     assert scope.cancel() is None
     report = worker.run(1, scope)
@@ -339,7 +319,9 @@ def test_r4_fake_offsets_are_code_points_of_the_original_text(content: str) -> N
 
 
 def test_r4_valid_unicode_article_publishes_on_real_db(url: str) -> None:
-    worker, repository = _runner(url, PostgresStaging(url), CountingEmbeddings())
+    worker, repository = _runner(
+        url, PostgresStaging(rag_engine(url)), CountingEmbeddings()
+    )
     article = document("Straße harbor")
     _ = repository.ingest(
         article, IDENTITY.key_for(article.article_id, article.content_hash)

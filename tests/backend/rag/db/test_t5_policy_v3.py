@@ -34,6 +34,7 @@ from backend.rag.domain.retrieval import (
     RetrievalResult,
     VectorHit,
 )
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.postgres.store import PostgresRagStore
 from backend.rag.infra.retrieval.postgres_retrieval import PostgresRetrievalStore
 from backend.rag.infra.retrieval.scripted_reranker import ScriptedReranker
@@ -365,7 +366,7 @@ def tied_document(index: int, windows: int) -> tuple[str, str]:
 
 
 def load(url: str, articles: int, windows: int) -> list[UUID]:
-    store = PostgresRagStore(url)
+    store = PostgresRagStore(rag_engine(url))
     published = datetime(2026, 3, 1, tzinfo=UTC)
     ids: list[UUID] = []
     for index in range(articles):
@@ -382,7 +383,7 @@ def load(url: str, articles: int, windows: int) -> list[UUID]:
 
 
 def measure(url: str) -> tuple[Recording, PostgresRetrievalStore, RetrievalResult]:
-    inner = PostgresRetrievalStore(url)
+    inner = PostgresRetrievalStore(rag_engine(url))
     recording = Recording(inner)
     result = service(recording, embeddings=None).execute(
         briefing("harborword", result_limit=20), CALLER, control(), LEXICAL

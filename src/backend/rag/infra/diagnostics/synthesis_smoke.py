@@ -62,6 +62,7 @@ from backend.rag.infra.embeddings.fake_embeddings import FakeEmbeddings
 from backend.rag.infra.llm.fake_synthesis import DeterministicFakeSynthesizer
 from backend.rag.infra.llm.fixture_tokens import FixtureTokenCounter
 from backend.rag.infra.llm.scripted_synthesis import ScriptedSynthesizer
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.retrieval.identity_reranker import IdentityReranker
 from backend.rag.infra.retrieval.postgres_retrieval import PostgresRetrievalStore
 
@@ -143,7 +144,7 @@ class Runtime:
             mode = retrieval.retrieval_mode.value
             result = SynthesizeAnswer(
                 model=model,
-                sources=PostgresRetrievalStore(self.url),
+                sources=PostgresRetrievalStore(rag_engine(self.url)),
                 access=access,
                 tokens=self.counter,
                 policy=policy,
@@ -179,7 +180,7 @@ class Runtime:
     def retrieval(self) -> RetrieveEvidence:
         """T5 service sharing this runtime's counter."""
         return RetrieveEvidence(
-            store=PostgresRetrievalStore(self.url),
+            store=PostgresRetrievalStore(rag_engine(self.url)),
             embeddings=FakeEmbeddings(),
             embedding_identity=EmbeddingIdentity(),
             reranker=IdentityReranker(),
@@ -411,7 +412,7 @@ def _evidence(runtime: Runtime, query: BriefingQuery) -> dict[str, object]:
     try:
         result = SynthesizeAnswer(
             model=DeterministicFakeSynthesizer(_identity()),
-            sources=PostgresRetrievalStore(runtime.url),
+            sources=PostgresRetrievalStore(rag_engine(runtime.url)),
             access=SmokeAccess(),
             tokens=runtime.counter,
             policy=policy,

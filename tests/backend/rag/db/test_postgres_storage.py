@@ -12,7 +12,8 @@ from backend.rag.domain.chunking import chunk_document
 from backend.rag.domain.embedding import EmbeddingIdentity
 from backend.rag.domain.staging import StageRequest
 from backend.rag.infra.embeddings.fake_embeddings import FakeEmbeddings
-from backend.rag.infra.postgres.migrations import MigrationChangedError
+from backend.rag.infra.postgres.engine import rag_engine
+from backend.rag.infra.postgres.migrations import MigrationChangedError, migrate
 from backend.rag.infra.postgres.staging import PostgresStaging
 from backend.rag.infra.postgres.store import PostgresRagStore
 
@@ -25,7 +26,7 @@ def stage(
 ) -> int:
     chunks = chunk_document(article)
     vectors = tuple(FakeEmbeddings().embed(chunk.content) for chunk in chunks)
-    return PostgresStaging(url).stage(
+    return PostgresStaging(rag_engine(url)).stage(
         StageRequest(article, identity or EmbeddingIdentity(), chunks, vectors)
     )
 
@@ -44,14 +45,14 @@ def test_applied_migration_checksum_rejects_modified_source(
 ) -> None:
     _ = (tmp_path / "001_enable_vector.sql").write_text("SELECT 1;", encoding="utf-8")
     with pytest.raises(MigrationChangedError):
-        PostgresRagStore(database_url).migrate(tmp_path)
+        migrate(database_url, tmp_path)
 
 
 def test_database_enforces_immutable_revisions(
     database_url: str, make_article: Factory
 ) -> None:
     article = make_article("Immutable revision")
-    PostgresRagStore(database_url).persist_article(article)
+    PostgresRagStore(rag_engine(database_url)).persist_article(article)
     with psycopg.connect(database_url) as connection, pytest.raises(RaiseException):
         _ = connection.execute(
             "UPDATE rag_article_documents SET title = 'mutated' WHERE article_id = %s",
@@ -62,7 +63,7 @@ def test_database_enforces_immutable_revisions(
 def test_duplicate_document_delivery_is_suppressed(
     database_url: str, make_article: Factory
 ) -> None:
-    store = PostgresRagStore(database_url)
+    store = PostgresRagStore(rag_engine(database_url))
     article = make_article("Duplicate delivery text")
     store.persist_article(article)
     store.persist_article(article)
@@ -73,7 +74,7 @@ def test_duplicate_document_delivery_is_suppressed(
 def test_five_field_key_is_unique_and_each_field_distinguishes_jobs(
     database_url: str, make_article: Factory
 ) -> None:
-    store = PostgresRagStore(database_url)
+    store = PostgresRagStore(rag_engine(database_url))
     article = make_article("Five field identity")
     store.persist_article(article)
     key = (article.article_id, article.content_hash)
@@ -106,14 +107,14 @@ def test_real_vector_sql_preserves_baseline_dimension(database_url: str) -> None
 def test_lexical_first_then_hnsw_query_exposes_index_metadata(
     database_url: str, make_article: Factory
 ) -> None:
-    store = PostgresRagStore(database_url)
+    store = PostgresRagStore(rag_engine(database_url))
     article = make_article("Harbor flooding closes the eastern ferry terminal")
     store.persist_article(article)
     fts = """SELECT count(*) FROM rag_current_lexical WHERE article_id = %s
         AND search_vector @@ plainto_tsquery('simple', 'ferry')"""
     assert scalar(database_url, fts, (article.article_id,)) == 1
     vectors = "SELECT count(*) FROM rag_current_vectors WHERE article_id = %s"
-    staging = PostgresStaging(database_url)
+    staging = PostgresStaging(rag_engine(database_url))
     generation = stage(database_url, article)
     assert stage(database_url, article) == generation
     assert scalar(database_url, vectors, (article.article_id,)) == 0
@@ -152,13 +153,13 @@ def test_lexical_first_then_hnsw_query_exposes_index_metadata(
 def test_correction_during_rebuild_hides_old_vectors_and_stales_jobs(
     database_url: str, make_article: Factory
 ) -> None:
-    store = PostgresRagStore(database_url)
+    store = PostgresRagStore(rag_engine(database_url))
     old = make_article("Original bridge report")
     article_id = old.article_id
     store.persist_article(old)
     old_job = store.enqueue_job(old.article_id, old.content_hash, "v1", "v1", "v1")
     old_generation = stage(database_url, old)
-    assert PostgresStaging(database_url).activate(old_generation)
+    assert PostgresStaging(rag_engine(database_url)).activate(old_generation)
     rebuild = EmbeddingIdentity(corpus_generation="rag-fixture-corpus.v2")
     pending_generation = stage(database_url, old, rebuild)
     corrected = make_article("Corrected tunnel report").model_copy(
@@ -174,7 +175,7 @@ def test_correction_during_rebuild_hides_old_vectors_and_stales_jobs(
     status = "SELECT status FROM rag_enrichment_jobs WHERE job_id = %s"
     assert scalar(database_url, status, (old_job,)) == "STALE"
     assert store.claim_job(old_job) is None
-    staging = PostgresStaging(database_url)
+    staging = PostgresStaging(rag_engine(database_url))
     assert staging.activate_all([old_generation, pending_generation]) == 0
     assert scalar(database_url, vectors, (article_id,)) == 0
 
@@ -182,11 +183,11 @@ def test_correction_during_rebuild_hides_old_vectors_and_stales_jobs(
 def test_tombstone_is_synchronous_and_survives_stale_replay(
     database_url: str, make_article: Factory
 ) -> None:
-    store = PostgresRagStore(database_url)
+    store = PostgresRagStore(rag_engine(database_url))
     article = make_article("Tombstoned article text")
     store.persist_article(article)
     generation = stage(database_url, article)
-    staging = PostgresStaging(database_url)
+    staging = PostgresStaging(rag_engine(database_url))
     assert staging.activate(generation)
     store.tombstone_article(article.article_id)
     lexical = "SELECT count(*) FROM rag_current_lexical WHERE article_id = %s"
@@ -199,6 +200,6 @@ def test_tombstone_is_synchronous_and_survives_stale_replay(
 
 
 def test_unknown_article_cannot_be_activated(database_url: str) -> None:
-    assert PostgresStaging(database_url).activate_all([-1]) == 0
+    assert PostgresStaging(rag_engine(database_url)).activate_all([-1]) == 0
     missing = "SELECT count(*) FROM rag_article_current WHERE article_id = %s"
     assert scalar(database_url, missing, (UUID(int=0),)) == 0

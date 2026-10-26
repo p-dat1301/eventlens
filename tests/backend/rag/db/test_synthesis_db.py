@@ -38,6 +38,7 @@ from backend.rag.domain.synthesis_errors import (
 )
 from backend.rag.infra.llm.fake_synthesis import DeterministicFakeSynthesizer
 from backend.rag.infra.llm.scripted_synthesis import ScriptedSynthesizer
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.postgres.store import PostgresRagStore
 from backend.rag.infra.retrieval.postgres_retrieval import PostgresRetrievalStore
 from retrieval_support import (
@@ -71,7 +72,7 @@ def harbor(text: str = "") -> ArticleDocument:
 
 
 def persist(url: str, *documents: ArticleDocument) -> None:
-    store = PostgresRagStore(url)
+    store = PostgresRagStore(rag_engine(url))
     for document in documents:
         store.persist_article(document)
 
@@ -145,7 +146,7 @@ def prepared(
 ) -> tuple[RetrievalResult, RequestTokenLedger]:
     ledger = RequestTokenLedger(COUNTER, SYNTH_POLICY)
     plan = PrepareSynthesis(COUNTER, SYNTH_POLICY).execute(query, ledger)
-    result = service(PostgresRetrievalStore(url)).execute(
+    result = service(PostgresRetrievalStore(rag_engine(url))).execute(
         query,
         CALLER,
         control(),
@@ -167,7 +168,7 @@ def synthesize(  # noqa: PLR0913
     retrieval, ledger = prepared(url, query)
     use_case = SynthesizeAnswer(
         model=model,
-        sources=store or RacingStore(PostgresRetrievalStore(url)),
+        sources=store or RacingStore(PostgresRetrievalStore(rag_engine(url))),
         access=access or MutableAccess(),
         tokens=COUNTER,
         policy=SYNTH_POLICY,
@@ -185,7 +186,7 @@ def synthesize(  # noqa: PLR0913
 def test_happy_path_on_real_db_returns_cited_current_answer(retrieval_url: str) -> None:
     documents = harbor("one"), harbor("two")
     persist(retrieval_url, *documents)
-    store = RacingStore(PostgresRetrievalStore(retrieval_url))
+    store = RacingStore(PostgresRetrievalStore(rag_engine(retrieval_url)))
 
     result = synthesize(retrieval_url, FAKE, store=store)
 
@@ -217,7 +218,9 @@ def test_tombstone_during_model_call_fails_whole_answer(retrieval_url: str) -> N
     gone, stable = harbor("gone"), harbor("stable")
     persist(retrieval_url, gone, stable)
     model = during_call(
-        lambda: PostgresRagStore(retrieval_url).tombstone_article(gone.article_id)
+        lambda: PostgresRagStore(rag_engine(retrieval_url)).tombstone_article(
+            gone.article_id
+        )
     )
 
     with pytest.raises(SynthesisEvidenceStaleError):
@@ -254,7 +257,7 @@ def test_correction_racing_final_batch_fetch(retrieval_url: str) -> None:
     persist(retrieval_url, changed, stable)
     revision = article("Rewritten text.", article_id=changed.article_id, published=T0)
     store = RacingStore(
-        PostgresRetrievalStore(retrieval_url),
+        PostgresRetrievalStore(rag_engine(retrieval_url)),
         before={2: lambda: persist(retrieval_url, revision)},
     )
 
@@ -266,9 +269,9 @@ def test_tombstone_racing_final_batch_fetch(retrieval_url: str) -> None:
     gone = harbor("gone")
     persist(retrieval_url, gone, harbor("stable"))
     store = RacingStore(
-        PostgresRetrievalStore(retrieval_url),
+        PostgresRetrievalStore(rag_engine(retrieval_url)),
         before={
-            2: lambda: PostgresRagStore(retrieval_url).tombstone_article(
+            2: lambda: PostgresRagStore(rag_engine(retrieval_url)).tombstone_article(
                 gone.article_id
             )
         },
@@ -285,7 +288,9 @@ def test_revocation_committed_during_final_fetch_still_wins(retrieval_url: str) 
     def revoke() -> None:
         access.revoked = True
 
-    store = RacingStore(PostgresRetrievalStore(retrieval_url), after={2: revoke})
+    store = RacingStore(
+        PostgresRetrievalStore(rag_engine(retrieval_url)), after={2: revoke}
+    )
 
     with pytest.raises(SynthesisAccessDeniedError):
         _ = synthesize(retrieval_url, FAKE, store=store, access=access)
@@ -298,7 +303,9 @@ def test_storage_failure_in_final_fetch_is_typed_not_empty(retrieval_url: str) -
         # What the real adapter raises for an outage; T6 must map, not empty.
         raise RetrievalStorageError
 
-    store = RacingStore(PostgresRetrievalStore(retrieval_url), before={2: drop})
+    store = RacingStore(
+        PostgresRetrievalStore(rag_engine(retrieval_url)), before={2: drop}
+    )
 
     with pytest.raises(SynthesisStorageError):
         _ = synthesize(retrieval_url, FAKE, store=store)
@@ -312,7 +319,7 @@ def test_no_evidence_abstention_makes_no_call_and_no_source_read(
 ) -> None:
     persist(retrieval_url, harbor("one"))
     model = ScriptedSynthesizer(IDENTITY, [])
-    store = RacingStore(PostgresRetrievalStore(retrieval_url))
+    store = RacingStore(PostgresRetrievalStore(rag_engine(retrieval_url)))
 
     result = synthesize(
         retrieval_url, model, query=briefing("zzzqqq xylophonequartz"), store=store
@@ -352,7 +359,9 @@ def test_tombstone_during_model_abstention_is_stale_not_abstention(
     gone = harbor("gone")
     persist(retrieval_url, gone)
     model = during_call(
-        lambda: PostgresRagStore(retrieval_url).tombstone_article(gone.article_id),
+        lambda: PostgresRagStore(rag_engine(retrieval_url)).tombstone_article(
+            gone.article_id
+        ),
         abstain=True,
     )
 
@@ -389,7 +398,7 @@ def test_source_reads_are_two_batched_statements_regardless_of_size(
     retrieval_url: str, articles: int
 ) -> None:
     persist(retrieval_url, *(harbor(f"n{index}") for index in range(articles)))
-    inner = PostgresRetrievalStore(retrieval_url)
+    inner = PostgresRetrievalStore(rag_engine(retrieval_url))
     store = RacingStore(inner)
 
     result = synthesize(retrieval_url, FAKE, store=store)

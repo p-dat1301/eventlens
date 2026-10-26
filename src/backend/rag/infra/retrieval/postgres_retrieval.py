@@ -15,9 +15,8 @@ from typing import LiteralString, final
 from unicodedata import normalize
 from uuid import UUID
 
-import psycopg
-from psycopg.rows import TupleRow
 from pydantic import TypeAdapter, ValidationError
+from sqlalchemy import Engine
 
 from backend.rag.application.ports.retrieval import (
     CurrentArticleState,
@@ -34,7 +33,11 @@ from backend.rag.domain.retrieval import (
     RetrievalStorageError,
     VectorHit,
 )
-from backend.rag.infra.postgres.connection import StorageUnavailableError, connect
+from backend.rag.infra.postgres.connection import (
+    StorageOperationError,
+    StorageUnavailableError,
+)
+from backend.rag.infra.postgres.engine import Row, execute, rows, transaction
 from backend.shared.contracts import ArticleEnrichment, EnrichmentStatus
 from backend.shared.contracts.taxonomy import TopicTag
 
@@ -340,20 +343,17 @@ def _metadata(text: str | None, document: ArticleDocument) -> ArticleEnrichment 
 class PostgresRetrievalStore:
     """Read-only, batched retrieval storage on PostgreSQL + pgvector."""
 
-    def __init__(self, database_url: str) -> None:
-        """Retain the connection configuration; ``statements`` counts reads."""
-        self._database_url = database_url
+    def __init__(self, engine: Engine) -> None:
+        """Use the process Engine; ``statements`` counts reads."""
+        self._engine = engine
         self.statements = 0
 
-    def _fetch(self, query: LiteralString, params: dict[str, object]) -> list[TupleRow]:
+    def _fetch(self, query: LiteralString, params: dict[str, object]) -> list[Row]:
         try:
-            with connect(self._database_url) as connection:
-                connection.read_only = True
+            with transaction(self._engine, read_only=True) as connection:
                 self.statements += 1
-                return connection.execute(query, params).fetchall()
-        except StorageUnavailableError as error:
-            raise RetrievalStorageError from error
-        except psycopg.Error as error:
+                return rows(execute(connection, query, params))
+        except (StorageUnavailableError, StorageOperationError) as error:
             raise RetrievalStorageError from error
 
     def metadata_eligibility(

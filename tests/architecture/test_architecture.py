@@ -338,3 +338,77 @@ def test_single_migration_source_and_no_legacy_packages() -> None:
     assert not (ROOT / "apps").exists()
     assert not (ROOT / "contracts").exists()
     assert not list(BACKEND.rglob("eventlens_*"))
+
+
+DATABASE_LIBRARIES = ("sqlalchemy", "alembic", "psycopg")
+DATABASE_INTERNALS = (
+    "backend.rag.infra.postgres.models",
+    "backend.rag.infra.postgres.engine",
+    "backend.rag.infra.postgres.types",
+)
+
+
+@pytest.mark.parametrize(
+    "layer", ["domain", "application", "presentation", "workflows", "evaluation"]
+)
+def test_orm_engine_and_session_never_leave_rag_infra(layer: str) -> None:
+    # Given: inner and delivery layers of the RAG context.
+    area = RAG / layer
+
+    # When
+    found = violations(area, DATABASE_LIBRARIES + DATABASE_INTERNALS)
+
+    # Then: ORM rows, Engine, Connection and Session stay in rag.infra.
+    assert found == []
+
+
+def test_sqlalchemy_imports_live_only_in_rag_infra() -> None:
+    # Given / When: every production module outside rag/infra.
+    found = [
+        item
+        for item in violations(BACKEND, ("sqlalchemy", "alembic"))
+        if not item[0].startswith("src/backend/rag/infra/")
+    ]
+
+    # Then
+    assert found == []
+
+
+def test_production_rag_never_opens_psycopg_connections() -> None:
+    # Given / When: psycopg is only the driver below SQLAlchemy.
+    found = violations(RAG, ("psycopg",))
+    texts = [
+        str(path.relative_to(ROOT))
+        for path in RAG.rglob("*.py")
+        if "psycopg.connect" in path.read_text(encoding="utf-8")
+    ]
+
+    # Then
+    assert found == []
+    assert texts == []
+
+
+def test_runtime_never_creates_schema_from_metadata() -> None:
+    # Given / When: Alembic revisions are the only schema writer.
+    found = [
+        str(path.relative_to(ROOT))
+        for path in BACKEND.rglob("*.py")
+        if "create_all(" in path.read_text(encoding="utf-8")
+    ]
+
+    # Then
+    assert found == []
+
+
+def test_alembic_revisions_are_packaged_beside_the_historical_sql() -> None:
+    # Given
+    revisions = RAG / "infra/postgres/revisions"
+
+    # When
+    versions = sorted(path.name for path in (revisions / "versions").glob("rag_*.py"))
+
+    # Then: env, template, baseline and the expected 007 catalog ship together.
+    assert (revisions / "env.py").is_file()
+    assert (revisions / "script.py.mako").is_file()
+    assert versions[0] == "rag_0001_baseline.py"
+    assert (RAG / "infra/postgres/expected_schema.json").is_file()

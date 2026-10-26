@@ -12,22 +12,35 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from psycopg.rows import scalar_row
 from pydantic import TypeAdapter
 
 from backend.rag.application.use_cases.index import EnsureGeneration
 from backend.rag.domain.article_document import ArticleDocument
 from backend.rag.domain.embedding import EmbeddingIdentity
 from backend.rag.infra.embeddings.fake_embeddings import FakeEmbeddings
-from backend.rag.infra.postgres.connection import StorageUnavailableError, connect
-from backend.rag.infra.postgres.migrations import (
-    LegacyDocumentError,
-    LegacySchemaError,
-    MigrationResourcesError,
+from backend.rag.infra.postgres.alembic_runner import (
+    LegacyAdoptionRequiredError,
+    PreflightFailedError,
+    PreflightReport,
+    adopt_legacy,
 )
-from backend.rag.infra.postgres.migrations import (
-    migrate as apply_migrations,
+from backend.rag.infra.postgres.alembic_runner import (
+    preflight as run_preflight,
 )
+from backend.rag.infra.postgres.alembic_runner import (
+    upgrade_head as apply_migrations,
+)
+from backend.rag.infra.postgres.connection import (
+    StorageOperationError,
+    StorageUnavailableError,
+)
+from backend.rag.infra.postgres.engine import (
+    create_rag_engine,
+    execute,
+    scalars,
+    transaction,
+)
+from backend.rag.infra.postgres.migrations import LegacySchemaError
 from backend.rag.infra.postgres.staging import PostgresStaging
 from backend.rag.infra.postgres.store import PostgresRagStore
 
@@ -35,10 +48,12 @@ app = typer.Typer(no_args_is_help=True)
 ROOT = Path(__file__).parents[3]
 FIXTURE_ARTICLES = ROOT / "fixtures/rag/articles"
 UNAVAILABLE_EXIT = 3
+STORAGE_FAILED_EXIT = 4
 SMOKE_FAILED_EXIT = 2
 EVAL_OUTPUT = ROOT / ".omo/evidence/T9"
 
 DatabaseUrl = Annotated[str, typer.Option(envvar="EVENTLENS_RAG_DATABASE_URL")]
+MIGRATION_ERRORS = (LegacyAdoptionRequiredError, LegacySchemaError)
 
 
 def _unavailable(error: StorageUnavailableError) -> typer.Exit:
@@ -47,21 +62,76 @@ def _unavailable(error: StorageUnavailableError) -> typer.Exit:
     return typer.Exit(UNAVAILABLE_EXIT)
 
 
+def _storage_failed(error: StorageOperationError) -> typer.Exit:
+    """Report a rolled-back statement without SQL, values or traceback."""
+    typer.echo(f"{error.code}: {error}", err=True)
+    return typer.Exit(STORAGE_FAILED_EXIT)
+
+
+def _migration_failed(error: Exception) -> typer.Exit:
+    typer.echo(f"rag_migration_failed: {error}", err=True)
+    return typer.Exit(1)
+
+
+def _report(report: PreflightReport) -> str:
+    return json.dumps(
+        {
+            "ok": report.ok,
+            "adoptable": report.adoptable,
+            "alembic_revision": report.alembic_revision,
+            "problems": list(report.problems),
+            "row_counts": dict(report.row_counts),
+        },
+        indent=2,
+        sort_keys=True,
+    )
+
+
 @app.command()
 def migrate(database_url: DatabaseUrl) -> None:
-    """Apply RAG PostgreSQL and pgvector migrations."""
+    """Apply pending Alembic revisions (the only RAG migration authority)."""
     try:
-        apply_migrations(database_url)
+        revision = apply_migrations(database_url)
     except StorageUnavailableError as error:
         raise _unavailable(error) from error
-    except (
-        LegacyDocumentError,
-        LegacySchemaError,
-        MigrationResourcesError,
-    ) as error:
-        typer.echo(f"rag_migration_failed: {error}", err=True)
+    except StorageOperationError as error:
+        raise _storage_failed(error) from error
+    except MIGRATION_ERRORS as error:
+        raise _migration_failed(error) from error
+    typer.echo(f"rag migrations applied (alembic {revision})")
+
+
+@app.command()
+def preflight(database_url: DatabaseUrl) -> None:
+    """Read-only check that a historical 001-007 database may be adopted."""
+    try:
+        report = run_preflight(database_url)
+    except StorageUnavailableError as error:
+        raise _unavailable(error) from error
+    except StorageOperationError as error:
+        raise _storage_failed(error) from error
+    typer.echo(_report(report))
+    if not report.ok:
+        raise typer.Exit(1)
+
+
+@app.command("adopt-legacy")
+def adopt(database_url: DatabaseUrl) -> None:
+    """Verify a historical 001-007 database, then stamp the Alembic baseline.
+
+    Back up the database and stop writers first. No historical DDL is re-run.
+    """
+    try:
+        report = adopt_legacy(database_url)
+    except StorageUnavailableError as error:
+        raise _unavailable(error) from error
+    except StorageOperationError as error:
+        raise _storage_failed(error) from error
+    except PreflightFailedError as error:
+        typer.echo(f"rag_adoption_refused: {error}", err=True)
         raise typer.Exit(1) from error
-    typer.echo("rag migrations applied")
+    typer.echo(_report(report))
+    typer.echo(f"rag database managed by alembic at {report.alembic_revision}")
 
 
 @app.command("load-fixtures")
@@ -70,12 +140,13 @@ def load_fixtures(
     directory: Annotated[Path, typer.Option()] = FIXTURE_ARTICLES,
 ) -> None:
     """Persist fixture ArticleDocuments; lexical search is available immediately."""
-    store = PostgresRagStore(database_url)
     if not directory.is_dir():
         typer.echo(f"rag_fixture_missing: {directory}", err=True)
         raise typer.Exit(1)
     paths = sorted(directory.glob("*.json"))
+    engine = create_rag_engine(database_url)
     try:
+        store = PostgresRagStore(engine)
         for path in paths:
             article = ArticleDocument.model_validate_json(
                 path.read_text(encoding="utf-8")
@@ -83,35 +154,43 @@ def load_fixtures(
             store.persist_article(article)
     except StorageUnavailableError as error:
         raise _unavailable(error) from error
+    except StorageOperationError as error:
+        raise _storage_failed(error) from error
+    finally:
+        engine.dispose()
     typer.echo(f"rag persisted {len(paths)} fixture articles")
 
 
 @app.command()
 def rebuild(database_url: DatabaseUrl) -> None:
     """Stage every current article with fake embeddings, then flip atomically."""
+    engine = create_rag_engine(database_url)
     try:
-        apply_migrations(database_url)
-        with connect(database_url) as connection:
-            rows = TypeAdapter(list[str]).validate_python(
-                connection.cursor(row_factory=scalar_row)
-                .execute("SELECT document_json::text FROM rag_current_lexical")
-                .fetchall()
+        _ = apply_migrations(database_url)
+        with transaction(engine, read_only=True) as connection:
+            documents = TypeAdapter(list[str]).validate_python(
+                scalars(
+                    execute(
+                        connection,
+                        "SELECT document_json::text FROM rag_current_lexical",
+                    )
+                )
             )
-        staging = PostgresStaging(database_url)
+        staging = PostgresStaging(engine)
         ensure = EnsureGeneration(staging, FakeEmbeddings(), EmbeddingIdentity())
         staged = [
-            ensure.execute(ArticleDocument.model_validate_json(row)) for row in rows
+            ensure.execute(ArticleDocument.model_validate_json(document))
+            for document in documents
         ]
         published = staging.activate_all([item.generation for item in staged])
     except StorageUnavailableError as error:
         raise _unavailable(error) from error
-    except (
-        LegacyDocumentError,
-        LegacySchemaError,
-        MigrationResourcesError,
-    ) as error:
-        typer.echo(f"rag_migration_failed: {error}", err=True)
-        raise typer.Exit(1) from error
+    except StorageOperationError as error:
+        raise _storage_failed(error) from error
+    except MIGRATION_ERRORS as error:
+        raise _migration_failed(error) from error
+    finally:
+        engine.dispose()
     reused = sum(item.reused for item in staged)
     summary = f"{published} current articles ({reused} reused generations)"
     typer.echo(f"rag fake rebuild published {summary}")
@@ -133,6 +212,10 @@ def retrieval_smoke(
         report = run_smoke(database_url, ROOT / "fixtures/rag")
     except StorageUnavailableError as error:
         raise _unavailable(error) from error
+    except StorageOperationError as error:
+        raise _storage_failed(error) from error
+    except MIGRATION_ERRORS as error:
+        raise _migration_failed(error) from error
     except SmokeDatabaseNotEmptyError as error:
         typer.echo(f"rag_smoke_refused: {error}", err=True)
         raise typer.Exit(1) from error
@@ -161,6 +244,10 @@ def synthesis_smoke(
         report, excerpts = run_smoke(database_url, ROOT / "fixtures/rag")
     except StorageUnavailableError as error:
         raise _unavailable(error) from error
+    except StorageOperationError as error:
+        raise _storage_failed(error) from error
+    except MIGRATION_ERRORS as error:
+        raise _migration_failed(error) from error
     except SmokeDatabaseNotEmptyError as error:
         typer.echo(f"rag_smoke_refused: {error}", err=True)
         raise typer.Exit(1) from error
@@ -194,12 +281,16 @@ def vector_route_report(
 
     output.mkdir(parents=True, exist_ok=True)
     try:
-        apply_migrations(database_url)
+        _ = apply_migrations(database_url)
         load_corpus(database_url, articles, seed=5)
         results = measure(database_url, output, queries=queries, k=k, seed=5)
         version = pgvector_version(database_url)
     except StorageUnavailableError as error:
         raise _unavailable(error) from error
+    except StorageOperationError as error:
+        raise _storage_failed(error) from error
+    except MIGRATION_ERRORS as error:
+        raise _migration_failed(error) from error
     except CorpusNotEmptyError as error:
         typer.echo(f"rag_report_refused: {error}", err=True)
         raise typer.Exit(1) from error

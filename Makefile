@@ -1,4 +1,4 @@
-.PHONY: sync test lint typecheck build check up infra down web crud-api rag-api rag-worker validate-fixture rag-db-create rag-migrate rag-load-fixtures rag-rebuild rag-db-test gate-g1 enrichment-eval rag-eval web-browser-test gate-g3
+.PHONY: sync test lint typecheck build check up infra down web crud-api rag-api rag-worker validate-fixture rag-db-create rag-migrate rag-load-fixtures rag-rebuild rag-db-test rag-adopt-smoke rag-preflight rag-adopt gate-g1 enrichment-eval rag-eval web-browser-test gate-g3
 
 # Local RAG index lives in its own database on the Compose server. The legacy
 # `eventlens` database holds untracked pre-ledger RAG tables and is never targeted.
@@ -65,10 +65,19 @@ rag-db-create:
 
 # Pass the URL through the recipe environment, not the shell command line, so
 # characters such as & or ' in the URL are never parsed by the shell.
-rag-migrate rag-load-fixtures rag-rebuild: export EVENTLENS_RAG_DATABASE_URL = $(RAG_DATABASE_URL)
+rag-migrate rag-preflight rag-adopt rag-load-fixtures rag-rebuild: export EVENTLENS_RAG_DATABASE_URL = $(RAG_DATABASE_URL)
 
+# Alembic is the only migration authority. A database built by the historical
+# 001-007 runner is refused until it is adopted: back it up, stop writers,
+# run rag-preflight (read-only) and then rag-adopt (verified baseline stamp).
 rag-migrate:
 	uv run eventlens-rag migrate
+
+rag-preflight:
+	uv run eventlens-rag preflight
+
+rag-adopt:
+	uv run eventlens-rag adopt-legacy
 
 rag-load-fixtures:
 	uv run eventlens-rag load-fixtures
@@ -76,8 +85,12 @@ rag-load-fixtures:
 rag-rebuild:
 	uv run eventlens-rag rebuild
 
+# DB suite twice (fresh Alembic schema, then adopted legacy schema).
 rag-db-test:
 	sh scripts/rag/db-test.sh
+
+rag-adopt-smoke:
+	sh scripts/rag/with-test-db.sh sh scripts/rag/adopt-smoke.sh
 
 gate-g1:
 	sh scripts/rag/gate-g1.sh

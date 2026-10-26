@@ -71,7 +71,8 @@ from backend.rag.infra.embeddings.fake_embeddings import FakeEmbeddings
 from backend.rag.infra.llm.fake_enricher import FakeArticleEnricher, FakeTimeoutEnricher
 from backend.rag.infra.llm.fake_synthesis import DeterministicFakeSynthesizer
 from backend.rag.infra.llm.fixture_tokens import FixtureTokenCounter
-from backend.rag.infra.postgres.migrations import migrate
+from backend.rag.infra.postgres.alembic_runner import upgrade_head
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.postgres.staging import PostgresStaging
 from backend.rag.infra.repositories.memory_source_references import (
     InMemorySourceReferences,
@@ -216,7 +217,8 @@ def runtime_from_environment(environ: Mapping[str, str]) -> BriefingRuntime:
     if not url:
         return compose_briefing(fixture_store())
     return compose_briefing(
-        PostgresRetrievalStore(url), references=PostgresSourceReferences(url)
+        PostgresRetrievalStore(rag_engine(url)),
+        references=PostgresSourceReferences(rag_engine(url)),
     )
 
 
@@ -260,7 +262,8 @@ def build_runtime(
     database_url: str, provider: Provider = Provider.FAKE
 ) -> EnrichmentRuntime:
     """Wire PostgreSQL storage, fake embeddings and a local enricher."""
-    repository = PostgresEnrichmentRepository(database_url)
+    engine = rag_engine(database_url)
+    repository = PostgresEnrichmentRepository(engine)
     enricher = _enricher(provider)
     policy = bundled_retry_policy()
     identity = EnrichmentIdentity(
@@ -269,7 +272,7 @@ def build_runtime(
         prompt_version=enricher.prompt_version,
     )
     generations = EnsureGeneration(
-        PostgresStaging(database_url), FakeEmbeddings(), EmbeddingIdentity()
+        PostgresStaging(engine), FakeEmbeddings(), EmbeddingIdentity()
     )
     steps = EnrichmentSteps(repository, enricher, generations, policy, utc_now)
     ingest = IngestArticle(repository, FixtureAccessPolicy(), identity, utc_now)
@@ -282,5 +285,9 @@ def json_lines_telemetry(write: Callable[[str], None]) -> TelemetrySink:
 
 
 def prepare_storage(database_url: str) -> None:
-    """Apply checksum-verified RAG migrations (idempotent)."""
-    migrate(database_url)
+    """Apply pending Alembic revisions (idempotent); never adopts or stamps.
+
+    A database built by the historical runner fails closed with
+    ``LegacyAdoptionRequiredError`` until an operator adopts it explicitly.
+    """
+    _ = upgrade_head(database_url)

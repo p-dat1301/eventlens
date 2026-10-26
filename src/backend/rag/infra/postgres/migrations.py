@@ -1,14 +1,30 @@
-"""Transactional, checksum-verified migration ledger."""
+"""Historical 001-007 SQL runner and its checksum-verified ledger.
+
+Alembic is the RAG migration authority (``alembic.py``). This runner is kept
+only to audit and reproduce the pre-Alembic history: it builds legacy-shaped
+databases for adoption tests and verifies ``rag_schema_migrations``. It
+refuses to apply any script to a database that Alembic already manages, so
+the two tools never both change one schema.
+"""
 
 from hashlib import sha256
 from importlib.resources import files
 from pathlib import Path
 
-from psycopg import Connection
-from psycopg.rows import TupleRow, scalar_row
 from pydantic import TypeAdapter
+from sqlalchemy import Connection
 
-from backend.rag.infra.postgres.connection import connect
+from backend.rag.infra.postgres.engine import (
+    create_rag_engine,
+    execute,
+    relation_exists,
+    scalar,
+    scalars,
+    transaction,
+)
+
+# Shared with Alembic's env.py so the two runners never interleave on one DB.
+MIGRATION_LOCK_KEY = 734528109
 
 EXPECTED_MIGRATIONS = (
     "001_enable_vector.sql",
@@ -62,6 +78,18 @@ ArticleDocuments."""
         )
 
 
+class AlembicManagedError(RuntimeError):
+    """The legacy runner was pointed at a database Alembic manages."""
+
+    def __init__(self, filename: str) -> None:
+        """Name the script that would have been applied; nothing was changed."""
+        super().__init__(
+            f"""Refusing to apply {filename}: this database is managed by Alembic
+(alembic_version exists). Use `eventlens-rag migrate`; the legacy runner only
+audits the historical ledger."""
+        )
+
+
 # Tables created by 002; existing copies without a recorded 002 are foreign shapes.
 LEDGER_OWNED_TABLES = (
     "rag_article_documents",
@@ -85,23 +113,28 @@ def bundled_migrations() -> tuple[tuple[str, str], ...]:
     )
 
 
-def _guard_unrecorded(connection: Connection[TupleRow], filename: str) -> None:
+def _guard_unrecorded(connection: Connection, filename: str) -> None:
     """Fail closed before an unrecorded script meets data it cannot upgrade."""
-    with connection.cursor(row_factory=scalar_row) as cursor:
-        if filename.startswith("002_"):
-            _ = cursor.execute(
-                """SELECT table_name::text FROM information_schema.tables
+    if relation_exists(connection, "alembic_version"):
+        raise AlembicManagedError(filename)
+    if filename.startswith("002_"):
+        conflicts = TypeAdapter(tuple[str, ...]).validate_python(
+            scalars(
+                execute(
+                    connection,
+                    """SELECT table_name::text FROM information_schema.tables
                 WHERE table_schema = current_schema()
                 AND table_name = ANY(%s) ORDER BY table_name""",
-                (list(LEDGER_OWNED_TABLES),),
+                    (list(LEDGER_OWNED_TABLES),),
+                )
             )
-            conflicts = TypeAdapter(tuple[str, ...]).validate_python(cursor.fetchall())
-            if conflicts:
-                raise LegacySchemaError(conflicts)
-        if filename.startswith("004_"):
-            _ = cursor.execute("SELECT EXISTS (SELECT 1 FROM rag_article_documents)")
-            if cursor.fetchone():
-                raise LegacyDocumentError
+        )
+        if conflicts:
+            raise LegacySchemaError(conflicts)
+    if filename.startswith("004_") and scalar(
+        execute(connection, "SELECT EXISTS (SELECT 1 FROM rag_article_documents)")
+    ):
+        raise LegacyDocumentError
 
 
 def migrate(database_url: str, directory: Path | None = None) -> None:
@@ -113,41 +146,56 @@ def migrate(database_url: str, directory: Path | None = None) -> None:
         if not paths:
             raise MigrationResourcesError(str(directory))
         scripts = tuple((path.name, path.read_text(encoding="utf-8")) for path in paths)
-    with connect(database_url) as connection:
-        _ = connection.execute("SELECT pg_advisory_xact_lock(734528109)")
-        _ = connection.execute(
-            """CREATE TABLE IF NOT EXISTS rag_schema_migrations (
-                filename text PRIMARY KEY, checksum text NOT NULL,
-                applied_at timestamptz NOT NULL DEFAULT clock_timestamp())"""
-        )
-        with connection.cursor(row_factory=scalar_row) as cursor:
-            for filename, script in scripts:
-                checksum = sha256(script.encode()).hexdigest()
-                _ = cursor.execute(
-                    "SELECT checksum FROM rag_schema_migrations WHERE filename = %s",
-                    (filename,),
-                )
-                recorded = cursor.fetchone()
-                if recorded is not None:
-                    if recorded != checksum:
-                        raise MigrationChangedError(filename)
-                    continue
-                _guard_unrecorded(connection, filename)
-                _ = connection.execute(script.encode("utf-8"))
-                _ = connection.execute(
-                    "INSERT INTO rag_schema_migrations VALUES (%s, %s, DEFAULT)",
-                    (filename, checksum),
-                )
-            _ = cursor.execute(
-                """SELECT EXISTS (SELECT 1 FROM information_schema.columns
-                WHERE table_schema = current_schema()
-                AND table_name = 'rag_article_documents'
-                AND column_name = 'document_json')"""
+    engine = create_rag_engine(database_url, pooled=False)
+    try:
+        with transaction(engine) as connection:
+            _apply(connection, scripts)
+    finally:
+        engine.dispose()
+
+
+def _apply(connection: Connection, scripts: tuple[tuple[str, str], ...]) -> None:
+    _ = execute(connection, f"SELECT pg_advisory_xact_lock({MIGRATION_LOCK_KEY})")
+    _ = execute(
+        connection,
+        """CREATE TABLE IF NOT EXISTS rag_schema_migrations (
+            filename text PRIMARY KEY, checksum text NOT NULL,
+            applied_at timestamptz NOT NULL DEFAULT clock_timestamp())""",
+    )
+    for filename, script in scripts:
+        checksum = sha256(script.encode()).hexdigest()
+        recorded = scalar(
+            execute(
+                connection,
+                "SELECT checksum FROM rag_schema_migrations WHERE filename = %s",
+                (filename,),
             )
-            if cursor.fetchone():
-                _ = cursor.execute(
-                    """SELECT EXISTS (SELECT 1 FROM rag_article_documents
-                    WHERE document_json IS NULL)"""
-                )
-                if cursor.fetchone():
-                    raise LegacyDocumentError
+        )
+        if recorded is not None:
+            if recorded != checksum:
+                raise MigrationChangedError(filename)
+            continue
+        _guard_unrecorded(connection, filename)
+        _ = execute(connection, script)
+        _ = execute(
+            connection,
+            "INSERT INTO rag_schema_migrations VALUES (%s, %s, DEFAULT)",
+            (filename, checksum),
+        )
+    has_json = scalar(
+        execute(
+            connection,
+            """SELECT EXISTS (SELECT 1 FROM information_schema.columns
+            WHERE table_schema = current_schema()
+            AND table_name = 'rag_article_documents'
+            AND column_name = 'document_json')""",
+        )
+    )
+    if has_json and scalar(
+        execute(
+            connection,
+            """SELECT EXISTS (SELECT 1 FROM rag_article_documents
+            WHERE document_json IS NULL)""",
+        )
+    ):
+        raise LegacyDocumentError

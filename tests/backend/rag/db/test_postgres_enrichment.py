@@ -44,6 +44,8 @@ from backend.rag.infra.llm.fake_enricher import (
     FakeArticleEnricher,
     ScriptedArticleEnricher,
 )
+from backend.rag.infra.postgres.connection import StorageOperationError
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.postgres.migrations import migrate
 from backend.rag.infra.postgres.publication import LockedHook
 from backend.rag.infra.postgres.staging import PostgresStaging
@@ -59,6 +61,7 @@ from enrichment_support import (
     document,
     grounded_draft,
 )
+from schema_support import prepare_schema
 
 ROOT = Path(__file__).parents[4]
 BUNDLE = ROOT / "fixtures/article_bundle.v1.json"
@@ -83,7 +86,7 @@ def url(database_url: str) -> Generator[str]:
             sql.SQL("CREATE SCHEMA {}").format(sql.Identifier(schema))
         )
     scoped = make_conninfo(database_url, options=f"-c search_path={schema},public")
-    migrate(scoped)
+    prepare_schema(scoped)
     yield scoped
     with psycopg.connect(database_url, autocommit=True) as connection:
         _ = connection.execute(
@@ -133,12 +136,12 @@ def build(
     embeddings: CountingEmbeddings | None = None,
     hook: LockedHook | None = None,
 ) -> tuple[EnrichmentRunner, PostgresEnrichmentRepository, EnrichmentSteps]:
-    repository = PostgresEnrichmentRepository(url, publish_hook=hook)
+    repository = PostgresEnrichmentRepository(rag_engine(url), publish_hook=hook)
     steps = EnrichmentSteps(
         repository=repository,
         enricher=enricher,
         generations=EnsureGeneration(
-            PostgresStaging(url),
+            PostgresStaging(rag_engine(url)),
             embeddings or CountingEmbeddings(),
             EmbeddingIdentity(),
         ),
@@ -159,7 +162,7 @@ def ingest(url: str, content: str = CONTENT, article_id: UUID | None = None) -> 
     key = identity(FakeArticleEnricher()).key_for(
         article.article_id, article.content_hash
     )
-    receipt = PostgresEnrichmentRepository(url).ingest(article, key)
+    receipt = PostgresEnrichmentRepository(rag_engine(url)).ingest(article, key)
     assert receipt.job_id is not None
     return receipt.job_id
 
@@ -220,7 +223,7 @@ def upstream_article() -> Article:
 def test_end_to_end_ingest_lexical_enrich_publish(url: str) -> None:
     article = upstream_article()
     receipt = IngestArticle(
-        PostgresEnrichmentRepository(url),
+        PostgresEnrichmentRepository(rag_engine(url)),
         FixtureAccessPolicy(),
         identity(FakeArticleEnricher()),
         lambda: datetime.now(UTC),
@@ -364,7 +367,7 @@ def test_change_while_processing_blocks_publication(url: str, change: str) -> No
     )
 
     def mutate(request: EnrichmentRequest) -> EnrichmentDraft:
-        store = PostgresRagStore(url)
+        store = PostgresRagStore(rag_engine(url))
         if change == "correction":
             store.persist_article(document(CONTENT + " Pier 5 too.", article_id))
         elif change == "tombstone":
@@ -372,7 +375,7 @@ def test_change_while_processing_blocks_publication(url: str, change: str) -> No
         else:
             newer = identity(FakeArticleEnricher(prompt_version="prompt-new"))
             original = document(CONTENT, article_id)
-            _ = PostgresEnrichmentRepository(url).ingest(
+            _ = PostgresEnrichmentRepository(rag_engine(url)).ingest(
                 original, newer.key_for(article_id, original.content_hash)
             )
         return grounded_draft(request.context.normalized_content)
@@ -470,8 +473,9 @@ def test_crash_inside_ingest_rolls_back_both_halves_then_retry_succeeds(
     url: str,
 ) -> None:
     remove = fail_inserts(url, "rag_enrichment_jobs")
-    with pytest.raises(RaiseException):
+    with pytest.raises(StorageOperationError) as failed:
         _ = ingest(url)
+    assert isinstance(failed.value.__cause__, RaiseException)
     assert one(url, "SELECT count(*) FROM rag_article_documents") == 0
     remove()
     _ = ingest(url)
@@ -479,7 +483,7 @@ def test_crash_inside_ingest_rolls_back_both_halves_then_retry_succeeds(
 
 
 def test_article_persisted_without_job_is_reconciled_after_restart(url: str) -> None:
-    PostgresRagStore(url).persist_article(document(CONTENT))
+    PostgresRagStore(rag_engine(url)).persist_article(document(CONTENT))
     assert one(url, "SELECT count(*) FROM rag_enrichment_jobs") == 0
     report = build(url, FakeArticleEnricher())[0].run(5)
     assert report.reconciled == 1
@@ -492,8 +496,9 @@ def test_interrupted_stage_or_publish_rolls_back_and_retry_is_consistent(
 ) -> None:
     job = ingest(url)
     remove = fail_inserts(url, table)
-    with pytest.raises(RaiseException):
+    with pytest.raises(StorageOperationError) as failed:
         _ = build(url, FakeArticleEnricher())[0].run(1)
+    assert isinstance(failed.value.__cause__, RaiseException)
     remove()
     assert job_state(url, job)[0] == "PROCESSING"
     assert one(url, "SELECT count(*) FROM rag_enrichment_versions") == 0
@@ -624,7 +629,7 @@ def test_upgrade_from_g1_schema_keeps_rows_and_adds_lifecycle(
                     "INSERT INTO rag_schema_migrations VALUES (%s, %s, DEFAULT)",
                     (path.name, sha256(path.read_bytes()).hexdigest()),
                 )
-        store = PostgresRagStore(scoped)
+        store = PostgresRagStore(rag_engine(scoped))
         article = document(CONTENT)
         store.persist_article(article)
         job = store.enqueue_job(
