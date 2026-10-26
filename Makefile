@@ -1,4 +1,4 @@
-.PHONY: sync test lint typecheck build check up infra down web crud-api rag-api rag-worker validate-fixture rag-db-create rag-migrate rag-load-fixtures rag-rebuild rag-db-test gate-g1
+.PHONY: sync test lint typecheck build check up infra down web crud-api rag-api rag-worker validate-fixture rag-db-create rag-migrate rag-load-fixtures rag-rebuild rag-db-test gate-g1 enrichment-eval rag-eval web-browser-test gate-g3
 
 # Local RAG index lives in its own database on the Compose server. The legacy
 # `eventlens` database holds untracked pre-ledger RAG tables and is never targeted.
@@ -8,6 +8,9 @@ RAG_DATABASE_URL ?= postgresql://eventlens:eventlens-local@127.0.0.1:5432/$(RAG_
 WEB_DIR := src/frontend/web
 PY_PATHS := src tests typings
 RAG_WORKER_ARGS ?= enrich --max-jobs 5
+# T9 eval reports (deterministic JSON + measured JSON); fixture/fake only.
+EVAL_OUT ?= .omo/evidence/T9
+RAG_EVAL_REPEATS ?= 5
 
 sync:
 	uv sync --group dev
@@ -78,3 +81,17 @@ rag-db-test:
 
 gate-g1:
 	sh scripts/rag/gate-g1.sh
+
+# T9: deterministic evals on fixtures/rag with fake adapters; no DB, no network.
+enrichment-eval:
+	uv run eventlens-rag enrichment-eval --output $(EVAL_OUT)
+
+rag-eval:
+	uv run eventlens-rag rag-eval --output $(EVAL_OUT) --repeats $(RAG_EVAL_REPEATS)
+
+# Real-browser gate (T8 script, extended in T9) against the built app.
+web-browser-test:
+	cd $(WEB_DIR) && bun run test:e2e
+
+gate-g3:
+	sh scripts/rag/gate-g3.sh

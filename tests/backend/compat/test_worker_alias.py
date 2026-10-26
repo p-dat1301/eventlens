@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 import pytest
@@ -5,6 +6,9 @@ import pytest
 from backend.compat.worker_alias import WARNING, main
 
 BUNDLE = Path(__file__).parents[3] / "fixtures/article_bundle.v1.json"
+# Rich colours Typer help when it detects CI (e.g. GITHUB_ACTIONS=true), which
+# splits option names with ANSI escapes; compare the plain text.
+ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
 
 def test_alias_warns_then_forwards_event_commands(
@@ -30,7 +34,7 @@ def test_alias_forwards_rag_worker_commands(
 
     # Then
     assert exit_info.value.code == 0
-    assert "--max-jobs" in capsys.readouterr().out
+    assert "--max-jobs" in ANSI.sub("", capsys.readouterr().out)
 
 
 def test_alias_rejects_unknown_command(capsys: pytest.CaptureFixture[str]) -> None:

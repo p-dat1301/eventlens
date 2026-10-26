@@ -36,6 +36,7 @@ ROOT = Path(__file__).parents[3]
 FIXTURE_ARTICLES = ROOT / "fixtures/rag/articles"
 UNAVAILABLE_EXIT = 3
 SMOKE_FAILED_EXIT = 2
+EVAL_OUTPUT = ROOT / ".omo/evidence/T9"
 
 DatabaseUrl = Annotated[str, typer.Option(envvar="EVENTLENS_RAG_DATABASE_URL")]
 
@@ -218,6 +219,52 @@ def vector_route_report(
     text = json.dumps(report, indent=2, sort_keys=True)
     _ = (output / "vector-route-report.json").write_text(text + "\n", encoding="utf-8")
     typer.echo(text)
+
+
+def _write_eval(name: str, output: Path, report: tuple[object, object]) -> None:
+    """Write deterministic + measured JSON; exit 2 if a gating case failed."""
+    from backend.rag.evaluation.gating import gate_failures  # noqa: PLC0415
+    from backend.rag.evaluation.metrics import Json, canonical  # noqa: PLC0415
+
+    deterministic, measured = TypeAdapter(tuple[dict[str, Json], Json]).validate_python(
+        report
+    )
+    output.mkdir(parents=True, exist_ok=True)
+    _ = (output / f"{name}.json").write_text(
+        canonical(deterministic) + "\n", encoding="utf-8"
+    )
+    _ = (output / f"{name}.measured.json").write_text(
+        canonical(measured) + "\n", encoding="utf-8"
+    )
+    typer.echo(f"{name}: report {output / f'{name}.json'}")
+    typer.echo(f"{name}: digest {deterministic['report_digest']}")
+    failures = gate_failures(deterministic)
+    for failure in failures:
+        typer.echo(f"{name}: gating check failed: {failure}", err=True)
+    if failures:
+        raise typer.Exit(SMOKE_FAILED_EXIT)
+    typer.echo(f"{name}: gating checks held (quality metrics are reported, not gated)")
+
+
+@app.command("enrichment-eval")
+def enrichment_eval(output: Annotated[Path, typer.Option()] = EVAL_OUTPUT) -> None:
+    """T9 enrichment report: fake enricher vs manual gold (no DB, no network)."""
+    from backend.rag.evaluation.corpus import load_corpus  # noqa: PLC0415
+    from backend.rag.evaluation.enrichment_eval import evaluate  # noqa: PLC0415
+
+    _write_eval("enrichment-eval", output, evaluate(load_corpus()))
+
+
+@app.command("rag-eval")
+def rag_eval(
+    output: Annotated[Path, typer.Option()] = EVAL_OUTPUT,
+    repeats: Annotated[int, typer.Option(min=1, max=20)] = 5,
+) -> None:
+    """T9 RAG report: lexical vs hybrid on one compiled graph (no DB, no network)."""
+    from backend.rag.evaluation.corpus import load_corpus  # noqa: PLC0415
+    from backend.rag.evaluation.rag_eval import evaluate  # noqa: PLC0415
+
+    _write_eval("rag-eval", output, evaluate(load_corpus(), repeats))
 
 
 @app.command("db-test")

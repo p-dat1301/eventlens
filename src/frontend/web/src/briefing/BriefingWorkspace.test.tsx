@@ -78,7 +78,7 @@ const ask = async (text: string) => {
     setter?.call(input, text)
     input.dispatchEvent(new Event("input", { bubbles: true }))
   })
-  act(() => button("Request briefing").click())
+  act(() => query(".query-form button[type=submit]").click())
   await flush()
 }
 
@@ -302,5 +302,44 @@ describe("analyst briefing flow", () => {
         expect(control.getAttribute("type")).toMatch(/^(button|submit)$/)
       }
     }
+  })
+})
+
+describe("request lifecycle", () => {
+  test("a slow earlier request resolving late never replaces the newer answer", async () => {
+    const slow = deferred()
+    const { calls } = mount(slow.reply, json(answeredResponse()))
+
+    await ask("first, slow question")
+    await ask("When did East Pier close and reopen?")
+    expect(document.querySelectorAll("[data-claim-id]").length).toBeGreaterThan(0)
+
+    slow.release(json(noEvidenceResponse()))
+    await flush()
+
+    expect(calls[0]?.init.signal?.aborted).toBe(true)
+    expect(text()).not.toContain("No authorized source")
+    expect(document.querySelectorAll("[data-claim-id]").length).toBeGreaterThan(0)
+  })
+
+  test("unmounting before the answer aborts the request and ignores the late reply", async () => {
+    const slow = deferred()
+    const { calls } = mount(slow.reply)
+    const errors: unknown[] = []
+    const original = console.error
+    console.error = (...args: unknown[]) => errors.push(args)
+
+    try {
+      await ask("When did East Pier close and reopen?")
+      act(() => root?.unmount())
+      root = null
+      slow.release(json(answeredResponse()))
+      await flush()
+    } finally {
+      console.error = original
+    }
+
+    expect(calls[0]?.init.signal?.aborted).toBe(true)
+    expect(errors).toEqual([])
   })
 })

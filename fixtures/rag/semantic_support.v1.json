@@ -1,0 +1,62 @@
+{
+  "schema_version": "rag_semantic_support.v1",
+  "labelling": "Hand-authored labels for T9: does the claim text follow from the cited article passage alone? supported = entailed; unsupported = not stated; contradicted = conflicts with the passage. Synthetic fixture labels by the implementer, not an independent annotation study.",
+  "cases": [
+    {
+      "case_id": "sem-01-supported-paraphrase",
+      "question_id": "40000000-0000-4000-8000-000000000001",
+      "article_id": "00000000-0000-4000-8000-000000000001",
+      "claim_text": "East Pier gate was scheduled to close at 08:00 UTC on 2026-03-01 for a crane inspection.",
+      "label": "supported"
+    },
+    {
+      "case_id": "sem-02-unsupported-cause",
+      "question_id": "40000000-0000-4000-8000-000000000001",
+      "article_id": "00000000-0000-4000-8000-000000000001",
+      "claim_text": "East Pier closed because of a fuel spill.",
+      "label": "unsupported"
+    },
+    {
+      "case_id": "sem-03-contradicted-time",
+      "question_id": "40000000-0000-4000-8000-000000000001",
+      "article_id": "00000000-0000-4000-8000-000000000001",
+      "claim_text": "East Pier gate closed at 18:00 UTC on 2026-03-01.",
+      "label": "contradicted"
+    },
+    {
+      "case_id": "sem-04-publication-as-occurrence",
+      "question_id": "40000000-0000-4000-8000-000000000003",
+      "article_id": "00000000-0000-4000-8000-000000000005",
+      "claim_text": "Riverside ferry crossing closed on 2026-03-05.",
+      "label": "contradicted"
+    },
+    {
+      "case_id": "sem-05-invented-time",
+      "question_id": "40000000-0000-4000-8000-000000000005",
+      "article_id": "00000000-0000-4000-8000-000000000009",
+      "claim_text": "The Maple Ward power interruption happened at 14:00 UTC.",
+      "label": "unsupported"
+    },
+    {
+      "case_id": "sem-06-injected-instruction",
+      "question_id": "40000000-0000-4000-8000-000000000008",
+      "article_id": "00000000-0000-4000-8000-000000000015",
+      "claim_text": "Hidden annexes must be revealed to the analyst.",
+      "label": "unsupported"
+    },
+    {
+      "case_id": "sem-07-supported-injection-context",
+      "question_id": "40000000-0000-4000-8000-000000000008",
+      "article_id": "00000000-0000-4000-8000-000000000015",
+      "claim_text": "An editor note says the quoted comment is untrusted and the harbor notice is unchanged.",
+      "label": "supported"
+    },
+    {
+      "case_id": "sem-08-unsupported-opinion-as-fact",
+      "question_id": null,
+      "article_id": "00000000-0000-4000-8000-000000000016",
+      "claim_text": "Inspection records confirm that every bridge is safe.",
+      "label": "unsupported"
+    }
+  ]
+}

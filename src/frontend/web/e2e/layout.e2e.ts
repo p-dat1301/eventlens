@@ -1,7 +1,9 @@
-// Real-browser layout and keyboard checks against the built app (`dist/`).
-// The API is stubbed in-process with the same fixtures as the unit suite.
-// Run with `bun run test:e2e` (uses installed Google Chrome, or set
-// EVENTLENS_CHROME to a Chromium executable).
+// Real-browser layout, keyboard and request-lifecycle checks against the built
+// app (`dist/`). The API is stubbed in-process with the same fixtures as the
+// unit suite; "slow" questions stay pending until the test releases them.
+// Run with `bun run test:e2e`. Browser: EVENTLENS_CHROME=<executable>, or
+// EVENTLENS_BROWSER=chromium for Playwright's pinned Chromium (CI installs it
+// with `bunx playwright-core install chromium`), else installed Google Chrome.
 import { afterAll, beforeAll, describe, expect, test } from "bun:test"
 import { join } from "node:path"
 import { type Browser, chromium, type Page } from "playwright-core"
@@ -19,6 +21,12 @@ import {
 
 const DIST = join(import.meta.dir, "..", "dist")
 let flakyCalls = 0
+const slowWaiters: Array<() => void> = []
+let slowAborts = 0
+
+const releaseSlow = () => {
+  for (const release of slowWaiters.splice(0)) release()
+}
 
 const reply = (body: unknown, status = 200) => Response.json(body, { status })
 
@@ -40,6 +48,13 @@ const server = Bun.serve({
     if (url.pathname === "/briefing" && request.method === "POST") {
       const body: unknown = await request.json()
       const query = typeof body === "object" && body !== null ? Reflect.get(body, "query") : ""
+      if (String(query).includes("slow")) {
+        request.signal.addEventListener("abort", () => {
+          slowAborts += 1
+        })
+        await new Promise<void>((resolve) => slowWaiters.push(resolve))
+        return reply(noEvidenceResponse())
+      }
       return briefingFor(String(query))
     }
     if (url.pathname === `/briefing/sources/${REF_CLOSE}`) return reply(sourceResponse())
@@ -57,10 +72,14 @@ let browser: Browser
 
 beforeAll(async () => {
   const executablePath = process.env["EVENTLENS_CHROME"]
-  browser = await chromium.launch(executablePath ? { executablePath } : { channel: "chrome" })
+  const bundled = process.env["EVENTLENS_BROWSER"] === "chromium"
+  browser = await chromium.launch(
+    executablePath ? { executablePath } : bundled ? {} : { channel: "chrome" },
+  )
 })
 
 afterAll(async () => {
+  releaseSlow()
   await browser.close()
   server.stop(true)
 })
@@ -73,7 +92,9 @@ const open = async (width: number): Promise<Page> => {
 
 const ask = async (page: Page, question: string) => {
   await page.getByLabel("Question").fill(question)
-  await page.getByRole("button", { name: "Request briefing" }).click()
+  // The submit button reads "Briefing…" while a request is in flight and
+  // stays enabled, so a rapid resubmit uses the same control.
+  await page.locator(".query-form button[type=submit]").click()
 }
 
 const horizontalOverflow = (page: Page) =>
@@ -171,6 +192,78 @@ describe("keyboard", () => {
     await page.keyboard.press("Escape")
     await page.locator("#source-viewer").waitFor({ state: "detached" })
     expect(await inspect.evaluate((node) => node === document.activeElement)).toBe(true)
+    await page.close()
+  })
+})
+
+const NO_MATCH = "No authorized source in the requested scope matched this question."
+
+const watchErrors = (page: Page): string[] => {
+  const errors: string[] = []
+  page.on("pageerror", (error) => errors.push(error.message))
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text())
+  })
+  return errors
+}
+
+describe.each([320, 1280])("request lifecycle at %ipx", (width) => {
+  test("slow A then fast B: loading shown, B wins, late A never replaces it", async () => {
+    const page = await open(width)
+    const errors = watchErrors(page)
+
+    await ask(page, "slow question A")
+    await page.getByRole("status").getByText("Retrieving evidence").waitFor()
+    expect(await page.locator(".result-panel").getAttribute("aria-busy")).toBe("true")
+
+    await ask(page, "When did East Pier close and reopen?")
+    await page.getByRole("heading", { name: "Answer" }).waitFor()
+    releaseSlow()
+    await page.waitForTimeout(300)
+
+    expect(await page.getByRole("heading", { name: "Answer" }).isVisible()).toBe(true)
+    expect(await page.getByText(NO_MATCH).count()).toBe(0)
+    expect(await horizontalOverflow(page)).toBe(0)
+    expect(errors).toEqual([])
+    await page.close()
+  })
+
+  test("leaving the page before A returns is clean and the app reloads idle", async () => {
+    const page = await open(width)
+    const errors = watchErrors(page)
+    const before = slowAborts
+
+    await ask(page, "slow question A")
+    await page.getByRole("status").getByText("Retrieving evidence").waitFor()
+    await page.goto("about:blank")
+    releaseSlow()
+    await page.goto(server.url.href)
+
+    await page.getByRole("button", { name: "Request briefing" }).waitFor()
+    expect(await page.getByText(NO_MATCH).count()).toBe(0)
+    expect(await page.locator("[role=status]").count()).toBe(0)
+    expect(slowAborts).toBeGreaterThan(before)
+    expect(errors).toEqual([])
+    await page.close()
+  })
+
+  test("empty, typed error, retry and citation inspection states", async () => {
+    const page = await open(width)
+    flakyCalls = 0
+
+    await ask(page, "nothing here")
+    await page.getByText(NO_MATCH, { exact: true }).waitFor()
+
+    await ask(page, "flaky question")
+    const alert = page.getByRole("alert")
+    await alert.waitFor()
+    expect(await alert.textContent()).toContain("Model unavailable")
+    await page.getByRole("button", { name: "Retry briefing" }).click()
+    await page.getByRole("heading", { name: "Answer" }).waitFor()
+
+    await page.getByRole("button", { name: "Inspect source" }).first().click()
+    await page.locator("#source-viewer mark").waitFor()
+    expect(await horizontalOverflow(page)).toBe(0)
     await page.close()
   })
 })

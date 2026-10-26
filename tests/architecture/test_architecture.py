@@ -194,20 +194,49 @@ def test_infra_never_imports_delivery_or_composition() -> None:
 
 def test_only_composition_and_entry_points_reach_rag_adapters() -> None:
     # Given: outside infra, only the composition root wires adapters; worker and
-    # maintenance entry points also map typed storage errors to exit codes.
+    # maintenance entry points also map typed storage errors to exit codes. The
+    # T9 evaluation package is an outer-ring harness like cli_main.
     allowed = {"composition.py", "worker_main.py", "cli_main.py"}
 
     # When
     importers = sorted(
         str(path.relative_to(RAG))
         for path in RAG.rglob("*.py")
-        if "infra" not in path.relative_to(RAG).parts
+        if not {"infra", "evaluation"} & set(path.relative_to(RAG).parts)
         and any(name.startswith("backend.rag.infra") for name in imports_of(path))
     )
 
     # Then
     assert set(importers) <= allowed
     assert "api_main.py" not in importers
+
+
+def test_only_cli_reaches_the_evaluation_harness() -> None:
+    # Given: evaluation wires fakes into graphs; no runtime layer may import it.
+    importers = sorted(
+        str(path.relative_to(RAG))
+        for path in RAG.rglob("*.py")
+        if "evaluation" not in path.relative_to(RAG).parts
+        and any(name.startswith("backend.rag.evaluation") for name in imports_of(path))
+    )
+
+    # Then
+    assert importers == ["cli_main.py"]
+
+
+def test_evaluation_never_imports_live_provider_adapters() -> None:
+    # Given
+    forbidden = (
+        "openai",
+        "httpx",
+        "backend.rag.infra.llm.openai_synthesis",
+        "backend.rag.infra.llm.openai_enricher",
+        "backend.rag.infra.embeddings.openai_embeddings",
+        "backend.rag.infra.postgres",
+    )
+
+    # When / Then
+    assert violations(RAG / "evaluation", forbidden) == []
 
 
 def test_workflow_state_carries_no_session_client_or_adapter() -> None:
