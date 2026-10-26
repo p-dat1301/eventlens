@@ -21,6 +21,8 @@ services:
       dockerfile: docker/web.Dockerfile
     ports:
       - "5173:80"
+    depends_on:
+      - rag-api
 
   rag-worker:
     build:

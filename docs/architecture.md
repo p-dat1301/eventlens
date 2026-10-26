@@ -189,6 +189,13 @@ The Vite dev server proxies `/briefing` to `EVENTLENS_RAG_API_URL`
 `EVENTLENS_API_RAG_DATABASE_URL` opts retrieval and source references into an
 already migrated PostgreSQL database (variable name unchanged).
 
+In the `web` container, Nginx (`src/frontend/web/nginx.conf`) proxies same-origin
+`location = /briefing` and `location ^~ /briefing/` to `http://rag-api:8001`
+without rewriting the path; `/` keeps the SPA `index.html` fallback and crud-api
+`/health` is not proxied. A frontend served outside this Nginx must set
+`VITE_API_BASE_URL` to the rag-api origin at build time and rag-api must allow
+that origin via CORS (not configured today).
+
 Containers: `docker compose up --build crud-api rag-api web`;
 `docker compose --profile tools run --rm rag-worker` (needs `make infra rag-db-create`)
 and `docker compose --profile tools run --rm event-pipeline`.

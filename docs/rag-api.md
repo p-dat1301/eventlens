@@ -67,6 +67,19 @@ always evaluated in fixture mode with an empty environment, so an API key in the
 environment never enables a live provider. The graph and the process-local
 concurrency limiter are built once at startup.
 
+### Frontend routing
+
+The web client calls `${VITE_API_BASE_URL}/briefing` (empty base = same origin).
+
+- Development: the Vite dev server proxies `/briefing` to `EVENTLENS_RAG_API_URL`
+  (default `http://localhost:8001`).
+- Production web container: Nginx proxies same-origin `/briefing` and `/briefing/*`
+  (e.g. `/briefing/sources/{source_ref}`) to the Docker service `http://rag-api:8001`,
+  path unchanged, with `Host`, `X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto`
+  and a 30 s read timeout.
+- Separate frontend deployment: build with `VITE_API_BASE_URL` set to the rag-api
+  origin and configure CORS for that origin; rag-api has no CORS middleware today.
+
 ### PostgreSQL opt-in
 
 Set `EVENTLENS_API_RAG_DATABASE_URL` to an already migrated RAG database

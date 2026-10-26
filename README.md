@@ -95,3 +95,9 @@ make down
 separate `eventlens_rag` database on that server (`make rag-db-create rag-migrate rag-load-fixtures rag-rebuild`,
 see `docs/rag.md`); MinIO is unused. `make up` starts `crud-api`, `rag-api` and `web`. Never reuse development
 credentials outside local environments.
+
+The `web` container (Nginx, `src/frontend/web/nginx.conf`) proxies same-origin `/briefing` and `/briefing/*`
+(including `/briefing/sources/{source_ref}`) to the Docker service `http://rag-api:8001`, path unchanged; every
+other path falls back to the SPA `index.html`. In development the Vite proxy forwards `/briefing` to
+`EVENTLENS_RAG_API_URL` instead. A frontend deployed without this Nginx must build with `VITE_API_BASE_URL`
+pointing at rag-api and needs matching CORS on rag-api (none is configured today).
