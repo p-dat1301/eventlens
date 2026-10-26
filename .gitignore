@@ -15,5 +15,6 @@ src/frontend/web/node_modules/
 src/frontend/web/dist/
 
 # Local agent runtime artifacts
+.claude/
 .omo/run-continuation/
 .omo/evidence/

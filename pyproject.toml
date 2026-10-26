@@ -60,6 +60,7 @@ reportPrivateUsage = "error"
 target-version = "py312"
 line-length = 88
 src = ["src", "tests/support"]
+extend-exclude = [".claude"]
 
 [tool.ruff.lint]
 select = ["ALL"]

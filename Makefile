@@ -6,6 +6,7 @@ COMPOSE ?= docker compose
 RAG_DATABASE_NAME ?= eventlens_rag
 RAG_DATABASE_URL ?= postgresql://eventlens:eventlens-local@127.0.0.1:5432/$(RAG_DATABASE_NAME)
 WEB_DIR := src/frontend/web
+PY_PATHS := src tests typings
 RAG_WORKER_ARGS ?= enrich --max-jobs 5
 
 sync:
@@ -17,8 +18,8 @@ test:
 	cd $(WEB_DIR) && bun test
 
 lint:
-	uv run ruff format --check .
-	uv run ruff check .
+	uv run ruff format --check $(PY_PATHS)
+	uv run ruff check $(PY_PATHS)
 	cd $(WEB_DIR) && bun run check
 
 typecheck:
