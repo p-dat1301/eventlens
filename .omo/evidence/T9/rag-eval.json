@@ -1,0 +1,3351 @@
+{
+  "cases": {
+    "cases": {
+      "access_revoked": {
+        "expected": {
+          "answer_returned": false,
+          "error_code": "synthesis_access_denied",
+          "model_calls": 0,
+          "store_reads": 0
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "answer_returned": false,
+          "error_code": "synthesis_access_denied",
+          "model_calls": 0,
+          "store_reads": 0
+        }
+      },
+      "budget_context_too_small": {
+        "expected": {
+          "error_code": "synthesis_budget_exceeded",
+          "model_calls": 0,
+          "reason": "context_too_small"
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "error_code": "synthesis_budget_exceeded",
+          "model_calls": 0,
+          "reason": "context_too_small"
+        }
+      },
+      "cancel_before_start": {
+        "expected": {
+          "error_code": "synthesis_cancelled",
+          "model_calls": 0,
+          "store_reads": 0
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "error_code": "synthesis_cancelled",
+          "model_calls": 0,
+          "store_reads": 0
+        }
+      },
+      "cancel_during_model_call": {
+        "expected": {
+          "error_code": "synthesis_cancelled",
+          "model_calls": 1,
+          "store_reads_after_cancel": 0
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "error_code": "synthesis_cancelled",
+          "model_calls": 1,
+          "store_reads_after_cancel": 0
+        }
+      },
+      "concurrency_capacity_full": {
+        "expected": {
+          "after_release": "answered",
+          "error_code": "synthesis_concurrency_rejected",
+          "model_calls_while_full": 0
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "after_release": "answered",
+          "error_code": "synthesis_concurrency_rejected",
+          "model_calls_while_full": 0
+        }
+      },
+      "concurrency_isolation": {
+        "expected": {
+          "fresh_runtime_matches": true,
+          "identical_to_sequential": 10,
+          "requests": 10
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "fresh_runtime_matches": true,
+          "identical_to_sequential": 10,
+          "requests": 10
+        }
+      },
+      "enrichment_outage_keeps_lexical": {
+        "expected": {
+          "enrichment_outcomes": [
+            "RETRY_SCHEDULED"
+          ],
+          "reindexed": 0,
+          "retrieval_mode": "lexical_only",
+          "route": "answered"
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "enrichment_outcomes": [
+            "RETRY_SCHEDULED"
+          ],
+          "reindexed": 0,
+          "retrieval_mode": "lexical_only",
+          "route": "answered"
+        }
+      },
+      "freshness_revision": {
+        "expected": {
+          "cited_hashes_after_revision": [
+            "sha256:60bc914a73efa12b5bbf87b8b9dd3d7f9b013ccb2e636fff5076f4880c470121"
+          ],
+          "metadata_served_for_revision": false,
+          "old_reference_results": [
+            "SourceStaleError"
+          ],
+          "old_references_checked": 1
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "cited_hashes_after_revision": [
+            "sha256:60bc914a73efa12b5bbf87b8b9dd3d7f9b013ccb2e636fff5076f4880c470121"
+          ],
+          "metadata_served_for_revision": false,
+          "old_reference_results": [
+            "SourceStaleError"
+          ],
+          "old_references_checked": 1
+        }
+      },
+      "freshness_tombstone": {
+        "expected": {
+          "cited_after": false,
+          "cited_before": true
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "cited_after": false,
+          "cited_before": true
+        }
+      },
+      "model_cites_unsent_restricted_span": {
+        "expected": {
+          "answer_returned": false,
+          "error_code": "synthesis_grounding_failed",
+          "model_calls": 1
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "answer_returned": false,
+          "error_code": "synthesis_grounding_failed",
+          "model_calls": 1
+        }
+      },
+      "model_outage_typed_no_fallback": {
+        "expected": {
+          "answer_returned": false,
+          "error_code": "synthesis_provider_failed",
+          "model_calls": 1
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "answer_returned": false,
+          "error_code": "synthesis_provider_failed",
+          "model_calls": 1
+        }
+      },
+      "model_returns_raw_prose": {
+        "expected": {
+          "answer_returned": false,
+          "error_code": "synthesis_malformed_output",
+          "model_calls": 1
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "answer_returned": false,
+          "error_code": "synthesis_malformed_output",
+          "model_calls": 1
+        }
+      },
+      "prompt_injection_data_channel": {
+        "expected": {
+          "distinct_system_prompts": 1,
+          "injection_in_instruction_channel": false,
+          "injection_reached_model_as_data": true,
+          "routes": [
+            "answered",
+            "answered"
+          ]
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "distinct_system_prompts": 1,
+          "injection_in_instruction_channel": false,
+          "injection_reached_model_as_data": true,
+          "routes": [
+            "answered",
+            "answered"
+          ]
+        }
+      },
+      "restricted_article_never_sent": {
+        "expected": {
+          "40000000-0000-4000-8000-000000000005": false,
+          "40000000-0000-4000-8000-000000000007": false
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "40000000-0000-4000-8000-000000000005": false,
+          "40000000-0000-4000-8000-000000000007": false
+        }
+      },
+      "scoped_abstention": {
+        "expected": {
+          "40000000-0000-4000-8000-000000000005": "abstained_no_evidence",
+          "40000000-0000-4000-8000-000000000007": "abstained_no_evidence"
+        },
+        "gating": false,
+        "held": false,
+        "observed": {
+          "40000000-0000-4000-8000-000000000005": "answered",
+          "40000000-0000-4000-8000-000000000007": "answered"
+        }
+      },
+      "storage_outage_and_recovery": {
+        "expected": {
+          "after_recovery": "answered",
+          "documents_retained": 30,
+          "during_outage": "retrieval_storage_unavailable",
+          "model_calls_during_outage": 0
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "after_recovery": "answered",
+          "documents_retained": 30,
+          "during_outage": "retrieval_storage_unavailable",
+          "model_calls_during_outage": 0
+        }
+      }
+    },
+    "gating_held": {
+      "definition": "gating (safety/control) cases held / gating cases",
+      "denominator": 15,
+      "numerator": 15,
+      "value": 1.0
+    },
+    "held": {
+      "definition": "cases whose result equals expectation",
+      "denominator": 16,
+      "numerator": 15,
+      "value": 0.9375
+    },
+    "security_held": {
+      "definition": "security cases held / security cases",
+      "denominator": 5,
+      "numerator": 5,
+      "value": 1.0
+    }
+  },
+  "limitations": [
+    "10 smoke questions on a 30-article synthetic corpus; fake synthesizer copies the first sent span per article; fake embeddings use a fixed distance. Results prove wiring/accounting, not answer quality.",
+    "Each question runs inside its fixture allowed_article_ids scope (eval-level ScopedRetrievalStore; G1-G3 have no per-article ACL). For every answerable question allowed == expected articles, so Recall@k in ``modes`` is near-trivial. The ranking comparison lives in ``ranking``: one analyst scope with 29 permitted articles (distractors), restricted article 014 excluded.",
+    "Gold spans in fixtures v1 cover each expected article's full text, so span metrics equal article metrics and cannot judge passage choice.",
+    "In-memory retrieval store approximates PostgreSQL FTS; the DB suite (make rag-db-test) carries real PostgreSQL/pgvector evidence.",
+    "Latency figures are wall-clock on the eval machine with fake adapters, not a production SLO; the 8 s p95 target stays unmeasured."
+  ],
+  "modes": {
+    "hybrid": {
+      "per_question": {
+        "40000000-0000-4000-8000-000000000001": {
+          "citations": 2,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 2,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000002"
+          ],
+          "cited_expected": 2,
+          "claims": 2,
+          "claims_verbatim_in_cited_span": 2,
+          "cost_charged": 9908,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 1908,
+          "input_tokens_counted": 1908,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2,
+            1
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit UTC occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000002",
+            "00000000-0000-4000-8000-000000000001"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000002": {
+          "citations": 2,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 2,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000003",
+            "00000000-0000-4000-8000-000000000004"
+          ],
+          "cited_expected": 2,
+          "claims": 2,
+          "claims_verbatim_in_cited_span": 2,
+          "cost_charged": 9896,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 1896,
+          "input_tokens_counted": 1896,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2,
+            1
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit event date",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000004",
+            "00000000-0000-4000-8000-000000000003"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000003": {
+          "citations": 2,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 2,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000005",
+            "00000000-0000-4000-8000-000000000023"
+          ],
+          "cited_expected": 2,
+          "claims": 2,
+          "claims_verbatim_in_cited_span": 2,
+          "cost_charged": 9916,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 1916,
+          "input_tokens_counted": 1916,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2,
+            1
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000005"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000004": {
+          "citations": 1,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000006"
+          ],
+          "cited_expected": 1,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9730,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 1730,
+          "input_tokens_counted": 1730,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "date-only occurrence",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000006"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000005": {
+          "citations": 1,
+          "citations_gold_span_exact": 0,
+          "citations_gold_span_overlap": 0,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000009"
+          ],
+          "cited_expected": 0,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9724,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 0,
+          "gold_spans_covered": 0,
+          "input_tokens_charged": 1724,
+          "input_tokens_counted": 1724,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [],
+          "recall_at_1": null,
+          "recall_at_10": null,
+          "recall_at_3": null,
+          "recall_at_5": null,
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "unknown occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000009"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000006": {
+          "citations": 1,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000012"
+          ],
+          "cited_expected": 1,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9737,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 1737,
+          "input_tokens_counted": 1737,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "America/New_York basis",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000012"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000007": {
+          "citations": 1,
+          "citations_gold_span_exact": 0,
+          "citations_gold_span_overlap": 0,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001"
+          ],
+          "cited_expected": 0,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9734,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 0,
+          "gold_spans_covered": 0,
+          "input_tokens_charged": 1734,
+          "input_tokens_counted": 1734,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [],
+          "recall_at_1": null,
+          "recall_at_10": null,
+          "recall_at_3": null,
+          "recall_at_5": null,
+          "retrieval_mode": "vector_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "access scope",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000001"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000008": {
+          "citations": 2,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 2,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000015"
+          ],
+          "cited_expected": 2,
+          "claims": 2,
+          "claims_verbatim_in_cited_span": 2,
+          "cost_charged": 9904,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 1904,
+          "input_tokens_counted": 1904,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2,
+            1
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "source text",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000001"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000009": {
+          "citations": 1,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000018"
+          ],
+          "cited_expected": 1,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9729,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 1729,
+          "input_tokens_counted": 1729,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit UTC occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000018"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000010": {
+          "citations": 1,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000021"
+          ],
+          "cited_expected": 1,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9738,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 1738,
+          "input_tokens_counted": 1738,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "source text",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000021"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        }
+      },
+      "summary": {
+        "abstention_correct": {
+          "definition": "abstain questions that abstained / abstain questions",
+          "denominator": 2,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "answered": {
+          "definition": "questions answered / questions",
+          "denominator": 10,
+          "numerator": 10,
+          "value": 1.0
+        },
+        "citation_gold_article_precision": {
+          "definition": "distinct cited articles in the question's expected set / distinct cited",
+          "denominator": 14,
+          "numerator": 12,
+          "value": 0.857143
+        },
+        "citation_gold_span_exact_precision": {
+          "definition": "citations whose span offsets equal a gold span / citations",
+          "denominator": 14,
+          "numerator": 12,
+          "value": 0.857143
+        },
+        "citation_gold_span_overlap_precision": {
+          "definition": "citations whose span overlaps a gold span of the same article / citations",
+          "denominator": 14,
+          "numerator": 12,
+          "value": 0.857143
+        },
+        "citation_structural_validity": {
+          "definition": "citations whose span is sent, current, offset-exact and bound to a claim",
+          "denominator": 14,
+          "numerator": 14,
+          "value": 1.0
+        },
+        "claims_verbatim_in_cited_span": {
+          "definition": "claims whose text is contained in a cited excerpt (copy, not entailment)",
+          "denominator": 14,
+          "numerator": 14,
+          "value": 1.0
+        },
+        "conflict_flagged": {
+          "definition": "conflict questions with a source_conflict uncertainty / conflict qs",
+          "denominator": 1,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "cost_estimate": {
+          "fixture_cost_total": 98016,
+          "unit": "fixture_micro_usd (synthesis-policy.v1 rates, not a price)"
+        },
+        "false_abstention": {
+          "definition": "answerable questions that abstained / answerable",
+          "denominator": 8,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "gold_span_coverage": {
+          "definition": "gold spans overlapped by at least one citation / gold spans",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "mrr": {
+          "definition": "mean 1/rank of the first expected article (0 if absent)",
+          "questions": 8,
+          "value": 1.0
+        },
+        "ndcg_at_10": {
+          "definition": "mean nDCG@10 with binary gain on expected articles",
+          "questions": 8,
+          "value": 1.0
+        },
+        "recall_at_1": {
+          "definition": "expected articles in top 1 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 8,
+          "value": 0.666667
+        },
+        "recall_at_10": {
+          "definition": "expected articles in top 10 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "recall_at_3": {
+          "definition": "expected articles in top 3 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "recall_at_5": {
+          "definition": "expected articles in top 5 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "scope_compliance": {
+          "definition": "questions with no out-of-scope article retrieved, sent or cited",
+          "denominator": 10,
+          "numerator": 10,
+          "value": 1.0
+        },
+        "scope_violations_total": 0,
+        "temporal": {
+          "query_time_basis_source_published": {
+            "definition": "answers reporting source_published_at as the query time basis",
+            "denominator": 10,
+            "numerator": 10,
+            "value": 1.0
+          },
+          "temporal_accuracy": {
+            "reason": "fixtures/rag v1 has no gold occurrence values per question",
+            "status": "NOT MEASURED",
+            "value": null
+          },
+          "temporal_claims_emitted": 0
+        },
+        "tokens": {
+          "input_charged": 18016,
+          "input_counted": 18016,
+          "model_calls": 10,
+          "output_charged": 15000
+        }
+      }
+    },
+    "lexical": {
+      "per_question": {
+        "40000000-0000-4000-8000-000000000001": {
+          "citations": 2,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 2,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000002"
+          ],
+          "cited_expected": 2,
+          "claims": 2,
+          "claims_verbatim_in_cited_span": 2,
+          "cost_charged": 9908,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 1908,
+          "input_tokens_counted": 1908,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2,
+            1
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit UTC occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000002",
+            "00000000-0000-4000-8000-000000000001"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000002": {
+          "citations": 2,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 2,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000003",
+            "00000000-0000-4000-8000-000000000004"
+          ],
+          "cited_expected": 2,
+          "claims": 2,
+          "claims_verbatim_in_cited_span": 2,
+          "cost_charged": 9896,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 1896,
+          "input_tokens_counted": 1896,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2,
+            1
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit event date",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000004",
+            "00000000-0000-4000-8000-000000000003"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000003": {
+          "citations": 2,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 2,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000005",
+            "00000000-0000-4000-8000-000000000023"
+          ],
+          "cited_expected": 2,
+          "claims": 2,
+          "claims_verbatim_in_cited_span": 2,
+          "cost_charged": 9916,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 1916,
+          "input_tokens_counted": 1916,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2,
+            1
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000005"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000004": {
+          "citations": 1,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000006"
+          ],
+          "cited_expected": 1,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9730,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 1730,
+          "input_tokens_counted": 1730,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "date-only occurrence",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000006"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000005": {
+          "citations": 1,
+          "citations_gold_span_exact": 0,
+          "citations_gold_span_overlap": 0,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000009"
+          ],
+          "cited_expected": 0,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9724,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 0,
+          "gold_spans_covered": 0,
+          "input_tokens_charged": 1724,
+          "input_tokens_counted": 1724,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [],
+          "recall_at_1": null,
+          "recall_at_10": null,
+          "recall_at_3": null,
+          "recall_at_5": null,
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "unknown occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000009"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000006": {
+          "citations": 1,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000012"
+          ],
+          "cited_expected": 1,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9737,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 1737,
+          "input_tokens_counted": 1737,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "America/New_York basis",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000012"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000007": {
+          "citations": 0,
+          "citations_gold_span_exact": 0,
+          "citations_gold_span_overlap": 0,
+          "citations_structurally_valid": 0,
+          "cited_articles": [],
+          "cited_expected": 0,
+          "claims": 0,
+          "claims_verbatim_in_cited_span": 0,
+          "cost_charged": 0,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 0,
+          "gold_spans_covered": 0,
+          "input_tokens_charged": 0,
+          "input_tokens_counted": 0,
+          "model_calls": 0,
+          "output_tokens_charged": 0,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [],
+          "recall_at_1": null,
+          "recall_at_10": null,
+          "recall_at_3": null,
+          "recall_at_5": null,
+          "retrieval_mode": "none",
+          "route": "abstained_no_evidence",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "access scope",
+          "top_10": [],
+          "uncertainty_categories": [
+            "insufficient_evidence"
+          ],
+          "usage_status": "not_called",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000008": {
+          "citations": 2,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 2,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000015"
+          ],
+          "cited_expected": 2,
+          "claims": 2,
+          "claims_verbatim_in_cited_span": 2,
+          "cost_charged": 9904,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 1904,
+          "input_tokens_counted": 1904,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2,
+            1
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "source text",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000001"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000009": {
+          "citations": 1,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000018"
+          ],
+          "cited_expected": 1,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9729,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 1729,
+          "input_tokens_counted": 1729,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit UTC occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000018"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000010": {
+          "citations": 1,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000021"
+          ],
+          "cited_expected": 1,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9738,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 1738,
+          "input_tokens_counted": 1738,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "source text",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000021"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        }
+      },
+      "summary": {
+        "abstention_correct": {
+          "definition": "abstain questions that abstained / abstain questions",
+          "denominator": 2,
+          "numerator": 1,
+          "value": 0.5
+        },
+        "answered": {
+          "definition": "questions answered / questions",
+          "denominator": 10,
+          "numerator": 9,
+          "value": 0.9
+        },
+        "citation_gold_article_precision": {
+          "definition": "distinct cited articles in the question's expected set / distinct cited",
+          "denominator": 13,
+          "numerator": 12,
+          "value": 0.923077
+        },
+        "citation_gold_span_exact_precision": {
+          "definition": "citations whose span offsets equal a gold span / citations",
+          "denominator": 13,
+          "numerator": 12,
+          "value": 0.923077
+        },
+        "citation_gold_span_overlap_precision": {
+          "definition": "citations whose span overlaps a gold span of the same article / citations",
+          "denominator": 13,
+          "numerator": 12,
+          "value": 0.923077
+        },
+        "citation_structural_validity": {
+          "definition": "citations whose span is sent, current, offset-exact and bound to a claim",
+          "denominator": 13,
+          "numerator": 13,
+          "value": 1.0
+        },
+        "claims_verbatim_in_cited_span": {
+          "definition": "claims whose text is contained in a cited excerpt (copy, not entailment)",
+          "denominator": 13,
+          "numerator": 13,
+          "value": 1.0
+        },
+        "conflict_flagged": {
+          "definition": "conflict questions with a source_conflict uncertainty / conflict qs",
+          "denominator": 1,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "cost_estimate": {
+          "fixture_cost_total": 88282,
+          "unit": "fixture_micro_usd (synthesis-policy.v1 rates, not a price)"
+        },
+        "false_abstention": {
+          "definition": "answerable questions that abstained / answerable",
+          "denominator": 8,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "gold_span_coverage": {
+          "definition": "gold spans overlapped by at least one citation / gold spans",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "mrr": {
+          "definition": "mean 1/rank of the first expected article (0 if absent)",
+          "questions": 8,
+          "value": 1.0
+        },
+        "ndcg_at_10": {
+          "definition": "mean nDCG@10 with binary gain on expected articles",
+          "questions": 8,
+          "value": 1.0
+        },
+        "recall_at_1": {
+          "definition": "expected articles in top 1 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 8,
+          "value": 0.666667
+        },
+        "recall_at_10": {
+          "definition": "expected articles in top 10 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "recall_at_3": {
+          "definition": "expected articles in top 3 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "recall_at_5": {
+          "definition": "expected articles in top 5 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "scope_compliance": {
+          "definition": "questions with no out-of-scope article retrieved, sent or cited",
+          "denominator": 10,
+          "numerator": 10,
+          "value": 1.0
+        },
+        "scope_violations_total": 0,
+        "temporal": {
+          "query_time_basis_source_published": {
+            "definition": "answers reporting source_published_at as the query time basis",
+            "denominator": 10,
+            "numerator": 10,
+            "value": 1.0
+          },
+          "temporal_accuracy": {
+            "reason": "fixtures/rag v1 has no gold occurrence values per question",
+            "status": "NOT MEASURED",
+            "value": null
+          },
+          "temporal_claims_emitted": 0
+        },
+        "tokens": {
+          "input_charged": 16282,
+          "input_counted": 16282,
+          "model_calls": 9,
+          "output_charged": 13500
+        }
+      }
+    }
+  },
+  "ranking": {
+    "hybrid": {
+      "per_question": {
+        "40000000-0000-4000-8000-000000000001": {
+          "citations": 20,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 20,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000002",
+            "00000000-0000-4000-8000-000000000009",
+            "00000000-0000-4000-8000-000000000010",
+            "00000000-0000-4000-8000-000000000011",
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000013",
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000016",
+            "00000000-0000-4000-8000-000000000017",
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000019",
+            "00000000-0000-4000-8000-000000000020",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000028"
+          ],
+          "cited_expected": 2,
+          "claims": 20,
+          "claims_verbatim_in_cited_span": 20,
+          "cost_charged": 12913,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 4913,
+          "input_tokens_counted": 4913,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1,
+            2
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit UTC occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000002",
+            "00000000-0000-4000-8000-000000000028",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000020"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000002": {
+          "citations": 20,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 20,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000003",
+            "00000000-0000-4000-8000-000000000004",
+            "00000000-0000-4000-8000-000000000010",
+            "00000000-0000-4000-8000-000000000011",
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000013",
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000016",
+            "00000000-0000-4000-8000-000000000017",
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000019",
+            "00000000-0000-4000-8000-000000000020",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000028"
+          ],
+          "cited_expected": 2,
+          "claims": 20,
+          "claims_verbatim_in_cited_span": 20,
+          "cost_charged": 12912,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 4912,
+          "input_tokens_counted": 4912,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2,
+            1
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit event date",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000004",
+            "00000000-0000-4000-8000-000000000003",
+            "00000000-0000-4000-8000-000000000028",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000021"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000003": {
+          "citations": 20,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 20,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000005",
+            "00000000-0000-4000-8000-000000000009",
+            "00000000-0000-4000-8000-000000000010",
+            "00000000-0000-4000-8000-000000000011",
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000013",
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000016",
+            "00000000-0000-4000-8000-000000000017",
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000019",
+            "00000000-0000-4000-8000-000000000020",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000028"
+          ],
+          "cited_expected": 2,
+          "claims": 20,
+          "claims_verbatim_in_cited_span": 20,
+          "cost_charged": 12923,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 4923,
+          "input_tokens_counted": 4923,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2,
+            1
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000005",
+            "00000000-0000-4000-8000-000000000028",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000020"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000004": {
+          "citations": 20,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 20,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000006",
+            "00000000-0000-4000-8000-000000000009",
+            "00000000-0000-4000-8000-000000000010",
+            "00000000-0000-4000-8000-000000000011",
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000013",
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000016",
+            "00000000-0000-4000-8000-000000000017",
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000019",
+            "00000000-0000-4000-8000-000000000020",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000028"
+          ],
+          "cited_expected": 1,
+          "claims": 20,
+          "claims_verbatim_in_cited_span": 20,
+          "cost_charged": 12906,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 4906,
+          "input_tokens_counted": 4906,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 0
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "date-only occurrence",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000006",
+            "00000000-0000-4000-8000-000000000028",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000021"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000005": {
+          "citations": 20,
+          "citations_gold_span_exact": 0,
+          "citations_gold_span_overlap": 0,
+          "citations_structurally_valid": 20,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000005",
+            "00000000-0000-4000-8000-000000000009",
+            "00000000-0000-4000-8000-000000000010",
+            "00000000-0000-4000-8000-000000000011",
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000013",
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000016",
+            "00000000-0000-4000-8000-000000000017",
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000019",
+            "00000000-0000-4000-8000-000000000020",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000028"
+          ],
+          "cited_expected": 0,
+          "claims": 20,
+          "claims_verbatim_in_cited_span": 20,
+          "cost_charged": 12923,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 0,
+          "gold_spans_covered": 0,
+          "input_tokens_charged": 4923,
+          "input_tokens_counted": 4923,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [],
+          "recall_at_1": null,
+          "recall_at_10": null,
+          "recall_at_3": null,
+          "recall_at_5": null,
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "unknown occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000013",
+            "00000000-0000-4000-8000-000000000009",
+            "00000000-0000-4000-8000-000000000005",
+            "00000000-0000-4000-8000-000000000028",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000001"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000006": {
+          "citations": 20,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 20,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000008",
+            "00000000-0000-4000-8000-000000000009",
+            "00000000-0000-4000-8000-000000000010",
+            "00000000-0000-4000-8000-000000000011",
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000013",
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000016",
+            "00000000-0000-4000-8000-000000000017",
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000019",
+            "00000000-0000-4000-8000-000000000020",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000028"
+          ],
+          "cited_expected": 1,
+          "claims": 20,
+          "claims_verbatim_in_cited_span": 20,
+          "cost_charged": 12912,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 4912,
+          "input_tokens_counted": 4912,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "America/New_York basis",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000028",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000020"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000007": {
+          "citations": 20,
+          "citations_gold_span_exact": 0,
+          "citations_gold_span_overlap": 0,
+          "citations_structurally_valid": 20,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000008",
+            "00000000-0000-4000-8000-000000000009",
+            "00000000-0000-4000-8000-000000000010",
+            "00000000-0000-4000-8000-000000000011",
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000013",
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000016",
+            "00000000-0000-4000-8000-000000000017",
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000019",
+            "00000000-0000-4000-8000-000000000020",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000028"
+          ],
+          "cited_expected": 0,
+          "claims": 20,
+          "claims_verbatim_in_cited_span": 20,
+          "cost_charged": 12912,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 0,
+          "gold_spans_covered": 0,
+          "input_tokens_charged": 4912,
+          "input_tokens_counted": 4912,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [],
+          "recall_at_1": null,
+          "recall_at_10": null,
+          "recall_at_3": null,
+          "recall_at_5": null,
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "access scope",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000028",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000020",
+            "00000000-0000-4000-8000-000000000019"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000008": {
+          "citations": 20,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 20,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000002",
+            "00000000-0000-4000-8000-000000000009",
+            "00000000-0000-4000-8000-000000000010",
+            "00000000-0000-4000-8000-000000000011",
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000013",
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000016",
+            "00000000-0000-4000-8000-000000000017",
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000019",
+            "00000000-0000-4000-8000-000000000020",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000028"
+          ],
+          "cited_expected": 2,
+          "claims": 20,
+          "claims_verbatim_in_cited_span": 20,
+          "cost_charged": 12914,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 4914,
+          "input_tokens_counted": 4914,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            5,
+            2
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 0
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "source text",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000002",
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000028",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000023"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000009": {
+          "citations": 20,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 20,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000005",
+            "00000000-0000-4000-8000-000000000009",
+            "00000000-0000-4000-8000-000000000010",
+            "00000000-0000-4000-8000-000000000011",
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000013",
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000016",
+            "00000000-0000-4000-8000-000000000017",
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000019",
+            "00000000-0000-4000-8000-000000000020",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000028"
+          ],
+          "cited_expected": 1,
+          "claims": 20,
+          "claims_verbatim_in_cited_span": 20,
+          "cost_charged": 12921,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 4921,
+          "input_tokens_counted": 4921,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 0
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit UTC occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000010",
+            "00000000-0000-4000-8000-000000000005",
+            "00000000-0000-4000-8000-000000000028",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000001"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000010": {
+          "citations": 20,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 20,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000008",
+            "00000000-0000-4000-8000-000000000009",
+            "00000000-0000-4000-8000-000000000010",
+            "00000000-0000-4000-8000-000000000011",
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000013",
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000016",
+            "00000000-0000-4000-8000-000000000017",
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000019",
+            "00000000-0000-4000-8000-000000000020",
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000028"
+          ],
+          "cited_expected": 1,
+          "claims": 20,
+          "claims_verbatim_in_cited_span": 20,
+          "cost_charged": 12912,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 4912,
+          "input_tokens_counted": 4912,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "hybrid",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "source text",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000021",
+            "00000000-0000-4000-8000-000000000028",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000026",
+            "00000000-0000-4000-8000-000000000025",
+            "00000000-0000-4000-8000-000000000024",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000020",
+            "00000000-0000-4000-8000-000000000019"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        }
+      },
+      "summary": {
+        "abstention_correct": {
+          "definition": "abstain questions that abstained / abstain questions",
+          "denominator": 2,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "answered": {
+          "definition": "questions answered / questions",
+          "denominator": 10,
+          "numerator": 10,
+          "value": 1.0
+        },
+        "citation_gold_article_precision": {
+          "definition": "distinct cited articles in the question's expected set / distinct cited",
+          "denominator": 200,
+          "numerator": 12,
+          "value": 0.06
+        },
+        "citation_gold_span_exact_precision": {
+          "definition": "citations whose span offsets equal a gold span / citations",
+          "denominator": 200,
+          "numerator": 12,
+          "value": 0.06
+        },
+        "citation_gold_span_overlap_precision": {
+          "definition": "citations whose span overlaps a gold span of the same article / citations",
+          "denominator": 200,
+          "numerator": 12,
+          "value": 0.06
+        },
+        "citation_structural_validity": {
+          "definition": "citations whose span is sent, current, offset-exact and bound to a claim",
+          "denominator": 200,
+          "numerator": 200,
+          "value": 1.0
+        },
+        "claims_verbatim_in_cited_span": {
+          "definition": "claims whose text is contained in a cited excerpt (copy, not entailment)",
+          "denominator": 200,
+          "numerator": 200,
+          "value": 1.0
+        },
+        "conflict_flagged": {
+          "definition": "conflict questions with a source_conflict uncertainty / conflict qs",
+          "denominator": 1,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "cost_estimate": {
+          "fixture_cost_total": 129148,
+          "unit": "fixture_micro_usd (synthesis-policy.v1 rates, not a price)"
+        },
+        "false_abstention": {
+          "definition": "answerable questions that abstained / answerable",
+          "denominator": 8,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "gold_span_coverage": {
+          "definition": "gold spans overlapped by at least one citation / gold spans",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "mrr": {
+          "definition": "mean 1/rank of the first expected article (0 if absent)",
+          "questions": 8,
+          "value": 0.8125
+        },
+        "ndcg_at_10": {
+          "definition": "mean nDCG@10 with binary gain on expected articles",
+          "questions": 8,
+          "value": 0.860739
+        },
+        "recall_at_1": {
+          "definition": "expected articles in top 1 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 5,
+          "value": 0.416667
+        },
+        "recall_at_10": {
+          "definition": "expected articles in top 10 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "recall_at_3": {
+          "definition": "expected articles in top 3 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 11,
+          "value": 0.916667
+        },
+        "recall_at_5": {
+          "definition": "expected articles in top 5 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "scope_compliance": {
+          "definition": "questions with no out-of-scope article retrieved, sent or cited",
+          "denominator": 10,
+          "numerator": 10,
+          "value": 1.0
+        },
+        "scope_violations_total": 0,
+        "temporal": {
+          "query_time_basis_source_published": {
+            "definition": "answers reporting source_published_at as the query time basis",
+            "denominator": 10,
+            "numerator": 10,
+            "value": 1.0
+          },
+          "temporal_accuracy": {
+            "reason": "fixtures/rag v1 has no gold occurrence values per question",
+            "status": "NOT MEASURED",
+            "value": null
+          },
+          "temporal_claims_emitted": 0
+        },
+        "tokens": {
+          "input_charged": 49148,
+          "input_counted": 49148,
+          "model_calls": 10,
+          "output_charged": 15000
+        }
+      }
+    },
+    "lexical": {
+      "per_question": {
+        "40000000-0000-4000-8000-000000000001": {
+          "citations": 2,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 2,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000002"
+          ],
+          "cited_expected": 2,
+          "claims": 2,
+          "claims_verbatim_in_cited_span": 2,
+          "cost_charged": 9908,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 1908,
+          "input_tokens_counted": 1908,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1,
+            2
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit UTC occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000002"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000002": {
+          "citations": 2,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 2,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000003",
+            "00000000-0000-4000-8000-000000000004"
+          ],
+          "cited_expected": 2,
+          "claims": 2,
+          "claims_verbatim_in_cited_span": 2,
+          "cost_charged": 9896,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 1896,
+          "input_tokens_counted": 1896,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2,
+            1
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit event date",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000004",
+            "00000000-0000-4000-8000-000000000003"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000003": {
+          "citations": 2,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 2,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000005",
+            "00000000-0000-4000-8000-000000000023"
+          ],
+          "cited_expected": 2,
+          "claims": 2,
+          "claims_verbatim_in_cited_span": 2,
+          "cost_charged": 9916,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 1916,
+          "input_tokens_counted": 1916,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            2,
+            1
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000005"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000004": {
+          "citations": 2,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 2,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000006",
+            "00000000-0000-4000-8000-000000000012"
+          ],
+          "cited_expected": 1,
+          "claims": 2,
+          "claims_verbatim_in_cited_span": 2,
+          "cost_charged": 9904,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 1904,
+          "input_tokens_counted": 1904,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "date-only occurrence",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000006",
+            "00000000-0000-4000-8000-000000000012"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000005": {
+          "citations": 3,
+          "citations_gold_span_exact": 0,
+          "citations_gold_span_overlap": 0,
+          "citations_structurally_valid": 3,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000005",
+            "00000000-0000-4000-8000-000000000009",
+            "00000000-0000-4000-8000-000000000013"
+          ],
+          "cited_expected": 0,
+          "claims": 3,
+          "claims_verbatim_in_cited_span": 3,
+          "cost_charged": 10071,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 0,
+          "gold_spans_covered": 0,
+          "input_tokens_charged": 2071,
+          "input_tokens_counted": 2071,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [],
+          "recall_at_1": null,
+          "recall_at_10": null,
+          "recall_at_3": null,
+          "recall_at_5": null,
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "unknown occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000009",
+            "00000000-0000-4000-8000-000000000013",
+            "00000000-0000-4000-8000-000000000005"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000006": {
+          "citations": 1,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000012"
+          ],
+          "cited_expected": 1,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9737,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 1737,
+          "input_tokens_counted": 1737,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "America/New_York basis",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000012"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000007": {
+          "citations": 1,
+          "citations_gold_span_exact": 0,
+          "citations_gold_span_overlap": 0,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000027"
+          ],
+          "cited_expected": 0,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9726,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 0,
+          "gold_spans_covered": 0,
+          "input_tokens_charged": 1726,
+          "input_tokens_counted": 1726,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [],
+          "recall_at_1": null,
+          "recall_at_10": null,
+          "recall_at_3": null,
+          "recall_at_5": null,
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "access scope",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000027"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000008": {
+          "citations": 5,
+          "citations_gold_span_exact": 2,
+          "citations_gold_span_overlap": 2,
+          "citations_structurally_valid": 5,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000002",
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000027"
+          ],
+          "cited_expected": 2,
+          "claims": 5,
+          "claims_verbatim_in_cited_span": 5,
+          "cost_charged": 10416,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 2,
+          "gold_spans_covered": 2,
+          "input_tokens_charged": 2416,
+          "input_tokens_counted": 2416,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            5,
+            1
+          ],
+          "recall_at_1": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 2,
+            "hits": 2
+          },
+          "recall_at_3": {
+            "expected": 2,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 2,
+            "hits": 2
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "source text",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000015",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000012",
+            "00000000-0000-4000-8000-000000000002",
+            "00000000-0000-4000-8000-000000000001"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000009": {
+          "citations": 4,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 4,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000005",
+            "00000000-0000-4000-8000-000000000010",
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000027"
+          ],
+          "cited_expected": 1,
+          "claims": 4,
+          "claims_verbatim_in_cited_span": 4,
+          "cost_charged": 10248,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 2248,
+          "input_tokens_counted": 2248,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "explicit UTC occurrence time",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000027",
+            "00000000-0000-4000-8000-000000000010",
+            "00000000-0000-4000-8000-000000000005"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        },
+        "40000000-0000-4000-8000-000000000010": {
+          "citations": 1,
+          "citations_gold_span_exact": 1,
+          "citations_gold_span_overlap": 1,
+          "citations_structurally_valid": 1,
+          "cited_articles": [
+            "00000000-0000-4000-8000-000000000021"
+          ],
+          "cited_expected": 1,
+          "claims": 1,
+          "claims_verbatim_in_cited_span": 1,
+          "cost_charged": 9738,
+          "cost_unit": "fixture_micro_usd",
+          "gold_spans": 1,
+          "gold_spans_covered": 1,
+          "input_tokens_charged": 1738,
+          "input_tokens_counted": 1738,
+          "model_calls": 1,
+          "output_tokens_charged": 1500,
+          "query_time_basis": "source_published_at",
+          "ranks_of_expected": [
+            1
+          ],
+          "recall_at_1": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_10": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_3": {
+            "expected": 1,
+            "hits": 1
+          },
+          "recall_at_5": {
+            "expected": 1,
+            "hits": 1
+          },
+          "retrieval_mode": "lexical_only",
+          "route": "answered",
+          "scope_violations": {
+            "cited": [],
+            "retrieved": [],
+            "sent_to_model": []
+          },
+          "temporal_claims": 0,
+          "time_basis_label": "source text",
+          "top_10": [
+            "00000000-0000-4000-8000-000000000021"
+          ],
+          "uncertainty_categories": [],
+          "usage_status": "missing",
+          "vector_branch_status": "executed"
+        }
+      },
+      "summary": {
+        "abstention_correct": {
+          "definition": "abstain questions that abstained / abstain questions",
+          "denominator": 2,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "answered": {
+          "definition": "questions answered / questions",
+          "denominator": 10,
+          "numerator": 10,
+          "value": 1.0
+        },
+        "citation_gold_article_precision": {
+          "definition": "distinct cited articles in the question's expected set / distinct cited",
+          "denominator": 23,
+          "numerator": 12,
+          "value": 0.521739
+        },
+        "citation_gold_span_exact_precision": {
+          "definition": "citations whose span offsets equal a gold span / citations",
+          "denominator": 23,
+          "numerator": 12,
+          "value": 0.521739
+        },
+        "citation_gold_span_overlap_precision": {
+          "definition": "citations whose span overlaps a gold span of the same article / citations",
+          "denominator": 23,
+          "numerator": 12,
+          "value": 0.521739
+        },
+        "citation_structural_validity": {
+          "definition": "citations whose span is sent, current, offset-exact and bound to a claim",
+          "denominator": 23,
+          "numerator": 23,
+          "value": 1.0
+        },
+        "claims_verbatim_in_cited_span": {
+          "definition": "claims whose text is contained in a cited excerpt (copy, not entailment)",
+          "denominator": 23,
+          "numerator": 23,
+          "value": 1.0
+        },
+        "conflict_flagged": {
+          "definition": "conflict questions with a source_conflict uncertainty / conflict qs",
+          "denominator": 1,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "cost_estimate": {
+          "fixture_cost_total": 99560,
+          "unit": "fixture_micro_usd (synthesis-policy.v1 rates, not a price)"
+        },
+        "false_abstention": {
+          "definition": "answerable questions that abstained / answerable",
+          "denominator": 8,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "gold_span_coverage": {
+          "definition": "gold spans overlapped by at least one citation / gold spans",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "mrr": {
+          "definition": "mean 1/rank of the first expected article (0 if absent)",
+          "questions": 8,
+          "value": 1.0
+        },
+        "ndcg_at_10": {
+          "definition": "mean nDCG@10 with binary gain on expected articles",
+          "questions": 8,
+          "value": 0.981293
+        },
+        "recall_at_1": {
+          "definition": "expected articles in top 1 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 8,
+          "value": 0.666667
+        },
+        "recall_at_10": {
+          "definition": "expected articles in top 10 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "recall_at_3": {
+          "definition": "expected articles in top 3 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 11,
+          "value": 0.916667
+        },
+        "recall_at_5": {
+          "definition": "expected articles in top 5 / expected (answerable questions)",
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "scope_compliance": {
+          "definition": "questions with no out-of-scope article retrieved, sent or cited",
+          "denominator": 10,
+          "numerator": 10,
+          "value": 1.0
+        },
+        "scope_violations_total": 0,
+        "temporal": {
+          "query_time_basis_source_published": {
+            "definition": "answers reporting source_published_at as the query time basis",
+            "denominator": 10,
+            "numerator": 10,
+            "value": 1.0
+          },
+          "temporal_accuracy": {
+            "reason": "fixtures/rag v1 has no gold occurrence values per question",
+            "status": "NOT MEASURED",
+            "value": null
+          },
+          "temporal_claims_emitted": 0
+        },
+        "tokens": {
+          "input_charged": 19560,
+          "input_counted": 19560,
+          "model_calls": 10,
+          "output_charged": 15000
+        }
+      }
+    }
+  },
+  "report_digest": "sha256:be3348b5a8bf364a906140db74c7745dffce602a32713a4ce9ea405b31c6786d",
+  "safety": {
+    "activation_mode": "fixture",
+    "default_model": "DeterministicFakeSynthesizer",
+    "eval_model_identity": "fixture-chat-model",
+    "graph_checkpointer": "None",
+    "network_connect_attempts": 0
+  },
+  "sample": {
+    "articles": 30,
+    "enrichment_jobs": 30,
+    "questions": 10,
+    "ranking_scope_articles": 29,
+    "ranking_scope_restricted_excluded": [
+      "00000000-0000-4000-8000-000000000014"
+    ],
+    "reindexed_articles": 30,
+    "repeat_consistent": {
+      "hybrid": true,
+      "lexical": true,
+      "ranking_hybrid": true,
+      "ranking_lexical": true
+    },
+    "repeats_per_mode": 5
+  },
+  "schema_version": "rag_eval_report.v1",
+  "semantic_vs_structural": {
+    "accepted_but_unsupported_or_contradicted": 6,
+    "automatic_semantic_check": {
+      "reason": "no entailment judge; support known only via human labels",
+      "status": "NOT MEASURED",
+      "value": null
+    },
+    "cases": {
+      "sem-01-supported-paraphrase": {
+        "label": "supported",
+        "route": "answered",
+        "structurally_accepted": true,
+        "verbatim_in_span": false
+      },
+      "sem-02-unsupported-cause": {
+        "label": "unsupported",
+        "route": "answered",
+        "structurally_accepted": true,
+        "verbatim_in_span": false
+      },
+      "sem-03-contradicted-time": {
+        "label": "contradicted",
+        "route": "answered",
+        "structurally_accepted": true,
+        "verbatim_in_span": false
+      },
+      "sem-04-publication-as-occurrence": {
+        "label": "contradicted",
+        "route": "answered",
+        "structurally_accepted": true,
+        "verbatim_in_span": false
+      },
+      "sem-05-invented-time": {
+        "label": "unsupported",
+        "route": "answered",
+        "structurally_accepted": true,
+        "verbatim_in_span": false
+      },
+      "sem-06-injected-instruction": {
+        "label": "unsupported",
+        "route": "answered",
+        "structurally_accepted": true,
+        "verbatim_in_span": false
+      },
+      "sem-07-supported-injection-context": {
+        "label": "supported",
+        "route": "answered",
+        "structurally_accepted": true,
+        "verbatim_in_span": false
+      },
+      "sem-08-unsupported-opinion-as-fact": {
+        "label": "unsupported",
+        "route": "answered",
+        "structurally_accepted": true,
+        "verbatim_in_span": false
+      }
+    },
+    "labels": "fixtures/rag/semantic_support.v1.json (implementer-authored labels)",
+    "semantic_support_among_accepted": {
+      "definition": "accepted claims labelled supported / accepted (gold-label judgement)",
+      "denominator": 8,
+      "numerator": 2,
+      "value": 0.25
+    },
+    "structural_acceptance": {
+      "definition": "labelled claims the structural validator accepted / cases",
+      "denominator": 8,
+      "numerator": 8,
+      "value": 1.0
+    }
+  },
+  "versions": {
+    "budget": {
+      "context_budget": 12000,
+      "result_limit": 20
+    },
+    "chat_model": "fixture-chat-model",
+    "clock": "2026-04-01T00:00:00+00:00",
+    "corpus_count": 30,
+    "corpus_version": "rag-fixture-corpus.v1",
+    "embedding_version": "fixture-embedding.v1",
+    "enricher": "fake-enricher.v1/enrichment-prompt.v1",
+    "enrichment_version": "rag-fixture-enrichment.v1",
+    "fixture_digest": "sha256:23e664d057d4a592a8770cd06dfb71cfddd2a3a9d4c213cbcd089a13603d5a22",
+    "license": "synthetic-authored",
+    "model_version": "manual-ground-truth.v1",
+    "normalization_version": "nfc.v1",
+    "prompt_version": "rag-fixture-prompt.v1",
+    "provenance": "synthetic-authored",
+    "questions_schema": "rag_questions.v1",
+    "ranking_scope": "rag_ranking_scope.v1/fixture-analyst-ranking.v1",
+    "retrieval_policy": "retrieval-policy.v3",
+    "semantic_labels_schema": "rag_semantic_support.v1",
+    "synthesis_policy": "synthesis-policy.v1",
+    "tokenizer": "fixture-regex-tokens@v1"
+  }
+}

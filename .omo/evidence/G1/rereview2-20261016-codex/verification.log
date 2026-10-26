@@ -1,0 +1,14 @@
+{"target": "rag-migrate", "exit": 0, "stdout": "uv run --package eventlens-rag eventlens-rag migrate\nRECEIVED_URL=\"postgresql://rag_test:rag-test-only@127.0.0.1:56050/rag_test?sslmode=disable&connect_timeout=2&application_name=g1_review'quoted\"\n", "stderr": ""}
+{"target": "rag-load-fixtures", "exit": 0, "stdout": "uv run --package eventlens-rag eventlens-rag load-fixtures\nRECEIVED_URL=\"postgresql://rag_test:rag-test-only@127.0.0.1:56050/rag_test?sslmode=disable&connect_timeout=2&application_name=g1_review'quoted\"\n", "stderr": ""}
+{"target": "rag-rebuild", "exit": 0, "stdout": "uv run --package eventlens-rag eventlens-rag rebuild\nRECEIVED_URL=\"postgresql://rag_test:rag-test-only@127.0.0.1:56050/rag_test?sslmode=disable&connect_timeout=2&application_name=g1_review'quoted\"\n", "stderr": ""}
+PASS: all three targets deliver the URL containing & and apostrophe byte-for-byte
+{"target": "rag-migrate", "exit": 0, "stdout": "uv run --package eventlens-rag eventlens-rag migrate\nrag migrations applied\n", "stderr": ""}
+{"target": "rag-migrate", "exit": 0, "stdout": "uv run --package eventlens-rag eventlens-rag migrate\nrag migrations applied\n", "stderr": ""}
+{"target": "rag-load-fixtures", "exit": 0, "stdout": "uv run --package eventlens-rag eventlens-rag load-fixtures\nrag persisted 30 fixture articles\n", "stderr": ""}
+{"target": "rag-rebuild", "exit": 0, "stdout": "uv run --package eventlens-rag eventlens-rag rebuild\nrag fake rebuild published 30 current articles (0 reused generations)\n", "stderr": ""}
+{"target": "rag-rebuild", "exit": 0, "stdout": "uv run --package eventlens-rag eventlens-rag rebuild\nrag fake rebuild published 30 current articles (30 reused generations)\n", "stderr": ""}
+PASS: real pgvector migrate x2, load 30, lexical-before-vector, rebuild x2, reuse 30/30
+{"target": "rag-migrate", "exit": 2, "stdout": "uv run --package eventlens-rag eventlens-rag migrate\n", "stderr": "rag_storage_unavailable: RAG PostgreSQL storage is unavailable\nmake: *** [rag-migrate] Error 3\n"}
+{"target": "rag-load-fixtures", "exit": 2, "stdout": "uv run --package eventlens-rag eventlens-rag load-fixtures\n", "stderr": "rag_storage_unavailable: RAG PostgreSQL storage is unavailable\nmake: *** [rag-load-fixtures] Error 3\n"}
+{"target": "rag-rebuild", "exit": 2, "stdout": "uv run --package eventlens-rag eventlens-rag rebuild\n", "stderr": "rag_storage_unavailable: RAG PostgreSQL storage is unavailable\nmake: *** [rag-rebuild] Error 3\n"}
+PASS: all three Make targets preserve typed CLI unavailable exit 3

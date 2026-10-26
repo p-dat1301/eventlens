@@ -1,0 +1,11 @@
+check 0
+rag-db-test 0
+enrichment-eval 0
+rag-eval 0
+gate-g3 2
+bun-test 0
+bun-check 0
+bun-typecheck 0
+bun-build 0
+browser-bundled-chromium 0
+git-diff-check 0

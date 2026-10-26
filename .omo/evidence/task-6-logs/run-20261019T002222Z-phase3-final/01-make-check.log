@@ -1,0 +1,235 @@
+uv run ruff format --check .
+208 files already formatted
+uv run ruff check .
+All checks passed!
+cd apps/web && bun run check
+$ biome check .
+Checked 13 files in 45ms. No fixes applied.
+uv run basedpyright
+0 errors, 0 warnings, 0 notes
+cd apps/web && bun run typecheck
+$ tsc --noEmit
+uv run pytest
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-8.4.2, pluggy-1.6.0
+rootdir: /Users/phungdinhdat/Documents/git/eventlens/.claude/worktrees/rag-synthesis-t6
+configfile: pyproject.toml
+testpaths: contracts/python/tests, apps/rag/tests, apps/api/tests, apps/worker/tests
+plugins: langsmith-0.14.1, anyio-4.15.1
+collected 1050 items
+
+contracts/python/tests/test_arrow_schema.py .........                    [  0%]
+contracts/python/tests/test_enrichment_edges.py ....................     [  2%]
+contracts/python/tests/test_enrichment_models.py ....................... [  4%]
+.......                                                                  [  5%]
+contracts/python/tests/test_event.py ...............................     [  8%]
+contracts/python/tests/test_event_constraints.py .........               [  9%]
+contracts/python/tests/test_event_entity.py ..........                   [ 10%]
+contracts/python/tests/test_models.py .......                            [ 11%]
+contracts/python/tests/test_schema.py ....................               [ 12%]
+contracts/python/tests/test_semantic_vectors.py ...................      [ 14%]
+apps/rag/tests/test_access.py .                                          [ 14%]
+apps/rag/tests/test_activation.py ...................................    [ 18%]
+apps/rag/tests/test_activation_endpoint.py ............................. [ 20%]
+..............                                                           [ 22%]
+apps/rag/tests/test_architecture.py ....                                 [ 22%]
+apps/rag/tests/test_article_ingest.py ......                             [ 23%]
+apps/rag/tests/test_chunking.py ..                                       [ 23%]
+apps/rag/tests/test_citations.py ....................................... [ 27%]
+                                                                         [ 27%]
+apps/rag/tests/test_embedding_identity.py ..                             [ 27%]
+apps/rag/tests/test_embeddings.py .                                      [ 27%]
+apps/rag/tests/test_enrichment_graph.py ........................         [ 29%]
+apps/rag/tests/test_enrichment_lifecycle.py ............................ [ 32%]
+                                                                         [ 32%]
+apps/rag/tests/test_enrichment_validation.py ..............              [ 33%]
+apps/rag/tests/test_evidence_context.py ...............                  [ 35%]
+apps/rag/tests/test_fusion.py .................................          [ 38%]
+apps/rag/tests/test_generation_reuse.py ....ss                           [ 38%]
+apps/rag/tests/test_graph_routes.py ...                                  [ 39%]
+apps/rag/tests/test_graph_state.py ...                                   [ 39%]
+apps/rag/tests/test_legacy_schema.py ss                                  [ 39%]
+apps/rag/tests/test_migration_portability.py s.s.ss                      [ 40%]
+apps/rag/tests/test_migrations.py .                                      [ 40%]
+apps/rag/tests/test_openai_adapter.py .................................. [ 43%]
+....................................................                     [ 48%]
+apps/rag/tests/test_openai_enricher.py ................                  [ 50%]
+apps/rag/tests/test_persistence_graph.py ..                              [ 50%]
+apps/rag/tests/test_postgres_enrichment.py sssssssssssssssssssss         [ 52%]
+apps/rag/tests/test_postgres_publication.py ssssss                       [ 52%]
+apps/rag/tests/test_postgres_reactivation.py sss                         [ 53%]
+apps/rag/tests/test_postgres_storage.py sssssssss                        [ 53%]
+apps/rag/tests/test_rag_answer_edges.py .............                    [ 55%]
+apps/rag/tests/test_rag_answer_linkage.py .                              [ 55%]
+apps/rag/tests/test_rag_fixture_linkage.py ..............                [ 56%]
+apps/rag/tests/test_rag_fixtures.py ............                         [ 57%]
+apps/rag/tests/test_rag_models.py ............                           [ 58%]
+apps/rag/tests/test_rag_ownership.py .                                   [ 58%]
+apps/rag/tests/test_rag_schema.py ........                               [ 59%]
+apps/rag/tests/test_rag_semantic_vectors.py .....                        [ 60%]
+apps/rag/tests/test_rag_t1_contracts.py ..........                       [ 61%]
+apps/rag/tests/test_redaction.py ..............................          [ 64%]
+apps/rag/tests/test_reranker.py ................                         [ 65%]
+apps/rag/tests/test_retrieval.py sssssssssssssssssssssssss.ss            [ 68%]
+apps/rag/tests/test_review_fixes.py ssssss.....s                         [ 69%]
+apps/rag/tests/test_stage.py ..                                          [ 69%]
+apps/rag/tests/test_storage_primitives.py ..                             [ 69%]
+apps/rag/tests/test_synthesis.py ......................................  [ 73%]
+apps/rag/tests/test_synthesis_budget.py ...................              [ 75%]
+apps/rag/tests/test_synthesis_concurrency.py ...........                 [ 76%]
+apps/rag/tests/test_synthesis_contracts.py ...                           [ 76%]
+apps/rag/tests/test_synthesis_db.py ssssssssssssssss                     [ 78%]
+apps/rag/tests/test_synthesis_e2e.py ssss                                [ 78%]
+apps/rag/tests/test_synthesis_integration.py .........                   [ 79%]
+apps/rag/tests/test_synthesis_ledger.py ..................               [ 80%]
+apps/rag/tests/test_t5_policy_v3.py ..................ss.                [ 82%]
+apps/rag/tests/test_t5_rereview_fixes.py sss                             [ 83%]
+apps/rag/tests/test_t5_review_fixes.py s........s.sssssssss.ssss         [ 85%]
+apps/rag/tests/test_vector_routes.py ss                                  [ 85%]
+apps/api/tests/test_health.py .                                          [ 85%]
+apps/api/tests/test_health_use_case.py .                                 [ 86%]
+apps/worker/tests/test_bundle.py .....                                   [ 86%]
+apps/worker/tests/test_cli.py ..........                                 [ 87%]
+apps/worker/tests/test_enrichment_cli.py .......ss                       [ 88%]
+apps/worker/tests/test_fake_extractor.py ...                             [ 88%]
+apps/worker/tests/test_gate.py ........                                  [ 89%]
+apps/worker/tests/test_memory_writer.py .......                          [ 90%]
+apps/worker/tests/test_processing_trace.py ....................          [ 91%]
+apps/worker/tests/test_processing_trace_reasons.py ..................... [ 93%]
+.............................                                            [ 96%]
+apps/worker/tests/test_runner.py ............                            [ 97%]
+apps/worker/tests/test_runner_batches.py ...                             [ 98%]
+apps/worker/tests/test_validation.py ....                                [ 98%]
+apps/worker/tests/test_worker_models.py .........                        [ 99%]
+apps/worker/tests/test_worker_ownership.py .                             [ 99%]
+apps/worker/tests/test_worker_semantic_vectors.py ......                 [100%]
+
+=========================== short test summary info ============================
+SKIPPED [1] apps/rag/tests/test_generation_reuse.py:93: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_generation_reuse.py:107: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_legacy_schema.py:64: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_legacy_schema.py:84: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_migration_portability.py:26: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_migration_portability.py:48: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_migration_portability.py:114: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_migration_portability.py:159: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:218: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:246: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:260: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:290: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:312: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:329: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [3] apps/rag/tests/test_postgres_enrichment.py:357: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:391: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:423: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:450: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:467: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:479: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [2] apps/rag/tests/test_postgres_enrichment.py:487: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:512: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:545: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:577: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:598: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_enrichment.py:643: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_publication.py:88: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_publication.py:106: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_publication.py:133: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_publication.py:156: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_publication.py:179: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_publication.py:203: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_reactivation.py:45: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_reactivation.py:81: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_reactivation.py:114: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:42: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:50: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:62: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:73: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:98: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:106: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:152: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:182: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_postgres_storage.py:201: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:105: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:133: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:167: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:194: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [3] apps/rag/tests/test_retrieval.py:222: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:251: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [2] apps/rag/tests/test_retrieval.py:267: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:285: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:299: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:320: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:337: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:360: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:400: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:414: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:426: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:443: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [2] apps/rag/tests/test_retrieval.py:466: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:491: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:502: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:519: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:537: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:558: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_retrieval.py:581: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_review_fixes.py:130: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_review_fixes.py:168: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_review_fixes.py:194: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_review_fixes.py:226: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_review_fixes.py:257: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_review_fixes.py:303: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_review_fixes.py:339: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_db.py:182: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_db.py:203: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_db.py:213: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_db.py:224: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_db.py:249: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_db.py:262: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_db.py:278: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_db.py:291: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_db.py:307: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_db.py:324: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_db.py:346: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_db.py:360: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_db.py:371: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [3] apps/rag/tests/test_synthesis_db.py:384: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_e2e.py:132: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_e2e.py:166: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_e2e.py:180: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_synthesis_e2e.py:199: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_t5_policy_v3.py:393: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_t5_policy_v3.py:408: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_t5_rereview_fixes.py:90: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_t5_rereview_fixes.py:103: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_t5_rereview_fixes.py:149: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_t5_review_fixes.py:128: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_t5_review_fixes.py:273: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [8] apps/rag/tests/test_t5_review_fixes.py:304: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_t5_review_fixes.py:332: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [2] apps/rag/tests/test_t5_review_fixes.py:367: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_t5_review_fixes.py:394: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_t5_review_fixes.py:410: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_vector_routes.py:33: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_vector_routes.py:53: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/worker/tests/test_enrichment_cli.py:100: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/worker/tests/test_enrichment_cli.py:138: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+======================= 925 passed, 125 skipped in 5.25s =======================
+cd apps/web && bun test
+bun test v1.4.0 (1381054db)
+
+ 2 pass
+ 0 fail
+ 2 expect() calls
+Ran 2 tests across 1 file. [94.00ms]
+cd apps/web && bun run build
+$ vite build
+vite v8.3.0 building client environment for production...
+transforming...
+✓ 112 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.64 kB │ gzip:  0.37 kB
+dist/assets/index-CWoaGQiP.css    4.82 kB │ gzip:  1.48 kB
+dist/assets/index-DAdOxTMK.js   285.19 kB │ gzip: 87.79 kB
+
+✓ built in 175ms

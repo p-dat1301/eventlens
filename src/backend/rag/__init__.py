@@ -1,0 +1,1 @@
+"""Reusable EventLens RAG foundation."""

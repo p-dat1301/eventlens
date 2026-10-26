@@ -1,0 +1,44 @@
+45051be669a95651d66eb701a725daf05cca41e3
+ M apps/rag/README.md
+ M apps/rag/src/eventlens_rag/cli.py
+?? apps/rag/src/eventlens_rag/adapters/fake_synthesis.py
+?? apps/rag/src/eventlens_rag/adapters/openai_embeddings.py
+?? apps/rag/src/eventlens_rag/adapters/openai_synthesis.py
+?? apps/rag/src/eventlens_rag/adapters/redaction.py
+?? apps/rag/src/eventlens_rag/adapters/scripted_synthesis.py
+?? apps/rag/src/eventlens_rag/adapters/synthesis_smoke.py
+?? apps/rag/src/eventlens_rag/adapters/trust.py
+?? apps/rag/src/eventlens_rag/application/activation.py
+?? apps/rag/src/eventlens_rag/application/citations.py
+?? apps/rag/src/eventlens_rag/application/concurrency.py
+?? apps/rag/src/eventlens_rag/application/ledger.py
+?? apps/rag/src/eventlens_rag/application/rendering.py
+?? apps/rag/src/eventlens_rag/application/synthesis_policies.py
+?? apps/rag/src/eventlens_rag/application/synthesize.py
+?? apps/rag/src/eventlens_rag/domain/activation.py
+?? apps/rag/src/eventlens_rag/domain/model_input.py
+?? apps/rag/src/eventlens_rag/domain/synthesis.py
+?? apps/rag/src/eventlens_rag/domain/synthesis_draft.py
+?? apps/rag/src/eventlens_rag/domain/synthesis_errors.py
+?? apps/rag/src/eventlens_rag/domain/synthesis_policy.py
+?? apps/rag/src/eventlens_rag/policies/provider-activation.fixture.v1.json
+?? apps/rag/src/eventlens_rag/policies/synthesis-policy.v1.json
+?? apps/rag/src/eventlens_rag/ports/synthesis.py
+?? apps/rag/tests/provider_support.py
+?? apps/rag/tests/synthesis_support.py
+?? apps/rag/tests/test_activation.py
+?? apps/rag/tests/test_activation_endpoint.py
+?? apps/rag/tests/test_citations.py
+?? apps/rag/tests/test_openai_adapter.py
+?? apps/rag/tests/test_redaction.py
+?? apps/rag/tests/test_synthesis.py
+?? apps/rag/tests/test_synthesis_budget.py
+?? apps/rag/tests/test_synthesis_concurrency.py
+?? apps/rag/tests/test_synthesis_contracts.py
+?? apps/rag/tests/test_synthesis_db.py
+?? apps/rag/tests/test_synthesis_e2e.py
+?? apps/rag/tests/test_synthesis_integration.py
+?? apps/rag/tests/test_synthesis_ledger.py
+Darwin Mac-cua-at.local 25.4.0 Darwin Kernel Version 25.4.0: Thu Mar 19 19:30:44 PDT 2026; root:xnu-12377.101.15~1/RELEASE_ARM64_T6000 arm64
+Docker version 29.7.2, build a7dcaa6
+uv 0.12.5 (Homebrew 2026-08-14 aarch64-apple-darwin)

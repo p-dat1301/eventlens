@@ -1,0 +1,3 @@
+# Separate config: the browser suite must not preload happy-dom.
+[test]
+timeout = 30000

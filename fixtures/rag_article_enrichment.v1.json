@@ -1,0 +1,20 @@
+{
+  "schema_version": "article_enrichment.v1",
+  "article_id": "550e8400-e29b-41d4-a716-446655440000",
+  "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "enrichment_version": "enrichment-1",
+  "model_version": "model-1",
+  "prompt_version": "prompt-1",
+  "status": "READY",
+  "topics": ["technology"],
+  "content_type": "news_report",
+  "event_relevance": "actionable_event",
+  "entities": [],
+  "locations": [],
+  "suggested_tags": ["discovery"],
+  "evidence_spans": [],
+  "field_confidence": [{"field": "topics", "confidence": 1.0}],
+  "enriched_at": "2026-09-23T10:00:00Z",
+  "attempt_count": 1,
+  "failure_code": null
+}

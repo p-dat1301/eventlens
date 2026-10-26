@@ -1,0 +1,9 @@
+step	command	exit
+01-make-check	make check (no DSN)	0
+02-make-rag-db-test	make rag-db-test	0
+03-pytest-t6-files-db	pytest all T6 test files (+architecture) on isolated DB, -rs	0
+04-git-diff-check	git diff --check	0
+05-synthesis-smoke	eventlens-rag synthesis-smoke (isolated empty DB)	0
+06-retrieval-smoke	eventlens-rag retrieval-smoke (T5 compat, isolated empty DB)	0
+07-protected-bytes	protected files byte-identical vs HEAD	0
+08-git-diff-check-after-docs	git diff --check after README/plan edits	0

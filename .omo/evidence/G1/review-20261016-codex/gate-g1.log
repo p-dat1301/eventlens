@@ -1,0 +1,45 @@
+sh apps/rag/gate-g1.sh
+G1 evidence: .omo/evidence/G1/run-20261016T045957Z-cBy0v8
+
+== sync: uv sync --all-packages --group dev
+Resolved 74 packages in 5ms
+Checked 70 packages in 9ms
+== exit 0: uv sync --all-packages --group dev
+
+== stale-worker-path: test ! -e apps/ai-worker
+== exit 0: test ! -e apps/ai-worker
+
+== graph-tests: uv run pytest contracts/python/tests apps/worker/tests apps/rag/tests/test_graph_state.py apps/rag/tests/test_graph_routes.py apps/rag/tests/test_persistence_graph.py apps/rag/tests/test_architecture.py -q
+........................................................................ [ 23%]
+........................................................................ [ 47%]
+........................................................................ [ 71%]
+........................................................................ [ 95%]
+...............                                                          [100%]
+303 passed in 1.16s
+== exit 0: uv run pytest contracts/python/tests apps/worker/tests apps/rag/tests/test_graph_state.py apps/rag/tests/test_graph_routes.py apps/rag/tests/test_persistence_graph.py apps/rag/tests/test_architecture.py -q
+
+== worker-validate: uv run --package eventlens-worker eventlens-worker validate fixtures/article_bundle.v1.json
+Valid article 550e8400-e29b-41d4-a716-446655440000 with 2 media items.
+== exit 0: uv run --package eventlens-worker eventlens-worker validate fixtures/article_bundle.v1.json
+
+== worker-process: uv run --package eventlens-worker eventlens-worker process fixtures/article_bundle.v1.json
+{"schema_version":"processing_trace.v1","article_id":"550e8400-e29b-41d4-a716-446655440000","proposal_id":"03ab9993-5c51-595d-b0ef-c49c5d120a3c","event_id":"c92abd74-9fbd-597c-84be-5a96cd5a45ec","verdict":"ACCEPT","reasons":["ready"],"write_disposition":"inserted"}
+== exit 0: uv run --package eventlens-worker eventlens-worker process fixtures/article_bundle.v1.json
+
+== database: sh apps/rag/with-test-db.sh sh apps/rag/gate-g1-db.sh
+rag migrations applied
+rag persisted 30 fixture articles
+rag fake rebuild published 30 current articles (0 reused generations)
+rag fake rebuild published 30 current articles (30 reused generations)
+published/reused: 30 30
+........................................................................ [ 55%]
+.........................................................                [100%]
+129 passed in 6.81s
+== exit 0: sh apps/rag/with-test-db.sh sh apps/rag/gate-g1-db.sh
+
+== db-unavailable (expect exit 3): env EVENTLENS_RAG_DATABASE_URL=postgresql://rag_test:rag-test-only@127.0.0.1:1/rag_test uv run --package eventlens-rag eventlens-rag migrate
+rag_storage_unavailable: RAG PostgreSQL storage is unavailable
+
+Technical checks: PASS
+G1 acceptance OPEN: needs F1-F4 verdicts, D41 approval evidence, user acceptance.
+make: *** [gate-g1] Error 2

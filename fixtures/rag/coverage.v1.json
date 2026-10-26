@@ -1,0 +1,25 @@
+{
+  "schema_version": "rag_coverage.v1",
+  "cases": [
+    {"purpose":"duplicate","question_ids":["40000000-0000-4000-8000-000000000001","40000000-0000-4000-8000-000000000008"],"fixture_only_reason":null},
+    {"purpose":"follow_up","question_ids":["40000000-0000-4000-8000-000000000001"],"fixture_only_reason":null},
+    {"purpose":"conflicting_claims","question_ids":["40000000-0000-4000-8000-000000000002"],"fixture_only_reason":null},
+    {"purpose":"delayed_publication","question_ids":["40000000-0000-4000-8000-000000000003"],"fixture_only_reason":null},
+    {"purpose":"date_only","question_ids":["40000000-0000-4000-8000-000000000004"],"fixture_only_reason":null},
+    {"purpose":"instant","question_ids":[],"fixture_only_reason":"Enrichment instant precision fixture; no answer question."},
+    {"purpose":"range","question_ids":[],"fixture_only_reason":"Enrichment temporal range fixture; no answer question."},
+    {"purpose":"unknown_date","question_ids":[],"fixture_only_reason":"Question 005 abstains without expected references; article 009 tests unknown temporal metadata."},
+    {"purpose":"relative_date","question_ids":[],"fixture_only_reason":"Enrichment relative-date clock and timezone fixture."},
+    {"purpose":"utc_timezone","question_ids":[],"fixture_only_reason":"Enrichment UTC normalization fixture."},
+    {"purpose":"dst_boundary","question_ids":["40000000-0000-4000-8000-000000000006"],"fixture_only_reason":null},
+    {"purpose":"unknown_metadata","question_ids":[],"fixture_only_reason":"Enrichment unknown entity, location and time fixture."},
+    {"purpose":"restricted_scope","question_ids":[],"fixture_only_reason":"Question 007 abstains; scope_cases excludes article 014, which must not become an expected answer reference."},
+    {"purpose":"prompt_injection","question_ids":["40000000-0000-4000-8000-000000000008"],"fixture_only_reason":null},
+    {"purpose":"uncited_prose","question_ids":[],"fixture_only_reason":"Uncited source assertion fixture; structural display tests reject uncited answer prose, not source entailment."},
+    {"purpose":"malformed_evidence","question_ids":[],"fixture_only_reason":"Article mutation negative test rejects invalid evidence offsets; no answer question."},
+    {"purpose":"vietnamese_cjk","question_ids":["40000000-0000-4000-8000-000000000009"],"fixture_only_reason":null},
+    {"purpose":"combining_mark","question_ids":[],"fixture_only_reason":"Article NFC normalization and code-point evidence fixture."},
+    {"purpose":"non_bmp_emoji","question_ids":[],"fixture_only_reason":"Article Unicode code-point evidence fixture."},
+    {"purpose":"controlled_topics_separate_suggestions","question_ids":["40000000-0000-4000-8000-000000000010"],"fixture_only_reason":null}
+  ]
+}

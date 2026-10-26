@@ -1,0 +1,22 @@
+sync	0	uv sync --frozen --group dev
+web-install	0	sh -c cd src/frontend/web && bun install --frozen-lockfile
+check	0	make check
+enrichment-eval	0	uv run eventlens-rag enrichment-eval --output /Users/phungdinhdat/Documents/git/eventlens/.claude/worktrees/rag-eval-ci-t9/.omo/evidence/G3/run-20261026T105713Z-loW2Kx/eval
+rag-eval	0	uv run eventlens-rag rag-eval --output /Users/phungdinhdat/Documents/git/eventlens/.claude/worktrees/rag-eval-ci-t9/.omo/evidence/G3/run-20261026T105713Z-loW2Kx/eval
+enrichment-eval-rerun	0	uv run eventlens-rag enrichment-eval --output /Users/phungdinhdat/Documents/git/eventlens/.claude/worktrees/rag-eval-ci-t9/.omo/evidence/G3/run-20261026T105713Z-loW2Kx/eval-rerun
+rag-eval-rerun	0	uv run eventlens-rag rag-eval --output /Users/phungdinhdat/Documents/git/eventlens/.claude/worktrees/rag-eval-ci-t9/.omo/evidence/G3/run-20261026T105713Z-loW2Kx/eval-rerun
+enrichment-eval-reproducible	0	same_report enrichment-eval
+rag-eval-reproducible	0	same_report rag-eval
+migrate	0	uv run eventlens-rag migrate
+load-fixtures	0	uv run eventlens-rag load-fixtures
+rebuild	0	uv run eventlens-rag rebuild
+api-health	0	uv run python /Users/phungdinhdat/Documents/git/eventlens/.claude/worktrees/rag-eval-ci-t9/scripts/rag/api_smoke.py health http://127.0.0.1:57407
+api-briefing-citation	0	uv run python /Users/phungdinhdat/Documents/git/eventlens/.claude/worktrees/rag-eval-ci-t9/scripts/rag/api_smoke.py briefing http://127.0.0.1:57407
+db-suite	0	sh /Users/phungdinhdat/Documents/git/eventlens/.claude/worktrees/rag-eval-ci-t9/scripts/rag/db-suite.sh
+database	0	sh /Users/phungdinhdat/Documents/git/eventlens/.claude/worktrees/rag-eval-ci-t9/scripts/rag/with-test-db.sh sh /Users/phungdinhdat/Documents/git/eventlens/.claude/worktrees/rag-eval-ci-t9/scripts/rag/gate-g3-db.sh
+db-unavailable	3	env EVENTLENS_RAG_DATABASE_URL=postgresql://rag_test:rag-test-only@127.0.0.1:1/rag_test uv run eventlens-rag migrate
+web-test	0	sh -c cd src/frontend/web && bun test
+web-check	0	sh -c cd src/frontend/web && bun run check
+web-typecheck	0	sh -c cd src/frontend/web && bun run typecheck
+web-build	0	sh -c cd src/frontend/web && bun run build
+browser	0	sh -c cd src/frontend/web && bun run test:e2e

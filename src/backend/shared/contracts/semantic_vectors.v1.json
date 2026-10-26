@@ -1,0 +1,175 @@
+{
+  "schema_version": "eventlens_semantic_vectors.v1",
+  "vectors": [
+    {
+      "name": "valid_article_document",
+      "contract": "article_document.v1",
+      "fixture": "fixtures/rag_article_document.v1.json",
+      "replacements": [],
+      "valid": true,
+      "error_type": null
+    },
+    {
+      "name": "invalid_document_span_offsets",
+      "contract": "article_document.v1",
+      "fixture": "fixtures/rag_article_document.v1.json",
+      "replacements": [{"old": "\"end_offset\": 5", "new": "\"end_offset\": 0"}],
+      "valid": false,
+      "error_type": "greater_than_equal"
+    },
+    {
+      "name": "invalid_document_normalized_identity",
+      "contract": "article_document.v1",
+      "fixture": "fixtures/rag_article_document.v1.json",
+      "replacements": [{"old": "sha256:b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9", "new": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}],
+      "valid": false,
+      "error_type": "normalized_content_identity_mismatch"
+    },
+    {
+      "name": "invalid_document_span_fingerprint",
+      "contract": "article_document.v1",
+      "fixture": "fixtures/rag_article_document.v1.json",
+      "replacements": [{"old": "sha256:2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "new": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}],
+      "valid": false,
+      "error_type": "evidence_span_fingerprint_mismatch"
+    },
+    {
+      "name": "valid_article_enrichment_ready",
+      "contract": "article_enrichment.v1",
+      "fixture": "fixtures/rag_article_enrichment.v1.json",
+      "replacements": [],
+      "valid": true,
+      "error_type": null
+    },
+    {
+      "name": "invalid_enrichment_duplicate_topic",
+      "contract": "article_enrichment.v1",
+      "fixture": "fixtures/rag_article_enrichment.v1.json",
+      "replacements": [{"old": "\"topics\": [\"technology\"]", "new": "\"topics\": [\"technology\", \"technology\"]"}],
+      "valid": false,
+      "error_type": "duplicate_topic"
+    },
+    {
+      "name": "invalid_enrichment_pending_output",
+      "contract": "article_enrichment.v1",
+      "fixture": "fixtures/rag_article_enrichment.v1.json",
+      "replacements": [{"old": "\"status\": \"READY\"", "new": "\"status\": \"PENDING\""}, {"old": "\"enriched_at\": \"2026-09-23T10:00:00Z\"", "new": "\"enriched_at\": null"}, {"old": "\"attempt_count\": 1", "new": "\"attempt_count\": 0"}],
+      "valid": false,
+      "error_type": "pending_invalid_metadata"
+    },
+    {
+      "name": "invalid_enrichment_ready_empty_output",
+      "contract": "article_enrichment.v1",
+      "fixture": "fixtures/rag_article_enrichment.v1.json",
+      "replacements": [{"old": "\"topics\": [\"technology\"]", "new": "\"topics\": []"}, {"old": "\"content_type\": \"news_report\"", "new": "\"content_type\": null"}, {"old": "\"event_relevance\": \"actionable_event\"", "new": "\"event_relevance\": null"}, {"old": "\"suggested_tags\": [\"discovery\"]", "new": "\"suggested_tags\": []"}, {"old": "\"field_confidence\": [{\"field\": \"topics\", \"confidence\": 1.0}]", "new": "\"field_confidence\": []"}],
+      "valid": false,
+      "error_type": "ready_invalid_metadata"
+    },
+    {
+      "name": "invalid_enrichment_stale_empty_output",
+      "contract": "article_enrichment.v1",
+      "fixture": "fixtures/rag_article_enrichment.v1.json",
+      "replacements": [{"old": "\"status\": \"READY\"", "new": "\"status\": \"STALE\""}, {"old": "\"topics\": [\"technology\"]", "new": "\"topics\": []"}, {"old": "\"content_type\": \"news_report\"", "new": "\"content_type\": null"}, {"old": "\"event_relevance\": \"actionable_event\"", "new": "\"event_relevance\": null"}, {"old": "\"suggested_tags\": [\"discovery\"]", "new": "\"suggested_tags\": []"}, {"old": "\"field_confidence\": [{\"field\": \"topics\", \"confidence\": 1.0}]", "new": "\"field_confidence\": []"}],
+      "valid": false,
+      "error_type": "stale_invalid_metadata"
+    },
+    {
+      "name": "valid_article_bundle",
+      "contract": "article_bundle.v1",
+      "fixture": "fixtures/article_bundle.v1.json",
+      "replacements": [],
+      "valid": true,
+      "error_type": null
+    },
+    {
+      "name": "invalid_media_count",
+      "contract": "article_bundle.v1",
+      "fixture": "fixtures/article_bundle.v1.json",
+      "replacements": [{"old": "\"media_count\": 2", "new": "\"media_count\": 3"}],
+      "valid": false,
+      "error_type": "media_count_mismatch"
+    },
+    {
+      "name": "invalid_media_fk",
+      "contract": "article_bundle.v1",
+      "fixture": "fixtures/article_bundle.v1.json",
+      "replacements": [{"old": "\"article_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"media_type\": \"image\",\n      \"position\": 1", "new": "\"article_id\": \"216f0e33-25c4-49af-af92-cc4730896c21\",\n      \"media_type\": \"image\",\n      \"position\": 1"}],
+      "valid": false,
+      "error_type": "article_id_mismatch"
+    },
+    {
+      "name": "invalid_duplicate_media_id",
+      "contract": "article_bundle.v1",
+      "fixture": "fixtures/article_bundle.v1.json",
+      "replacements": [{"old": "326f2fcf-5485-4f9c-ab3c-d54bbbcd0d85", "new": "6f89d402-18e4-45f8-9343-2aa80a5693b4"}],
+      "valid": false,
+      "error_type": "duplicate_media_id"
+    },
+    {
+      "name": "invalid_non_contiguous_position",
+      "contract": "article_bundle.v1",
+      "fixture": "fixtures/article_bundle.v1.json",
+      "replacements": [{"old": "\"position\": 1", "new": "\"position\": 2"}],
+      "valid": false,
+      "error_type": "non_contiguous_position"
+    },
+    {
+      "name": "valid_manifest_quality_total",
+      "contract": "article_batch_manifest.v1",
+      "fixture": "fixtures/article_batch_manifest.v1.json",
+      "replacements": [],
+      "valid": true,
+      "error_type": null
+    },
+    {
+      "name": "invalid_manifest_quality_total",
+      "contract": "article_batch_manifest.v1",
+      "fixture": "fixtures/article_batch_manifest.v1.json",
+      "replacements": [{"old": "\"input\": 136", "new": "\"input\": 137"}],
+      "valid": false,
+      "error_type": "quality_input_mismatch"
+    },
+    {"name": "valid_event_detected", "contract": "event.v1", "fixture": "fixtures/event_detected_unknown.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {"name": "valid_event_unconfirmed", "contract": "event.v1", "fixture": "fixtures/event_unconfirmed_optional.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {"name": "valid_event_confirmed", "contract": "event.v1", "fixture": "fixtures/event_confirmed_exact.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {"name": "valid_event_ongoing", "contract": "event.v1", "fixture": "fixtures/event_ongoing_range.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {"name": "valid_event_resolved", "contract": "event.v1", "fixture": "fixtures/event_resolved_day.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {"name": "valid_event_cancelled", "contract": "event.v1", "fixture": "fixtures/event_cancelled.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {"name": "valid_event_merged", "contract": "event.v1", "fixture": "fixtures/event_merged.v1.json", "replacements": [], "valid": true, "error_type": null},
+    {
+      "name": "invalid_event_entity_fk",
+      "contract": "event.v1",
+      "fixture": "fixtures/event_detected_unknown.v1.json",
+      "replacements": [{"old": "\"event_id\": \"59da2c4c-872f-4a63-b16c-bf19dcbd85d0\"", "new": "\"event_id\": \"216f0e33-25c4-49af-af92-cc4730896c21\""}],
+      "valid": false,
+      "error_type": "event_entity_id_mismatch"
+    },
+    {
+      "name": "invalid_event_duplicate_entity_role",
+      "contract": "event.v1",
+      "fixture": "fixtures/event_ongoing_range.v1.json",
+      "replacements": [
+        {"old": "12126bea-152a-4b22-942c-bc847a01ac71", "new": "4f46bf25-948f-4f47-bd44-b4140c93d6f3"},
+        {"old": "\"role\": \"affected\"", "new": "\"role\": \"primary\""}
+      ],
+      "valid": false,
+      "error_type": "duplicate_event_entity"
+    },
+    {
+      "name": "invalid_event_non_utc_timestamp",
+      "contract": "event.v1",
+      "fixture": "fixtures/event_confirmed_exact.v1.json",
+      "replacements": [{"old": "\"time_start\": \"2026-09-14T09:12:35Z\"", "new": "\"time_start\": \"2026-09-14T16:12:35+07:00\""}],
+      "valid": false,
+      "error_type": "value_error"
+    },
+    {
+      "name": "invalid_event_whitespace_title",
+      "contract": "event.v1",
+      "fixture": "fixtures/event_detected_unknown.v1.json",
+      "replacements": [{"old": "\"canonical_title\": \"Phân luồng quanh Mỹ Đình tối 15/9\"", "new": "\"canonical_title\": \"   \""}],
+      "valid": false,
+      "error_type": "string_pattern_mismatch"
+    }
+  ]
+}

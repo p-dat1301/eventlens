@@ -1,0 +1,212 @@
+{
+  "activation_policy_id": "provider-activation.fixture.v1",
+  "all_passed": true,
+  "cases": {
+    "budget_failure": {
+      "activation_policy_id": "provider-activation.fixture.v1",
+      "expected": {
+        "model_calls": 0,
+        "outcome": "synthesis_budget_exceeded",
+        "reason": "context_too_small",
+        "retrieval_mode": null
+      },
+      "model_calls": 0,
+      "outcome": "synthesis_budget_exceeded",
+      "passed": true,
+      "reason": "context_too_small",
+      "retrieval_mode": null
+    },
+    "happy_cited_answer": {
+      "activation_policy_id": "provider-activation.fixture.v1",
+      "citations": 5,
+      "cited_article_ids": [
+        "00000000-0000-4000-8000-000000000001",
+        "00000000-0000-4000-8000-000000000002",
+        "00000000-0000-4000-8000-000000000010",
+        "00000000-0000-4000-8000-000000000013",
+        "00000000-0000-4000-8000-000000000019"
+      ],
+      "claims": 5,
+      "coverage": "complete",
+      "expected": {
+        "model_calls": 1,
+        "outcome": "answered",
+        "reason": null,
+        "retrieval_mode": "hybrid"
+      },
+      "metrics": {
+        "articles_sent": 5,
+        "source_batch_reads": 2,
+        "spans_sent": 5,
+        "total_latency_ms": 29.047
+      },
+      "model_calls": 1,
+      "outcome": "answered",
+      "passed": true,
+      "provenance": {
+        "activation_policy_id": "provider-activation.fixture.v1",
+        "chat_model": "fixture-chat-model.v1",
+        "mode": "fixture",
+        "prompt_version": "synthesis-prompt.v1",
+        "retrieval_policy_id": "retrieval-policy.v3",
+        "synthesis_policy_id": "synthesis-policy.v1",
+        "tokenizer": "fixture-regex-tokens",
+        "tokenizer_version": "v1"
+      },
+      "reason": null,
+      "retrieval_mode": "hybrid",
+      "uncertainties": [],
+      "usage": {
+        "cost_charged": 10411,
+        "cost_unit": "fixture_micro_usd",
+        "input_tokens_charged": 2411,
+        "input_tokens_counted": 2411,
+        "model_calls": 1,
+        "output_tokens_charged": 1500,
+        "output_tokens_reserved": 1500,
+        "usage_status": "missing"
+      }
+    },
+    "invalid_citation_blocked": {
+      "activation_policy_id": "provider-activation.fixture.v1",
+      "expected": {
+        "model_calls": 1,
+        "outcome": "synthesis_grounding_failed",
+        "reason": "unknown_span",
+        "retrieval_mode": null
+      },
+      "model_calls": 1,
+      "outcome": "synthesis_grounding_failed",
+      "passed": true,
+      "reason": "unknown_span",
+      "retrieval_mode": "hybrid"
+    },
+    "lexical_only": {
+      "activation_policy_id": "provider-activation.fixture.v1",
+      "citations": 2,
+      "cited_article_ids": [
+        "00000000-0000-4000-8000-000000000001",
+        "00000000-0000-4000-8000-000000000002"
+      ],
+      "claims": 2,
+      "coverage": "complete",
+      "expected": {
+        "model_calls": 1,
+        "outcome": "answered",
+        "reason": null,
+        "retrieval_mode": "lexical_only"
+      },
+      "metrics": {
+        "articles_sent": 2,
+        "source_batch_reads": 2,
+        "spans_sent": 2,
+        "total_latency_ms": 25.747
+      },
+      "model_calls": 1,
+      "outcome": "answered",
+      "passed": true,
+      "provenance": {
+        "activation_policy_id": "provider-activation.fixture.v1",
+        "chat_model": "fixture-chat-model.v1",
+        "mode": "fixture",
+        "prompt_version": "synthesis-prompt.v1",
+        "retrieval_policy_id": "retrieval-policy.v3",
+        "synthesis_policy_id": "synthesis-policy.v1",
+        "tokenizer": "fixture-regex-tokens",
+        "tokenizer_version": "v1"
+      },
+      "reason": null,
+      "retrieval_mode": "lexical_only",
+      "uncertainties": [],
+      "usage": {
+        "cost_charged": 9908,
+        "cost_unit": "fixture_micro_usd",
+        "input_tokens_charged": 1908,
+        "input_tokens_counted": 1908,
+        "model_calls": 1,
+        "output_tokens_charged": 1500,
+        "output_tokens_reserved": 1500,
+        "usage_status": "missing"
+      }
+    },
+    "no_evidence_abstention": {
+      "activation_policy_id": "provider-activation.fixture.v1",
+      "citations": 0,
+      "cited_article_ids": [],
+      "claims": 0,
+      "coverage": "complete",
+      "expected": {
+        "model_calls": 0,
+        "outcome": "abstained_no_evidence",
+        "reason": null,
+        "retrieval_mode": null
+      },
+      "metrics": {
+        "articles_sent": 0,
+        "source_batch_reads": 0,
+        "spans_sent": 0,
+        "total_latency_ms": 0.173
+      },
+      "model_calls": 0,
+      "outcome": "abstained_no_evidence",
+      "passed": true,
+      "provenance": {
+        "activation_policy_id": "provider-activation.fixture.v1",
+        "chat_model": "fixture-chat-model.v1",
+        "mode": "fixture",
+        "prompt_version": "synthesis-prompt.v1",
+        "retrieval_policy_id": "retrieval-policy.v3",
+        "synthesis_policy_id": "synthesis-policy.v1",
+        "tokenizer": "fixture-regex-tokens",
+        "tokenizer_version": "v1"
+      },
+      "reason": "no_matches",
+      "retrieval_mode": "none",
+      "uncertainties": [
+        "insufficient_evidence"
+      ],
+      "usage": {
+        "cost_charged": 0,
+        "cost_unit": "fixture_micro_usd",
+        "input_tokens_charged": 0,
+        "input_tokens_counted": 0,
+        "model_calls": 0,
+        "output_tokens_charged": 0,
+        "output_tokens_reserved": 0,
+        "usage_status": "not_called"
+      }
+    },
+    "provider_timeout": {
+      "activation_policy_id": "provider-activation.fixture.v1",
+      "expected": {
+        "model_calls": 1,
+        "outcome": "synthesis_provider_failed",
+        "reason": "provider_timeout",
+        "retrieval_mode": null
+      },
+      "model_calls": 1,
+      "outcome": "synthesis_provider_failed",
+      "passed": true,
+      "reason": "provider_timeout",
+      "retrieval_mode": "hybrid"
+    },
+    "revoked_access": {
+      "activation_policy_id": "provider-activation.fixture.v1",
+      "expected": {
+        "model_calls": 1,
+        "outcome": "synthesis_access_denied",
+        "reason": null,
+        "retrieval_mode": null
+      },
+      "model_calls": 1,
+      "outcome": "synthesis_access_denied",
+      "passed": true,
+      "reason": null,
+      "retrieval_mode": "hybrid"
+    }
+  },
+  "label": "fixture",
+  "limiter_in_use_after": 0,
+  "retrieval_policy_id": "retrieval-policy.v3",
+  "synthesis_policy_id": "synthesis-policy.v1"
+}

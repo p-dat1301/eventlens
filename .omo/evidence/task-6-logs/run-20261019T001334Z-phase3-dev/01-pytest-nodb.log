@@ -1,0 +1,5 @@
+SKIPPED [1] apps/rag/tests/test_t5_review_fixes.py:394: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_t5_review_fixes.py:410: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_vector_routes.py:33: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+SKIPPED [1] apps/rag/tests/test_vector_routes.py:53: EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test
+614 passed, 103 skipped in 3.65s

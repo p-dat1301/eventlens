@@ -1,0 +1,12 @@
+{
+  "schema_version": "enrichment_retry_policy.v1",
+  "policy_id": "enrichment-retry.v1",
+  "max_attempts": 3,
+  "attempt_timeout_seconds": 30,
+  "lease_seconds": 120,
+  "backoff_initial_seconds": 30,
+  "backoff_multiplier": 4,
+  "backoff_max_seconds": 600,
+  "max_jobs_per_pass": 25,
+  "retryable_failure_codes": ["provider_timeout", "provider_unavailable"]
+}

@@ -1,31 +1,49 @@
 name: eventlens
 
 services:
-  api:
+  crud-api:
     build:
       context: .
-      dockerfile: apps/api/Dockerfile
+      dockerfile: docker/crud-api.Dockerfile
     ports:
       - "8000:8000"
+
+  rag-api:
+    build:
+      context: .
+      dockerfile: docker/rag-api.Dockerfile
+    ports:
+      - "8001:8001"
 
   web:
     build:
       context: .
-      dockerfile: apps/web/Dockerfile
+      dockerfile: docker/web.Dockerfile
     ports:
       - "5173:80"
+    depends_on:
+      - rag-api
 
-  ai-worker:
+  rag-worker:
     build:
       context: .
-      dockerfile: apps/ai-worker/Dockerfile
+      dockerfile: docker/rag-worker.Dockerfile
+    environment:
+      EVENTLENS_RAG_DATABASE_URL: postgresql://eventlens:eventlens-local@postgres:5432/eventlens_rag
+    command: ["enrich", "--max-jobs", "5"]
+    profiles: ["tools"]
+
+  event-pipeline:
+    build:
+      context: .
+      dockerfile: docker/event-pipeline.Dockerfile
     command: ["validate", "/fixtures/article_bundle.v1.json"]
     profiles: ["tools"]
     volumes:
       - ./fixtures:/fixtures:ro
 
   postgres:
-    image: postgres:17-alpine
+    image: pgvector/pgvector:0.8.0-pg17
     environment:
       POSTGRES_DB: eventlens
       POSTGRES_USER: eventlens

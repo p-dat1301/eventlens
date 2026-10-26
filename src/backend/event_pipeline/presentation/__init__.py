@@ -1,0 +1,1 @@
+"""Event pipeline CLI adapter."""

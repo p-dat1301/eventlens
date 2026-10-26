@@ -1,0 +1,118 @@
+{
+  "schema_version": "synthesis_policy.v1",
+  "policy_id": "synthesis-policy.v1",
+  "label": "fixture",
+  "rationale": "Fixture policy frozen by T6 phase 1 (2026-10-18) before any T6 test run. Token/article/concurrency caps are the D7/D32 hard gates (12,000 cumulative input tokens, 1,500 cumulative output tokens, 20 articles, 30 concurrent requests). One chat call and zero retries per request (spec section 7). Deadline 20 s: the p95 8 s target is a measurement goal, not a timeout; 2.5x headroom keeps fixture runs stable while staying below the 30 s agent deadline reserved for T14. Per-call timeout 15 s leaves at least 5 s of the request deadline for retrieval and final checks, and is always capped by the remaining deadline. framing_reserve_tokens 256 covers per-article JSON framing differences between the T5 context format and the T6 provider payload; min_evidence_tokens 16 equals retrieval-policy.v3 min_truncated_span_tokens. Fixture pricing (1 input, 4 output fixture micro-USD per token, 2,000 per call, cap 20,000) is NOT a provider price: one call at full caps costs exactly 20,000, so the cap never blocks a legal single call, while two calls whose cumulative tokens stay within caps exceed it (independently testable cost guard). Live activation must approve real rates and a tokenizer mapping separately.",
+  "prompt_version": "synthesis-prompt.v1",
+  "draft_schema_version": "synthesis_draft.v1",
+  "template_version": "uncertainty-templates.v1",
+  "budget": {
+    "max_articles": 20,
+    "max_input_tokens_per_request": 12000,
+    "max_output_tokens_per_request": 1500,
+    "output_reservation_per_call": 1500,
+    "max_model_calls_per_request": 1,
+    "max_retries": 0,
+    "framing_reserve_tokens": 256,
+    "min_evidence_tokens": 16
+  },
+  "counting": {
+    "serialization": "synthesis-input-json.v1",
+    "counted_parts": [
+      "system_instructions",
+      "question",
+      "user_framing",
+      "evidence_sources",
+      "extra_messages",
+      "tool_definitions",
+      "response_format_schema",
+      "message_wrappers"
+    ],
+    "character_counts_allowed": false,
+    "unknown_tokenizer_in_live": "fail_closed"
+  },
+  "ledger": {
+    "scope": "user_request",
+    "reserve_before_call": true,
+    "reset_on_retry_or_error": false,
+    "settle_input": "max_of_local_count_and_valid_reported",
+    "settle_output_on_success": "valid_reported_else_full_reservation",
+    "settle_on_failure": "charge_full_reservation",
+    "drift_record": "reported_minus_local_input_tokens"
+  },
+  "deadlines": {
+    "unit": "seconds",
+    "request_deadline_seconds": 20.0,
+    "call_timeout_seconds": 15.0,
+    "call_timeout_rule": "min(call_timeout_seconds, control.remaining())",
+    "p95_latency_target_seconds": 8.0,
+    "p95_is_slo": false
+  },
+  "concurrency": {
+    "max_concurrent_requests": 30,
+    "scope": "process_local_shared_limiter",
+    "overflow": "reject_typed_never_queue",
+    "in_flight_after_cancel": "slot_held_until_call_returns"
+  },
+  "pricing": {
+    "basis": "fixture",
+    "unit": "fixture_micro_usd",
+    "input_per_token": 1,
+    "output_per_token": 4,
+    "per_call_fee": 2000,
+    "request_cost_cap": 20000,
+    "note": "Fixture rates for admission/accounting tests only; not a provider price or a measured cost."
+  },
+  "uncertainty_templates": [
+    {
+      "reason_code": "insufficient_evidence",
+      "category": "insufficient_evidence",
+      "text": "The selected sources do not contain enough evidence to answer this question."
+    },
+    {
+      "reason_code": "conflicting_sources",
+      "category": "source_conflict",
+      "text": "The selected sources disagree on this point."
+    },
+    {
+      "reason_code": "ambiguous_question",
+      "category": "ambiguity",
+      "text": "The question can be read in more than one way given the selected sources."
+    },
+    {
+      "reason_code": "temporal_unclear",
+      "category": "temporal_uncertainty",
+      "text": "The sources do not establish when this happened."
+    },
+    {
+      "reason_code": "no_matches",
+      "category": "insufficient_evidence",
+      "text": "No authorized source in the requested scope matched this question."
+    },
+    {
+      "reason_code": "no_query_terms",
+      "category": "insufficient_evidence",
+      "text": "The question contains no searchable terms."
+    },
+    {
+      "reason_code": "empty_publication_range",
+      "category": "insufficient_evidence",
+      "text": "The requested publication time range is empty."
+    },
+    {
+      "reason_code": "filter_unavailable",
+      "category": "insufficient_evidence",
+      "text": "The requested topic or entity filter could not be verified for the sources in scope."
+    },
+    {
+      "reason_code": "dropped_at_final_check",
+      "category": "insufficient_evidence",
+      "text": "Matching sources changed or became unavailable before they could be used."
+    },
+    {
+      "reason_code": "partial_filter_coverage",
+      "category": "insufficient_evidence",
+      "text": "Some sources in scope could not be checked against the requested filter, so coverage may be incomplete."
+    }
+  ]
+}

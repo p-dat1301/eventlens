@@ -1,0 +1,63 @@
+{
+  "answer": "Harbor Authority bulletin: East Pier gate closes at 08:00 UTC on 2026-03-01 for crane inspection. Cargo trucks use North Gate.\n\nHarbor Authority follow-up: East Pier gate reopened at 14:30 UTC on 2026-03-01 after crane inspection finished. North Gate detour ends.\n\nUnattributed field note: sirens were heard near West Market; location, organizer, and event time remain unknown.\n\nOperations update issued 2026-03-14T09:00:00Z: yesterday the Canal Bridge lift failed; inspection starts today at 15:00 UTC.\n\nCafé Aurora opens at 07:00 UTC after repair. Name uses decomposed é in raw source and NFC in searchable text.",
+  "citations": [
+    {
+      "article_id": "00000000-0000-4000-8000-000000000001",
+      "claim_id": "d255abb0-f219-4dd0-ab73-1552bffa393c",
+      "evidence_span_id": "12acb55e-751a-50d9-afbe-dd2da8f0731c",
+      "source_reference": "https://fixture.example/rag/01",
+      "source_title": "Duplicate harbor closure bulletin"
+    },
+    {
+      "article_id": "00000000-0000-4000-8000-000000000002",
+      "claim_id": "bb8f7f4d-dabc-4e48-ade1-436a74c7918e",
+      "evidence_span_id": "544838b7-4806-5cf8-9bbc-9b5cf08b2ca2",
+      "source_reference": "https://fixture.example/rag/02",
+      "source_title": "Follow-up reopens East Pier gate"
+    },
+    {
+      "article_id": "00000000-0000-4000-8000-000000000013",
+      "claim_id": "d4c1ad05-c8ca-4944-bd69-5ccc6a5e0572",
+      "evidence_span_id": "aaf4cebf-3de2-5975-98d7-161341c2f55f",
+      "source_reference": "https://fixture.example/rag/13",
+      "source_title": "Unknown publisher and event metadata"
+    },
+    {
+      "article_id": "00000000-0000-4000-8000-000000000010",
+      "claim_id": "71bf34f0-1d22-4775-a68c-8054a688b1c9",
+      "evidence_span_id": "8a027dd1-c60c-58cc-b07c-ea2dbe1453b9",
+      "source_reference": "https://fixture.example/rag/10",
+      "source_title": "Relative date with reference clock"
+    },
+    {
+      "article_id": "00000000-0000-4000-8000-000000000019",
+      "claim_id": "611c94b1-64fe-46c3-ae22-97b94b633715",
+      "evidence_span_id": "ce176c78-172d-51a0-879e-4d6afd7df45b",
+      "source_reference": "https://fixture.example/rag/19",
+      "source_title": "Combining mark normalization"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "d255abb0-f219-4dd0-ab73-1552bffa393c",
+      "text": "Harbor Authority bulletin: East Pier gate closes at 08:00 UTC on 2026-03-01 for crane inspection. Cargo trucks use North Gate."
+    },
+    {
+      "claim_id": "bb8f7f4d-dabc-4e48-ade1-436a74c7918e",
+      "text": "Harbor Authority follow-up: East Pier gate reopened at 14:30 UTC on 2026-03-01 after crane inspection finished. North Gate detour ends."
+    },
+    {
+      "claim_id": "d4c1ad05-c8ca-4944-bd69-5ccc6a5e0572",
+      "text": "Unattributed field note: sirens were heard near West Market; location, organizer, and event time remain unknown."
+    },
+    {
+      "claim_id": "71bf34f0-1d22-4775-a68c-8054a688b1c9",
+      "text": "Operations update issued 2026-03-14T09:00:00Z: yesterday the Canal Bridge lift failed; inspection starts today at 15:00 UTC."
+    },
+    {
+      "claim_id": "611c94b1-64fe-46c3-ae22-97b94b633715",
+      "text": "Café Aurora opens at 07:00 UTC after repair. Name uses decomposed é in raw source and NFC in searchable text."
+    }
+  ],
+  "label": "fixture excerpts for review; not provider output"
+}

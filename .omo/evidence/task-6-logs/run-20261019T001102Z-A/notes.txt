@@ -1,0 +1,1 @@
+pytest-owned-1..5 exit 4 = harness error: zsh did not word-split $F, so pytest received one bogus path and ran no tests (not a test failure). Rerun as pytest-owned-r*.

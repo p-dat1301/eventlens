@@ -1,0 +1,4 @@
+step	command	exit
+01	make check	0
+02	git diff/status protected check	0
+03	git diff --check	0

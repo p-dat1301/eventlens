@@ -1,0 +1,81 @@
+{
+  "schema_version": "provider_activation_policy.v1",
+  "policy_id": "provider-activation.fixture.v1",
+  "issuer": "eventlens-t6-fixture",
+  "mode": "fixture",
+  "label": "fixture",
+  "rationale": "Fixture activation artifact frozen by T6 phase 1 (2026-10-18). It approves nothing live: mode is fixture and no trusted issuer registry ships with the package, so any live request fails closed. The single endpoint rule uses the reserved .invalid TLD (RFC 2606) so canonicalization and allowlist matching can be exercised against an injected mock transport without any resolvable host. Model/tokenizer bindings name the deterministic fakes (fixture-regex-tokens v1 is NOT a real model tokenizer). Caps, deadline, per-call timeout, concurrency, retries and fixture cost cap are bound to synthesis-policy.v1 (single numeric source) so runtime and tests cannot diverge. Retries are zero at every layer (client, transport, application).",
+  "endpoints": [
+    {
+      "scheme": "https",
+      "host": "provider.example.invalid",
+      "port": 443,
+      "base_path": "/v1"
+    }
+  ],
+  "chat_model": {
+    "role": "chat",
+    "model_id": "fixture-chat-model",
+    "model_version": "fixture-chat-model.v1",
+    "tokenizer_id": "fixture-regex-tokens",
+    "tokenizer_version": "v1",
+    "tokenizer_basis": "fixture",
+    "safety_margin_ratio": null,
+    "embedding_dimension": null
+  },
+  "embedding_model": {
+    "role": "embedding",
+    "model_id": "fixture-embedding",
+    "model_version": "fixture-embedding.v1",
+    "tokenizer_id": "fixture-regex-tokens",
+    "tokenizer_version": "v1",
+    "tokenizer_basis": "fixture",
+    "safety_margin_ratio": null,
+    "embedding_dimension": 1536
+  },
+  "corpus": {
+    "corpus_ids": ["eventlens-fixture-corpus"],
+    "data_classification": "internal",
+    "allowed_source_fields": [
+      "article_id",
+      "title",
+      "normalized_content_spans",
+      "source_name_domain",
+      "source_published_at"
+    ],
+    "prohibited": [
+      "canonical_url",
+      "raw_storage_uri",
+      "raw_content",
+      "content_hash",
+      "span_fingerprint",
+      "processing_metadata",
+      "enrichment_metadata",
+      "credentials",
+      "caller_scope"
+    ]
+  },
+  "transport": {
+    "chat_path": "/chat/completions",
+    "embeddings_path": "/embeddings",
+    "method": "POST",
+    "roles": ["system", "user"],
+    "response_format": "json_schema_strict",
+    "output_token_field": "max_tokens",
+    "temperature": 0,
+    "usage_mapping": "prompt_tokens->input,completion_tokens->output",
+    "success_finish_reason": "stop",
+    "follow_redirects": false,
+    "tls_verify": true,
+    "trust_env_proxy": false,
+    "client_retries": 0
+  },
+  "budget": {
+    "synthesis_policy_id": "synthesis-policy.v1",
+    "source": "synthesis_policy"
+  },
+  "cost": {
+    "basis": "fixture",
+    "pricing_source": "synthesis_policy.pricing"
+  }
+}

@@ -1,0 +1,13 @@
+sync	0	uv sync --all-packages --group dev
+stale-worker-path	0	test ! -e apps/ai-worker
+graph-tests	0	uv run pytest contracts/python/tests apps/worker/tests apps/rag/tests/test_graph_state.py apps/rag/tests/test_graph_routes.py apps/rag/tests/test_persistence_graph.py apps/rag/tests/test_architecture.py -q
+worker-validate	0	uv run --package eventlens-worker eventlens-worker validate fixtures/article_bundle.v1.json
+worker-process	0	uv run --package eventlens-worker eventlens-worker process fixtures/article_bundle.v1.json
+migrate	0	uv run --package eventlens-rag eventlens-rag migrate
+load-fixtures	0	uv run --package eventlens-rag eventlens-rag load-fixtures
+rebuild	0	uv run --package eventlens-rag eventlens-rag rebuild
+rebuild-idempotent	0	uv run --package eventlens-rag eventlens-rag rebuild
+generation-reuse	0	all_reused .omo/evidence/G1/run-20261016T045957Z-cBy0v8/rebuild-idempotent.log
+db-suite	0	sh apps/rag/db-suite.sh
+database	0	sh apps/rag/with-test-db.sh sh apps/rag/gate-g1-db.sh
+db-unavailable	3	env EVENTLENS_RAG_DATABASE_URL=postgresql://rag_test:rag-test-only@127.0.0.1:1/rag_test uv run --package eventlens-rag eventlens-rag migrate
