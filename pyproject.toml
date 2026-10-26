@@ -1,10 +1,36 @@
 [project]
 name = "eventlens"
 version = "0.1.0"
-description = "EventLens backend and AI worker foundation"
+description = "EventLens modular monolith: CRUD, RAG and event pipeline contexts"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+    "fastapi>=0.115,<1",
+    "langgraph>=1.0,<2",
+    "polars>=1.30,<2",
+    "psycopg[binary]>=3.2,<4",
+    "pyarrow>=20,<21",
+    "pydantic>=2.11,<3",
+    "typer>=0.16,<1",
+    "uvicorn>=0.34,<1",
+]
+
+[project.scripts]
+eventlens-crud-api = "backend.crud.main:run"
+eventlens-rag-api = "backend.rag.api_main:run"
+eventlens-rag = "backend.rag.cli_main:app"
+eventlens-rag-worker = "backend.rag.worker_main:app"
+eventlens-events = "backend.event_pipeline.presentation.cli:app"
+# Deprecated alias; remove in the PR after this refactor.
+eventlens-worker = "backend.compat.worker_alias:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "src"
+module-name = "backend"
 
 [dependency-groups]
 dev = [
@@ -18,10 +44,11 @@ dev = [
 
 [tool.basedpyright]
 typeCheckingMode = "all"
-stubPath = "apps/rag/typings"
+stubPath = "typings"
 pythonVersion = "3.12"
 pythonPlatform = "All"
-include = ["apps", "contracts/python"]
+include = ["src/backend", "tests"]
+extraPaths = ["tests/support"]
 exclude = ["**/__pycache__", "**/.venv", "**/build", "**/dist"]
 reportUnusedCallResult = "warning"
 reportUnnecessaryTypeIgnoreComment = "error"
@@ -32,12 +59,7 @@ reportPrivateUsage = "error"
 [tool.ruff]
 target-version = "py312"
 line-length = 88
-src = [
-    "apps/api/src",
-    "apps/worker/src",
-    "contracts/python/src",
-    "apps/rag/src",
-]
+src = ["src", "tests/support"]
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -56,22 +78,7 @@ docstring-code-format = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-testpaths = [
-    "contracts/python/tests",
-    "apps/rag/tests",
-    "apps/api/tests",
-    "apps/worker/tests",
-]
+testpaths = ["tests"]
+pythonpath = ["tests/support"]
 addopts = ["-ra", "--strict-config", "--strict-markers"]
 filterwarnings = ["error"]
-
-[tool.uv.workspace]
-members = [
-    "contracts/python",
-    "apps/rag",
-    "apps/api",
-    "apps/worker",
-]
-
-[tool.uv]
-package = false

@@ -47,15 +47,15 @@ jobs:
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('apps/web/bun.lock') }}
+          key: bun-${{ runner.os }}-${{ hashFiles('src/frontend/web/bun.lock') }}
           restore-keys: |
             bun-${{ runner.os }}-
 
       - name: Install Python dependencies
-        run: uv sync --frozen --all-packages --group dev
+        run: uv sync --frozen --group dev
 
       - name: Install web dependencies
-        working-directory: apps/web
+        working-directory: src/frontend/web
         run: bun install --frozen-lockfile
 
       - name: Run checks

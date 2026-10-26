@@ -146,16 +146,16 @@ before RAG Q&A demonstrates analyst value.
 
 ## Reuse From Current Project
 
-- `apps/worker`: validate ArticleBundle; `contracts/python` preserves shared boundary contracts.
+- `src/backend/event_pipeline`: validate ArticleBundle; `src/backend/shared/contracts` preserves shared boundary contracts (formerly `apps/worker`, `contracts/python`).
 - New shared contracts: `ArticleDocument`, `EvidenceSpan`, `BriefingQuery`, `BriefingAnswer`,
   `Claim`, `Citation`, and `Uncertainty`, with machine-linkage invariants.
 - Pydantic contract models: source for JSON Schemas generated on demand; no checked-in schema snapshots.
 - `fixtures/`: deterministic corpus fixtures and test cases.
-- `apps/api`: FastAPI adapter and framework-free application boundary.
-- `apps/worker/src/eventlens_worker/ports.py`: adapter boundary pattern.
-- `apps/worker/src/eventlens_worker/models.py`: typed output and invariant validation.
+- `src/backend/crud` and `src/backend/rag/presentation`: FastAPI adapters over framework-free application boundaries (formerly `apps/api`).
+- `src/backend/event_pipeline/application/ports.py`: adapter boundary pattern.
+- `src/backend/event_pipeline/domain/models.py`: typed output and invariant validation.
 - `ProcessingTrace`: pattern for auditable processing outcomes.
-- `apps/web`: existing React/Vite presentation scaffold and editorial design system.
+- `src/frontend/web`: existing React/Vite presentation scaffold and editorial design system.
 
 The current `FakeEventExtractor` and `InMemoryEventWriter` are demonstration adapters.
 They should not define MVP answer semantics.
@@ -353,8 +353,8 @@ citation inspection.
 | Corpus/eval contracts | contracts-python, fixtures | - |
 | Retrieval adapters | API application/search package | ArticleDocument contract |
 | Model/citation adapters | AI worker/application package | BriefingAnswer contract |
-| API endpoint | apps/api | retrieval + model contracts |
-| Analyst UI | apps/web | API contract |
+| API endpoint | src/backend/rag (rag-api) | retrieval + model contracts |
+| Analyst UI | src/frontend/web | API contract |
 
 Launch corpus/contracts, retrieval, and model/citation work after agreeing shared DTOs;
 then integrate API; then UI. Retrieval and model lanes must not duplicate contract types.

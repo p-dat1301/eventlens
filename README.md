@@ -4,26 +4,25 @@ Monorepo foundation for event intelligence built from normalized news articles.
 
 ## Architecture
 
-Application units live under `apps/`; shared boundary code lives under `contracts/`.
-Dependencies point inward:
+Modular monolith organized by bounded contexts; see `docs/architecture.md` for
+layers, dependency rules, ports and LangGraph workflows.
 
 ```text
-presentation / adapters -> application -> domain contracts
+src/backend/shared/contracts   shared frozen Pydantic contracts (+ ArticleBundle)
+src/backend/crud               CRUD context, Clean Architecture (crud-api :8000)
+src/backend/rag                AI/RAG context, Hexagonal + LangGraph (rag-api :8001, rag-worker)
+src/backend/event_pipeline     local deterministic event pipeline (eventlens-events)
+src/frontend/web               React presentation with Zod parsing at external boundaries
+fixtures/                      canonical contract fixtures + worker-local trace fixtures
 ```
 
-- `apps/api`: FastAPI HTTP adapter and framework-free use cases.
-- `apps/worker`: Typer adapter, local ArticleBundle validation, and framework-free event-processing pipeline.
-- `apps/rag`: RAG CLI, app-owned document/briefing models, graph, and persistence adapters.
-- `apps/web`: React presentation with Zod parsing at external boundaries.
-- `contracts/python`: frozen Pydantic models shared by Python processes.
-- `contracts`: semantic vectors for cross-field rules; Python Pydantic models generate JSON Schemas and Arrow descriptors on demand, not as checked-in snapshots.
-- `fixtures`: canonical contract fixtures plus worker-local trace fixtures for local
-  development and tests. Contract fixtures represent shared boundary payloads;
-  `*.trace.v1.json` files represent worker behavior, not cross-language contracts.
+`fixtures` holds canonical contract fixtures plus worker-local trace fixtures for
+local development and tests. Contract fixtures represent shared boundary payloads;
+`*.trace.v1.json` files represent worker behavior, not cross-language contracts.
 
-No app imports another app. Domain and application code do not import FastAPI, Typer,
-React, PostgreSQL, MinIO, or model SDKs. Worker processing currently follows this local,
-deterministic path:
+No context imports another context. Domain and application code do not import
+FastAPI, Typer, React, PostgreSQL, MinIO, or model SDKs (enforced by
+`tests/architecture`). The event pipeline follows this local, deterministic path:
 
 ```text
 ArticleBundle -> FakeEventExtractor -> EventProposal -> gate
@@ -66,35 +65,33 @@ make validate-fixture
 Validate or process one local fixture directly:
 
 ```bash
-uv run --package eventlens-worker eventlens-worker validate fixtures/article_bundle.v1.json
-uv run --package eventlens-worker eventlens-worker process fixtures/article_bundle.v1.json
+uv run eventlens-events validate fixtures/article_bundle.v1.json
+uv run eventlens-events process fixtures/article_bundle.v1.json
 ```
 
 `process` prints one JSON `ProcessingTrace`. Its in-memory writer resets on every CLI
 invocation, so it does not persist events between commands.
 
-Run services without Docker:
+Run the four runtimes without Docker (one terminal each):
 
 ```bash
-uv run --package eventlens-api eventlens-api
-cd apps/web && bun run dev
+make crud-api      # http://127.0.0.1:8000/health
+make rag-api       # http://127.0.0.1:8001/health, POST /briefing
+make web           # http://localhost:5173 (proxies /briefing to EVENTLENS_RAG_API_URL, default :8001)
+make rag-worker    # needs the RAG database: make infra rag-db-create rag-migrate
 ```
-
-Endpoints:
-
-- API health: `http://localhost:8000/health`
-- Web: `http://localhost:5173`
 
 ## Containers
 
 ```bash
 make up
-docker compose --profile tools run --rm ai-worker
+docker compose --profile tools run --rm event-pipeline
+docker compose --profile tools run --rm rag-worker
 make infra
 make down
 ```
 
 `infra` starts local PostgreSQL (pgvector) and a MinIO placeholder bound to localhost only. The RAG index uses a
 separate `eventlens_rag` database on that server (`make rag-db-create rag-migrate rag-load-fixtures rag-rebuild`,
-see `apps/rag/README.md`); MinIO is unused. The `ai-worker` Compose service name is kept for compatibility; it
-builds from `apps/worker`. Never reuse development credentials outside local environments.
+see `docs/rag.md`); MinIO is unused. `make up` starts `crud-api`, `rag-api` and `web`. Never reuse development
+credentials outside local environments.

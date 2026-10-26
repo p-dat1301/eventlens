@@ -11,8 +11,8 @@ __pycache__/
 dist/
 build/
 coverage/
-apps/web/node_modules/
-apps/web/dist/
+src/frontend/web/node_modules/
+src/frontend/web/dist/
 
 # Local agent runtime artifacts
 .omo/run-continuation/
