@@ -243,3 +243,54 @@ jobs:
       - name: Run browser gate
         working-directory: src/frontend/web
         run: bun run test:e2e
+
+  search-index:
+    name: Search index suite (Elasticsearch)
+    runs-on: ubuntu-latest
+    services:
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:9.2.0
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: "false"
+          ES_JAVA_OPTS: -Xms512m -Xmx512m
+        ports:
+          - 9200:9200
+        options: >-
+          --health-cmd "curl -fsS http://localhost:9200/_cluster/health || exit 1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 40
+    env:
+      EVENTLENS_RAG_TEST_ELASTICSEARCH_URL: http://127.0.0.1:9200
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      # Only the dev group: the adapter suite never needs model weights.
+      - name: Install Python dependencies
+        run: uv sync --frozen --group dev
+
+      - name: Assert no provider credentials in the environment
+        run: |
+          if env | grep -E -i '^(OPENAI|ANTHROPIC|AZURE_OPENAI)[A-Z_]*=|API_KEY=' >/dev/null; then
+            echo "provider credential variable present; CI must run fake-only" >&2
+            exit 1
+          fi
+
+      - name: Run Elasticsearch adapter suite (any skip fails)
+        run: sh scripts/rag/search-index-test.sh

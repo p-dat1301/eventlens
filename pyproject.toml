@@ -43,6 +43,13 @@ dev = [
     "pytest>=8.4,<9",
     "ruff>=0.12,<1",
 ]
+# Real embedding/reranker models for the controlled search-selection benchmark
+# only (`make search-bench`); CI and runtime images never install this group.
+bench = [
+    "sentence-transformers>=5.1,<6",
+    "torch>=2.8,<3",
+    "transformers>=4.56,<5",
+]
 
 [tool.basedpyright]
 typeCheckingMode = "all"

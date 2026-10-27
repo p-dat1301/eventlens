@@ -310,3 +310,8 @@ requires the owner's explicit approval.
   2026-10-16, scoped to T1-T3 fixture/fake with the separate `eventlens_rag`
   database; see `.omo/evidence/G1/acceptance-decision-2026-10-16.md`. Exit 2 from
   the script still only means technical PASS.
+
+## Search selection (BM25 / semantic / hybrid / reranker)
+
+Pilot benchmark, handoff import (`rag_0002_source_versions`) and the decision
+record live in `docs/search-selection.md`. Production defaults are unchanged.

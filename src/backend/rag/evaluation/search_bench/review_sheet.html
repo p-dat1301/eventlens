@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Duyệt nhãn tìm kiếm</title>
+<style>
+:root{
+  --bg:#f6f5f2;--panel:#fff;--ink:#1c1c1a;--muted:#6b6a65;--line:#e3e1da;
+  --accent:#2f5fd0;--accent-ink:#fff;--ok:#1f8a4c;--warn:#b26b00;--bad:#c0392b;
+  --mark:#ffe58a;--mark-ink:#1c1c1a;--quote:#c9f0d6;--chip:#efeee9;
+  --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#141414;--panel:#1d1d1c;--ink:#ecebe7;--muted:#a3a29c;--line:#30302d;
+  --accent:#7aa2ff;--accent-ink:#0d1220;--ok:#4cc27d;--warn:#e0a43a;--bad:#ef6b5b;
+  --mark:#6b5a12;--mark-ink:#fff6cf;--quote:#1e5a36;--chip:#2a2a28;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+}}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+button,select,input,textarea{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;
+  flex-wrap:wrap;padding:10px 16px;background:var(--panel);
+  border-bottom:1px solid var(--line)}
+header h1{font-size:16px;margin:0 8px 0 0}
+.progress{flex:1;min-width:160px;display:flex;align-items:center;gap:8px;
+  color:var(--muted);font-size:13px}
+.bar{flex:1;height:6px;background:var(--chip);border-radius:3px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--ok);width:0}
+.btn{border:1px solid var(--line);background:var(--panel);padding:6px 12px;
+  border-radius:8px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.layout{display:grid;grid-template-columns:300px 1fr;height:calc(100% - 57px)}
+aside{border-right:1px solid var(--line);overflow:auto;background:var(--panel)}
+.filters{padding:10px;display:grid;gap:6px;border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:var(--panel)}
+.filters input,.filters select{width:100%;padding:6px 8px;border:1px solid var(--line);
+  border-radius:6px;background:var(--bg)}
+.qlist{list-style:none;margin:0;padding:0}
+.qlist li{padding:8px 12px;border-bottom:1px solid var(--line);cursor:pointer;
+  display:grid;grid-template-columns:auto 1fr;gap:2px 8px}
+.qlist li:hover{background:var(--chip)}
+.qlist li.active{background:var(--chip);box-shadow:inset 3px 0 0 var(--accent)}
+.qlist .qid{font:12px ui-monospace,Menlo,monospace;color:var(--muted)}
+.qlist .qt{grid-column:1/-1;font-size:13px;overflow:hidden;text-overflow:ellipsis;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--line);margin-top:5px}
+.dot.accept{background:var(--ok)}.dot.edit{background:var(--warn)}
+.dot.reject{background:var(--bad)}
+main{overflow:auto;padding:20px 24px 80px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chip{background:var(--chip);border-radius:999px;padding:2px 10px;font-size:12px;
+  color:var(--muted)}
+.chip.warn{color:var(--warn)}.chip.bad{color:var(--bad)}
+.qtext{width:100%;font-size:19px;font-weight:600;border:1px solid transparent;
+  background:transparent;padding:4px 6px;border-radius:6px}
+.qtext:hover,.qtext:focus{border-color:var(--line);background:var(--bg)}
+.ref{color:var(--muted);font-size:14px;margin:6px 6px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:6px 14px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.seg.verdict button.on[data-v=accept]{background:var(--ok)}
+.seg.verdict button.on[data-v=edit]{background:var(--warn)}
+.seg.verdict button.on[data-v=reject]{background:var(--bad)}
+.seg.grade button.on[data-g="0"]{background:var(--chip);color:var(--ink)}
+label.inline{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;
+  background:var(--bg);resize:vertical}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);
+  margin:22px 0 8px}
+.art h3{font-size:16px;margin:0 0 2px}
+.art .src{font-size:13px;color:var(--muted);margin-bottom:8px}
+.art.g2{border-left:4px solid var(--ok)}.art.g1{border-left:4px solid var(--warn)}
+.excerpt{white-space:pre-wrap;background:var(--bg);border-radius:8px;padding:10px 12px;
+  margin:8px 0;max-height:220px;overflow:auto;font-size:14px}
+mark{background:var(--mark);color:var(--mark-ink);border-radius:3px;padding:0 1px}
+mark.q{background:var(--quote);color:inherit}
+.qwarn{font-size:13px;color:var(--bad);margin-top:4px}
+.qok{font-size:13px;color:var(--ok);margin-top:4px}
+.drawer{position:fixed;top:0;right:0;width:min(760px,100%);height:100%;
+  background:var(--panel);border-left:1px solid var(--line);z-index:10;
+  transform:translateX(100%);transition:transform .18s ease;display:flex;
+  flex-direction:column;box-shadow:-8px 0 24px rgba(0,0,0,.15)}
+.drawer.open{transform:none}
+.drawer .dh{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;
+  gap:10px;align-items:flex-start}
+.drawer .dh h3{margin:0;font-size:17px;flex:1}
+.drawer .body{padding:16px 22px 80px;overflow:auto;white-space:pre-wrap;font-size:15.5px;
+  line-height:1.7}
+.evidence{margin:10px 0 0;border-top:1px dashed var(--line);padding-top:10px}
+.evidence .ev{margin:8px 0;padding:8px 12px;border-left:3px solid var(--ok);
+  background:var(--bg);border-radius:0 8px 8px 0}
+.evidence .ev.g1{border-left-color:var(--warn)}
+.evidence .ev blockquote{margin:4px 0 6px;white-space:pre-wrap;font-size:14.5px}
+.evidence .who{font-size:13px;color:var(--muted)}
+.evidence a{color:var(--accent)}
+.selbtn{position:fixed;z-index:20;display:none}
+.kbd{font:12px ui-monospace,Menlo,monospace;border:1px solid var(--line);
+  border-radius:4px;padding:0 4px;color:var(--muted)}
+.help{color:var(--muted);font-size:12px}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;
+  font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
+.toast.show{opacity:.92}
+.empty{color:var(--muted);padding:40px;text-align:center}
+@media (max-width:820px){
+  .layout{grid-template-columns:1fr;height:auto}
+  aside{max-height:40vh;border-right:0;border-bottom:1px solid var(--line)}
+  main{padding:14px 16px 80px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Duyệt nhãn tìm kiếm</h1>
+  <div class="progress"><span id="count">0/0</span><div class="bar"><i id="bar"></i></div>
+    <span id="saved" class="help"></span></div>
+  <label class="btn" title="Nạp lại review-decisions.json đã xuất">Nạp quyết định
+    <input id="import" type="file" accept="application/json" hidden></label>
+  <button id="export" class="btn primary">Xuất review-decisions.json</button>
+</header>
+<div class="layout">
+  <aside>
+    <div class="filters">
+      <input id="search" type="search" placeholder="Tìm qid hoặc câu hỏi…">
+      <select id="fstatus"><option value="">Mọi trạng thái</option>
+        <option value="none">Chưa duyệt</option><option value="accept">accept</option>
+        <option value="edit">edit</option><option value="reject">reject</option></select>
+      <select id="fcat"><option value="">Mọi loại câu</option></select>
+      <select id="fsplit"><option value="">dev + test</option>
+        <option value="dev">dev</option><option value="test">test</option></select>
+    </div>
+    <ul id="qlist" class="qlist"></ul>
+  </aside>
+  <main id="main"></main>
+</div>
+<section id="drawer" class="drawer" aria-hidden="true">
+  <div class="dh"><h3 id="dtitle"></h3>
+    <a id="dlink" class="btn" target="_blank" rel="noopener noreferrer">Bài gốc ↗</a>
+    <button id="dclose" class="btn" title="Đóng (Esc)">Đóng</button></div>
+  <div id="dmeta" class="help" style="padding:0 18px"></div>
+  <div id="dbody" class="body"></div>
+</section>
+<button id="selbtn" class="btn primary selbtn">+ Thêm làm quote</button>
+<div id="toast" class="toast"></div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+"use strict";
+const DATA = JSON.parse(document.getElementById("data").textContent);
+const KEY = "search-review:" + DATA.corpus_digest + ":" + DATA.sheet_id;
+const Q = DATA.questions, ART = DATA.articles;
+const $ = (id) => document.getElementById(id);
+function el(tag, attrs, ...kids) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "class") node.className = v;
+    else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid != null) node.append(kid instanceof Node ? kid : String(kid));
+  }
+  return node;
+}
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { state = {}; }
+function fresh(q) {
+  const grades = {}, quotes = {};
+  for (const a of q.articles) { grades[a.id] = a.grade; quotes[a.id] = a.quotes.slice(); }
+  return { status: "", question: q.question, answerable: q.answerable, notes: "",
+           grades, quotes };
+}
+function st(q) { if (!state[q.qid]) state[q.qid] = fresh(q); return state[q.qid]; }
+let saveTimer = null;
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try { localStorage.setItem(KEY, JSON.stringify(state));
+          $("saved").textContent = "đã lưu " + new Date().toLocaleTimeString(); }
+    catch (e) { $("saved").textContent = "không lưu được (hãy xuất file thường xuyên)"; }
+  }, 250);
+  progress();
+}
+function toast(text) {
+  const t = $("toast"); t.textContent = text; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 1800);
+}
+function inFilters(a, f) {
+  if (f.source_domains.length && !f.source_domains.includes(a.source_domain)) return false;
+  if (!f.published_after && !f.published_before) return true;
+  if (!a.published_at) return false;
+  const t = Date.parse(a.published_at);
+  if (f.published_after && t < Date.parse(f.published_after)) return false;
+  if (f.published_before && t >= Date.parse(f.published_before)) return false;
+  return true;
+}
+function occurrences(text, needle) {
+  if (!needle) return 0;
+  let n = 0, i = text.indexOf(needle);
+  while (i >= 0) { n++; i = text.indexOf(needle, i + 1); }
+  return n;
+}
+function highlighted(text, ranges) {
+  const parts = [];
+  const sorted = ranges.filter((r) => r[1] > r[0]).sort((x, y) => x[0] - y[0]);
+  let at = 0;
+  for (const [s, e, cls] of sorted) {
+    if (s < at) continue;
+    parts.push(text.slice(at, s));
+    parts.push(el("mark", { class: cls || "" }, text.slice(s, e)));
+    at = e;
+  }
+  parts.push(text.slice(at));
+  return parts;
+}
+function rangesFor(q, aid) {
+  const a = q.articles.find((x) => x.id === aid);
+  const text = ART[aid].content, out = [];
+  for (const [s, e] of (a ? a.spans : [])) out.push([s, e, ""]);
+  for (const quote of st(q).quotes[aid] || []) {
+    const i = text.indexOf(quote);
+    if (i >= 0) out.push([i, i + quote.length, "q"]);
+  }
+  return out;
+}
+let current = 0, visible = [];
+function matches(q) {
+  const s = st(q), term = $("search").value.trim().toLowerCase();
+  const fs = $("fstatus").value, fc = $("fcat").value, fp = $("fsplit").value;
+  if (fs === "none" && s.status) return false;
+  if (fs && fs !== "none" && s.status !== fs) return false;
+  if (fc && q.category !== fc) return false;
+  if (fp && q.split !== fp) return false;
+  return !term || q.qid.toLowerCase().includes(term) ||
+    s.question.toLowerCase().includes(term);
+}
+function renderList() {
+  visible = Q.map((q, i) => i).filter((i) => matches(Q[i]));
+  const list = $("qlist"); list.replaceChildren();
+  for (const i of visible) {
+    const q = Q[i], s = st(q);
+    list.append(el("li", { class: i === current ? "active" : "", onclick: () => go(i) },
+      el("span", { class: "dot " + s.status }), el("span", { class: "qid" },
+        q.qid + " · " + q.category + " · " + q.split),
+      el("span", { class: "qt" }, s.question)));
+  }
+  if (!visible.length) list.append(el("li", {}, el("span", { class: "qt" }, "Không có câu nào khớp bộ lọc")));
+}
+function progress() {
+  const done = Q.filter((q) => st(q).status).length;
+  $("count").textContent = done + "/" + Q.length + " câu đã có quyết định";
+  $("bar").style.width = (100 * done / Q.length) + "%";
+}
+function seg(cls, options, value, onpick) {
+  return el("div", { class: "seg " + cls }, options.map(([v, label, key]) =>
+    el("button", { "data-v": v, "data-g": v, class: String(v) === String(value) ? "on" : "",
+      title: key ? "Phím " + key : "", onclick: () => onpick(v) }, label)));
+}
+function excerptFor(q, aid) {
+  const text = ART[aid].content, ranges = rangesFor(q, aid);
+  if (!ranges.length) return [text.slice(0, 480) + (text.length > 480 ? "…" : "")];
+  const first = Math.min(...ranges.map((r) => r[0]));
+  const last = Math.max(...ranges.map((r) => r[1]));
+  const s = Math.max(0, first - 220), e = Math.min(text.length, Math.max(last, first + 600) + 220);
+  const shifted = ranges.filter((r) => r[0] >= s && r[1] <= e).map((r) => [r[0] - s, r[1] - s, r[2]]);
+  return [s ? "…" : "", ...highlighted(text.slice(s, e), shifted), e < text.length ? "…" : ""];
+}
+function quoteStatus(q, aid) {
+  const s = st(q), text = ART[aid].content, quotes = s.quotes[aid] || [];
+  const bad = quotes.filter((x) => occurrences(text, x) !== 1);
+  if (bad.length) return el("div", { class: "qwarn" },
+    bad.length + " quote không khớp đúng một lần trong bài — sửa hoặc mở rộng quote.");
+  if (s.grades[aid] === 2 && !quotes.length) return el("div", { class: "qwarn" },
+    "Grade 2 cần ít nhất một quote chính xác.");
+  if (quotes.length) return el("div", { class: "qok" }, quotes.length + " quote khớp.");
+  return null;
+}
+function renderArticle(q, a) {
+  const s = st(q), meta = ART[a.id], grade = s.grades[a.id] ?? 0;
+  const outside = !inFilters(meta, q.filters);
+  const box = el("div", { class: "card art g" + grade });
+  const ta = el("textarea", { rows: "2", placeholder: "Quote chính xác, mỗi dòng một đoạn (bắt buộc cho grade 2). Có thể bôi đen chữ trong 'Xem toàn bài' rồi bấm + Thêm làm quote." });
+  ta.value = (s.quotes[a.id] || []).join("\n");
+  const status = el("div", {});
+  ta.addEventListener("input", () => {
+    s.quotes[a.id] = ta.value.split("\n").map((x) => x.trim()).filter(Boolean);
+    status.replaceChildren(quoteStatus(q, a.id) || ""); save();
+  });
+  status.append(quoteStatus(q, a.id) || "");
+  box.append(
+    el("h3", {}, meta.title),
+    el("div", { class: "src" }, meta.source_domain + " · " + (meta.published_at || "không rõ ngày") + " · ",
+      el("span", { class: "chip" + (a.origin === "gold" ? "" : " warn") },
+        a.origin === "gold" ? "gold máy soạn (grade " + a.grade + ")" : "pool hệ thống"),
+      outside ? el("span", { class: "chip bad" }, " ngoài bộ lọc câu hỏi") : ""),
+    el("div", { class: "excerpt" }, excerptFor(q, a.id)),
+    el("div", { class: "row" },
+      seg("grade", [[0, "0 không liên quan"], [1, "1 liên quan"], [2, "2 trả lời"]], grade,
+        (v) => { s.grades[a.id] = Number(v); save(); renderMain(true); }),
+      el("button", { class: "btn", onclick: () => openDrawer(q, a.id) }, "Xem toàn bài")),
+    el("div", { style: "margin-top:8px" }, ta, status));
+  return box;
+}
+function evidence(q) {
+  const s = st(q), rows = [];
+  for (const a of q.articles) {
+    const grade = s.grades[a.id] ?? 0, quotes = s.quotes[a.id] || [];
+    if (!grade) continue;
+    const meta = ART[a.id];
+    rows.push(el("div", { class: "ev g" + grade },
+      quotes.length ? quotes.map((x) => el("blockquote", {}, "“" + x + "”"))
+        : el("div", { class: "help" }, "(chưa có quote nguyên văn)"),
+      el("div", { class: "who" }, (grade === 2 ? "Trả lời trực tiếp · " : "Liên quan · ") +
+        meta.title + " — " + meta.source_domain + " · " + (meta.published_at || "không rõ ngày") + " · ",
+        el("a", { href: "#", onclick: (e) => { e.preventDefault(); openDrawer(q, a.id); } }, "xem trong bài"),
+        meta.url ? [" · ", el("a", { href: meta.url, target: "_blank", rel: "noopener noreferrer" }, "bài gốc ↗")] : "")));
+  }
+  if (!rows.length) rows.push(el("div", { class: "help" },
+    q.answerable ? "Chưa có bài nào được chấm là căn cứ." : "Câu không có đáp án: không có căn cứ."));
+  return el("div", { class: "evidence" },
+    el("div", { class: "help" }, "Căn cứ nguyên văn (theo grade và quote hiện tại):"), rows);
+}
+function renderMain(keep) {
+  const main = $("main"), y = main.scrollTop;
+  if (!Q.length) { main.replaceChildren(el("div", { class: "empty" }, "Không có câu hỏi.")); return; }
+  const q = Q[current], s = st(q), f = q.filters;
+  const chips = [el("span", { class: "chip" }, q.qid), el("span", { class: "chip" }, q.category),
+    el("span", { class: "chip" }, q.split)];
+  if (f.source_domains.length) chips.push(el("span", { class: "chip" }, "nguồn: " + f.source_domains.join(", ")));
+  if (f.published_after) chips.push(el("span", { class: "chip" }, "từ " + f.published_after));
+  if (f.published_before) chips.push(el("span", { class: "chip" }, "trước " + f.published_before));
+  const input = el("input", { class: "qtext", value: s.question });
+  input.addEventListener("input", () => { s.question = input.value; save(); });
+  const notes = el("textarea", { rows: "2", placeholder: "Ghi chú (lý do sửa / loại)…" });
+  notes.value = s.notes;
+  notes.addEventListener("input", () => { s.notes = notes.value; save(); });
+  const ans = el("input", { type: "checkbox" }); ans.checked = s.answerable;
+  ans.addEventListener("change", () => { s.answerable = ans.checked; save(); });
+  main.replaceChildren(
+    el("div", { class: "card" }, el("div", { class: "meta" }, chips), input,
+      el("div", { class: "ref" }, "Đáp án tham chiếu (máy tóm tắt, không phải nguyên văn): " + (q.reference_answer || "—")),
+      evidence(q),
+      el("div", { class: "row" },
+        seg("verdict", [["accept", "Chấp nhận", "A"], ["edit", "Đã sửa", "E"], ["reject", "Loại", "R"]],
+          s.status, (v) => { s.status = s.status === v ? "" : v; save(); renderList(); renderMain(true); }),
+        el("label", { class: "inline" }, ans, "Có đáp án trong corpus"),
+        el("span", { class: "help" }, el("span", { class: "kbd" }, "←"), " ", el("span", { class: "kbd" }, "→"),
+          " chuyển câu · ", el("span", { class: "kbd" }, "A"), "/", el("span", { class: "kbd" }, "E"), "/",
+          el("span", { class: "kbd" }, "R"), " quyết định")),
+      el("div", { style: "margin-top:10px" }, notes)),
+    el("h2", {}, "Bài cần chấm (" + q.articles.length + ")"),
+    q.articles.map((a) => renderArticle(q, a)),
+    el("div", { class: "row" },
+      el("button", { class: "btn", onclick: () => step(-1) }, "← Câu trước"),
+      el("button", { class: "btn primary", onclick: () => step(1) }, "Câu sau →")));
+  main.scrollTop = keep ? y : 0;
+}
+function go(i) { current = i; closeDrawer(); renderList(); renderMain(); }
+function step(d) {
+  const pos = visible.indexOf(current);
+  const next = visible[Math.min(visible.length - 1, Math.max(0, (pos < 0 ? 0 : pos) + d))];
+  if (next != null) go(next);
+}
+let drawerArt = null;
+function openDrawer(q, aid) {
+  drawerArt = aid;
+  const meta = ART[aid];
+  $("dtitle").textContent = meta.title;
+  const link = $("dlink");
+  if (meta.url) { link.href = meta.url; link.style.display = ""; } else link.style.display = "none";
+  $("dmeta").textContent = meta.source_domain + " · " + (meta.published_at || "không rõ ngày") +
+    " · " + meta.content.length + " ký tự · vàng = gold máy soạn, xanh = quote của bạn";
+  $("dbody").replaceChildren(...highlighted(meta.content, rangesFor(q, aid)));
+  $("drawer").classList.add("open"); $("drawer").setAttribute("aria-hidden", "false");
+  const firstMark = $("dbody").querySelector("mark");
+  $("dbody").scrollTop = 0;
+  if (firstMark) firstMark.scrollIntoView({ block: "center" });
+}
+function closeDrawer() {
+  $("drawer").classList.remove("open"); $("drawer").setAttribute("aria-hidden", "true");
+  $("selbtn").style.display = "none"; drawerArt = null;
+}
+$("dclose").addEventListener("click", closeDrawer);
+document.addEventListener("mouseup", () => {
+  const sel = window.getSelection(), btn = $("selbtn");
+  if (!drawerArt || !sel || sel.isCollapsed || !$("dbody").contains(sel.anchorNode)) {
+    if (!btn.matches(":hover")) btn.style.display = "none"; return;
+  }
+  const rect = sel.getRangeAt(0).getBoundingClientRect();
+  btn.style.left = Math.min(window.innerWidth - 180, rect.left) + "px";
+  btn.style.top = Math.max(8, rect.top - 40) + "px";
+  btn.style.display = "block";
+});
+$("selbtn").addEventListener("click", () => {
+  const text = window.getSelection().toString().trim(), q = Q[current], s = st(q);
+  if (!text || !drawerArt) return;
+  const n = occurrences(ART[drawerArt].content, text);
+  if (n !== 1) { toast(n ? "Đoạn chọn xuất hiện " + n + " lần — chọn dài hơn." : "Không khớp văn bản bài (thử chọn lại)."); return; }
+  const list = s.quotes[drawerArt] || (s.quotes[drawerArt] = []);
+  if (!list.includes(text)) list.push(text);
+  if ((s.grades[drawerArt] ?? 0) < 2) s.grades[drawerArt] = 2;
+  save(); toast("Đã thêm quote, bài được chấm grade 2");
+  $("selbtn").style.display = "none";
+  const aid = drawerArt; renderMain(true); openDrawer(q, aid);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.target.matches("input,textarea,select")) { if (e.key === "Escape") e.target.blur(); return; }
+  if (e.key === "Escape") closeDrawer();
+  else if (e.key === "ArrowRight" || e.key === "j") step(1);
+  else if (e.key === "ArrowLeft" || e.key === "k") step(-1);
+  else if ("aer".includes(e.key.toLowerCase()) && e.key.length === 1 && !e.metaKey && !e.ctrlKey) {
+    const v = { a: "accept", e: "edit", r: "reject" }[e.key.toLowerCase()], s = st(Q[current]);
+    s.status = s.status === v ? "" : v; save(); renderList(); renderMain(true);
+  }
+});
+function decisions() {
+  const out = [];
+  for (const q of Q) {
+    const s = st(q);
+    if (!s.status) continue;
+    out.push({ qid: q.qid, status: s.status, question: s.question, answerable: s.answerable,
+      notes: s.notes, articles: q.articles.map((a) => ({ article_id: a.id,
+        grade: s.grades[a.id] ?? 0, quotes: s.quotes[a.id] || [] })) });
+  }
+  return out;
+}
+$("export").addEventListener("click", () => {
+  const list = decisions();
+  const problems = list.filter((d) => d.status !== "reject" && d.articles.some((a) =>
+    a.quotes.some((x) => occurrences(ART[a.article_id].content, x) !== 1) ||
+    (a.grade === 2 && !a.quotes.length)));
+  if (problems.length && !confirm(problems.length + " câu còn quote lỗi hoặc grade 2 thiếu quote (" +
+    problems.map((d) => d.qid).join(", ") + "). Lệnh gộp sẽ từ chối các câu đó. Vẫn xuất?")) return;
+  if (!confirm(list.length + "/" + Q.length + " câu có quyết định sẽ được xuất; câu chưa duyệt bị bỏ qua. Tiếp tục?")) return;
+  const blob = new Blob([JSON.stringify({ schema_version: "review-decisions.v1",
+    corpus_digest: DATA.corpus_digest, decisions: list }, null, 1)], { type: "application/json" });
+  const link = el("a", { href: URL.createObjectURL(blob), download: "review-decisions.json" });
+  document.body.append(link); link.click(); link.remove();
+});
+$("import").addEventListener("change", async (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (data.corpus_digest !== DATA.corpus_digest) { toast("File thuộc corpus khác — không nạp."); return; }
+    let n = 0;
+    for (const d of data.decisions) {
+      const q = Q.find((x) => x.qid === d.qid); if (!q) continue;
+      const s = fresh(q); s.status = d.status; s.question = d.question || q.question;
+      s.answerable = d.answerable ?? q.answerable; s.notes = d.notes || "";
+      for (const a of d.articles || []) { s.grades[a.article_id] = a.grade; s.quotes[a.article_id] = a.quotes || []; }
+      state[q.qid] = s; n++;
+    }
+    save(); renderList(); renderMain(); toast("Đã nạp " + n + " quyết định");
+  } catch (err) { toast("Không đọc được file"); }
+  e.target.value = "";
+});
+for (const c of [...new Set(Q.map((q) => q.category))].sort())
+  $("fcat").append(el("option", { value: c }, c));
+for (const id of ["search", "fstatus", "fcat", "fsplit"])
+  $(id).addEventListener("input", renderList);
+progress(); renderList(); renderMain();
+</script>
+</body>
+</html>
