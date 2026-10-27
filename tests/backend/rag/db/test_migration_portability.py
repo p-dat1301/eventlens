@@ -268,9 +268,9 @@ def test_wheel_runs_alembic_migrate_outside_checkout(
         for _ in range(2)
     ]
 
-    # Then: baseline applied from packaged revisions, then a no-op.
+    # Then: baseline + 0002 applied from packaged revisions, then a no-op.
     assert [run.returncode for run in runs] == [0, 0], runs[0].stderr
-    assert all("alembic rag_0001_baseline" in run.stdout for run in runs)
+    assert all("alembic rag_0002_source_versions" in run.stdout for run in runs)
     with psycopg.connect(scoped_url) as connection:
         version = connection.execute(
             "SELECT version_num FROM alembic_version"
@@ -278,5 +278,5 @@ def test_wheel_runs_alembic_migrate_outside_checkout(
         ledger = connection.execute(
             "SELECT count(*) FROM rag_schema_migrations"
         ).fetchone()
-    assert version == [("rag_0001_baseline",)]
+    assert version == [("rag_0002_source_versions",)]
     assert ledger == (7,)

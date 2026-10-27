@@ -18,3 +18,6 @@ src/frontend/web/dist/
 .claude/
 .omo/run-continuation/
 .omo/evidence/
+
+# Private benchmark data (full article text); never commit
+.private/

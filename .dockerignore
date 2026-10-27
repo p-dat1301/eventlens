@@ -10,3 +10,4 @@ dist
 src/frontend/web/node_modules
 src/frontend/web/dist
 .env*
+.private
