@@ -105,8 +105,12 @@ def test_real_vector_sql_preserves_baseline_dimension(database_url: str) -> None
 
 
 def test_lexical_first_then_hnsw_query_exposes_index_metadata(
-    database_url: str, make_article: Factory
+    retrieval_url: str, make_article: Factory
 ) -> None:
+    # HNSW is approximate: an unrestricted top-1 over a table shared with other
+    # tests' random fake vectors can miss the exact match. A fresh schema holds
+    # only this article, so the top-1 asserted below is deterministic.
+    database_url = retrieval_url
     store = PostgresRagStore(rag_engine(database_url))
     article = make_article("Harbor flooding closes the eastern ferry terminal")
     store.persist_article(article)
@@ -138,6 +142,7 @@ def test_lexical_first_then_hnsw_query_exposes_index_metadata(
             (literal,),
         ).fetchone()
     assert "rag_chunks_embedding_hnsw_idx" in str(plan)
+    assert scalar(database_url, "SELECT count(*) FROM rag_chunks", ()) == 1
     assert row == (
         article.article_id,
         article.content_hash,

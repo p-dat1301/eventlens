@@ -144,6 +144,18 @@ jobs:
           mkdir -p "$ADOPT_EVIDENCE_DIR"
           sh scripts/rag/adopt-smoke.sh
 
+      # Full pytest logs, JUnit XML and step logs, kept even when a step fails.
+      - name: Upload database evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: database-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/g3-db
+            ${{ runner.temp }}/adopt
+          if-no-files-found: warn
+          retention-days: 30
+
   eval:
     name: Enrichment and RAG evals
     runs-on: ubuntu-latest

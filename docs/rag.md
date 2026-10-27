@@ -290,7 +290,11 @@ requires the owner's explicit approval.
 - `make rag-db-test` runs `tests/backend/{rag,event_pipeline,crud}` and
   `tests/architecture` (including the T4 rag-worker CLI flows) against an isolated, auto-removed `pgvector/pgvector:0.8.0-pg17`
   container, once on a fresh Alembic schema and once on an adopted legacy schema
-  (`EVENTLENS_RAG_TEST_SCHEMA_PATH=fresh|adopted`); any skipped test fails the run.
+  (`EVENTLENS_RAG_TEST_SCHEMA_PATH=fresh|adopted`), each path in its own empty
+  database (`scripts/rag/path_database.py`); any skipped test fails the run. Each
+  path keeps its full pytest log and JUnit XML (`pytest-db-<path>.log|.xml`) in the
+  evidence directory and prints failing test IDs with their tracebacks; CI uploads
+  them as the `database-evidence-*` artifact.
 - `make rag-adopt-smoke` runs the legacy adoption path end to end (historical
   runner, refusal, preflight, adopt, migrate, rebuild, worker, rag-api citation). T4/T5 DB tests each use a fresh schema
   (T5: `retrieval_url` fixture in `tests/backend/rag/conftest.py`).
