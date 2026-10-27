@@ -1,0 +1,13 @@
+legacy-runner	0	0	uv run python -c import os; from backend.rag.infra.postgres.migrations import migrate; migrate(os.environ['EVENTLENS_RAG_DATABASE_URL'])
+legacy-load-fixtures	0	0	uv run eventlens-rag load-fixtures
+migrate-refuses-unadopted	1	1	uv run eventlens-rag migrate
+worker-refuses-unadopted	1	1	uv run eventlens-rag-worker enrich --max-jobs 1
+preflight	0	0	uv run eventlens-rag preflight
+adopt-legacy	0	0	uv run eventlens-rag adopt-legacy
+adopt-again	0	0	uv run eventlens-rag adopt-legacy
+migrate	0	0	uv run eventlens-rag migrate
+rebuild	0	0	uv run eventlens-rag rebuild
+worker-ingest	0	0	uv run eventlens-rag-worker ingest fixtures/article_bundle.v1.json
+worker-enrich	0	0	uv run eventlens-rag-worker enrich --max-jobs 5
+api-health	0	0	uv run python scripts/rag/api_smoke.py health http://127.0.0.1:50047
+api-briefing-citation	0	0	uv run python scripts/rag/api_smoke.py briefing http://127.0.0.1:50047
