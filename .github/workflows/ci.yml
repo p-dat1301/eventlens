@@ -89,6 +89,7 @@ jobs:
           --health-retries 30
     env:
       EVENTLENS_RAG_DATABASE_URL: postgresql://rag_test:rag-test-only@127.0.0.1:5432/rag_test
+      EVENTLENS_RAG_TEST_SERVER_OWNED: "1"
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -143,6 +144,18 @@ jobs:
           export ADOPT_EVIDENCE_DIR="$RUNNER_TEMP/adopt"
           mkdir -p "$ADOPT_EVIDENCE_DIR"
           sh scripts/rag/adopt-smoke.sh
+
+      # Full pytest logs, JUnit XML and step logs, kept even when a step fails.
+      - name: Upload database evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: database-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/g3-db
+            ${{ runner.temp }}/adopt
+          if-no-files-found: warn
+          retention-days: 30
 
   eval:
     name: Enrichment and RAG evals
