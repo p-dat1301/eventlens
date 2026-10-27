@@ -107,9 +107,8 @@ def test_real_vector_sql_preserves_baseline_dimension(database_url: str) -> None
 def test_lexical_first_then_hnsw_query_exposes_index_metadata(
     retrieval_url: str, make_article: Factory
 ) -> None:
-    # HNSW is approximate: an unrestricted top-1 over a table shared with other
-    # tests' random fake vectors can miss the exact match. A fresh schema holds
-    # only this article, so the top-1 asserted below is deterministic.
+    # A shared table can contain another article with the same fake embedding.
+    # The isolated schema has one chunk, so top-1 has no equal-distance tie.
     database_url = retrieval_url
     store = PostgresRagStore(rag_engine(database_url))
     article = make_article("Harbor flooding closes the eastern ferry terminal")

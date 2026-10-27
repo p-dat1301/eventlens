@@ -294,7 +294,9 @@ requires the owner's explicit approval.
   database (`scripts/rag/path_database.py`); any skipped test fails the run. Each
   path keeps its full pytest log and JUnit XML (`pytest-db-<path>.log|.xml`) in the
   evidence directory and prints failing test IDs with their tracebacks; CI uploads
-  them as the `database-evidence-*` artifact.
+  them as the `database-evidence-*` artifact. The database helper requires
+  `EVENTLENS_RAG_TEST_SERVER_OWNED=1` (set by the disposable container wrapper
+  or CI service) and creates unique databases without dropping existing ones.
 - `make rag-adopt-smoke` runs the legacy adoption path end to end (historical
   runner, refusal, preflight, adopt, migrate, rebuild, worker, rag-api citation). T4/T5 DB tests each use a fresh schema
   (T5: `retrieval_url` fixture in `tests/backend/rag/conftest.py`).

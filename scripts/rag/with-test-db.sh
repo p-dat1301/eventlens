@@ -29,4 +29,5 @@ until [ "$(docker inspect --format '{{.State.Health.Status}}' "$name")" = health
 done
 port=$(docker inspect --format '{{(index (index .NetworkSettings.Ports "5432/tcp") 0).HostPort}}' "$name")
 export EVENTLENS_RAG_DATABASE_URL="postgresql://rag_test:rag-test-only@127.0.0.1:$port/rag_test"
+export EVENTLENS_RAG_TEST_SERVER_OWNED=1
 "$@"
