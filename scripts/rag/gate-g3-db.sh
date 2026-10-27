@@ -11,12 +11,14 @@ cleanup() {
     fi
 }
 trap cleanup EXIT HUP INT TERM
+# STEP_TAIL: lines of each step log echoed to the console (db-suite echoes its
+# whole bounded summary so failing test IDs reach the CI log).
 step() {
     label=$1
     shift
     code=0
     "$@" >"$G3_EVIDENCE_DIR/$label.log" 2>&1 || code=$?
-    tail -n 15 "$G3_EVIDENCE_DIR/$label.log"
+    tail -n "${STEP_TAIL:-15}" "$G3_EVIDENCE_DIR/$label.log"
     printf '%s\t%s\t%s\n' "$label" "$code" "$*" >>"$G3_EVIDENCE_DIR/exit-codes.tsv"
     [ "$code" -eq 0 ] || exit "$code"
 }
@@ -32,4 +34,4 @@ step api-health uv run python "$(dirname "$0")/api_smoke.py" health "http://127.
 step api-briefing-citation uv run python "$(dirname "$0")/api_smoke.py" briefing "http://127.0.0.1:$port"
 cleanup
 api_pid=
-step db-suite sh "$(dirname "$0")/db-suite.sh"
+STEP_TAIL=500 step db-suite sh "$(dirname "$0")/db-suite.sh"

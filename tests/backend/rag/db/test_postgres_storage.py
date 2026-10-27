@@ -105,8 +105,11 @@ def test_real_vector_sql_preserves_baseline_dimension(database_url: str) -> None
 
 
 def test_lexical_first_then_hnsw_query_exposes_index_metadata(
-    database_url: str, make_article: Factory
+    retrieval_url: str, make_article: Factory
 ) -> None:
+    # A shared table can contain another article with the same fake embedding.
+    # The isolated schema has one chunk, so top-1 has no equal-distance tie.
+    database_url = retrieval_url
     store = PostgresRagStore(rag_engine(database_url))
     article = make_article("Harbor flooding closes the eastern ferry terminal")
     store.persist_article(article)
@@ -138,6 +141,7 @@ def test_lexical_first_then_hnsw_query_exposes_index_metadata(
             (literal,),
         ).fetchone()
     assert "rag_chunks_embedding_hnsw_idx" in str(plan)
+    assert scalar(database_url, "SELECT count(*) FROM rag_chunks", ()) == 1
     assert row == (
         article.article_id,
         article.content_hash,
