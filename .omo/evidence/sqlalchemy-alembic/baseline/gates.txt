@@ -1,0 +1,5 @@
+check exit=0
+rag-db-test exit=0
+enrichment-eval exit=0
+rag-eval exit=0
+web-browser-test exit=0

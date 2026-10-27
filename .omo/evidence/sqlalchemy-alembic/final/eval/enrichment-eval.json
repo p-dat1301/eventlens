@@ -1,0 +1,603 @@
+{
+  "abstention": {
+    "event_relevance": {
+      "abstained": 30,
+      "abstention_recall": {
+        "definition": "gold 'uncertain' that the enricher also abstained on / gold",
+        "denominator": 2,
+        "numerator": 2,
+        "value": 1.0
+      },
+      "appropriate": {
+        "definition": "predicted 'uncertain' where gold is also 'uncertain' / predicted",
+        "denominator": 30,
+        "numerator": 2,
+        "value": 0.066667
+      },
+      "gold_abstain": 2
+    },
+    "topic": {
+      "abstained": 21,
+      "abstention_recall": {
+        "definition": "gold 'other' that the enricher also abstained on / gold",
+        "denominator": 1,
+        "numerator": 1,
+        "value": 1.0
+      },
+      "appropriate": {
+        "definition": "predicted 'other' where gold is also 'other' / predicted",
+        "denominator": 21,
+        "numerator": 1,
+        "value": 0.047619
+      },
+      "gold_abstain": 1
+    }
+  },
+  "confidence_calibration": {
+    "bins": [
+      {
+        "accuracy": 0.233333,
+        "mean_confidence": 0.6,
+        "range": [
+          0.6,
+          0.8
+        ],
+        "samples": 30
+      }
+    ],
+    "brier": 0.313333,
+    "correct_definition": "predicted topic set equals gold topic set",
+    "ece": 0.366667,
+    "samples": 30
+  },
+  "cost_estimate": {
+    "reason": "no enrichment pricing policy; fake enricher cost is 0",
+    "status": "NOT MEASURED",
+    "value": null
+  },
+  "coverage": {
+    "definition": "articles READY / gold",
+    "denominator": 30,
+    "numerator": 30,
+    "value": 1.0
+  },
+  "evidence_support": {
+    "semantic_support": {
+      "reason": "no labelled topic-evidence set; spans checked structurally",
+      "status": "NOT MEASURED",
+      "value": null
+    },
+    "structural_span_validity": {
+      "definition": "published spans whose hash matches and offsets select the excerpt",
+      "denominator": 9,
+      "numerator": 9,
+      "value": 1.0
+    }
+  },
+  "fields": {
+    "content_type": {
+      "accuracy": {
+        "definition": "articles with the gold label / gold",
+        "denominator": 30,
+        "numerator": 29,
+        "value": 0.966667
+      },
+      "per_class": {
+        "news_report": {
+          "false_negative": 0,
+          "false_positive": 1,
+          "precision": {
+            "definition": "correct predicted articles labelled news_report / predicted",
+            "denominator": 30,
+            "numerator": 29,
+            "value": 0.966667
+          },
+          "recall": {
+            "definition": "correct predicted articles labelled news_report / gold",
+            "denominator": 29,
+            "numerator": 29,
+            "value": 1.0
+          },
+          "true_positive": 29,
+          "unit": "articles labelled news_report"
+        },
+        "opinion": {
+          "false_negative": 1,
+          "false_positive": 0,
+          "precision": {
+            "definition": "correct predicted articles labelled opinion / predicted",
+            "denominator": 0,
+            "not_measurable": "denominator is 0",
+            "numerator": 0,
+            "value": null
+          },
+          "recall": {
+            "definition": "correct predicted articles labelled opinion / gold",
+            "denominator": 1,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "true_positive": 0,
+          "unit": "articles labelled opinion"
+        }
+      }
+    },
+    "entity": {
+      "false_negative": 1,
+      "false_positive": 0,
+      "gold_articles_with_labels": 1,
+      "precision": {
+        "definition": "correct predicted (article, entity) pairs / predicted",
+        "denominator": 0,
+        "not_measurable": "denominator is 0",
+        "numerator": 0,
+        "value": null
+      },
+      "recall": {
+        "definition": "correct predicted (article, entity) pairs / gold",
+        "denominator": 1,
+        "numerator": 0,
+        "value": 0.0
+      },
+      "true_positive": 0,
+      "unit": "(article, entity) pairs"
+    },
+    "event_relevance": {
+      "accuracy": {
+        "definition": "articles with the gold label / gold",
+        "denominator": 30,
+        "numerator": 2,
+        "value": 0.066667
+      },
+      "per_class": {
+        "actionable_event": {
+          "false_negative": 14,
+          "false_positive": 0,
+          "precision": {
+            "definition": "correct predicted articles labelled actionable_event / predicted",
+            "denominator": 0,
+            "not_measurable": "denominator is 0",
+            "numerator": 0,
+            "value": null
+          },
+          "recall": {
+            "definition": "correct predicted articles labelled actionable_event / gold",
+            "denominator": 14,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "true_positive": 0,
+          "unit": "articles labelled actionable_event"
+        },
+        "background": {
+          "false_negative": 8,
+          "false_positive": 0,
+          "precision": {
+            "definition": "correct predicted articles labelled background / predicted",
+            "denominator": 0,
+            "not_measurable": "denominator is 0",
+            "numerator": 0,
+            "value": null
+          },
+          "recall": {
+            "definition": "correct predicted articles labelled background / gold",
+            "denominator": 8,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "true_positive": 0,
+          "unit": "articles labelled background"
+        },
+        "follow_up": {
+          "false_negative": 4,
+          "false_positive": 0,
+          "precision": {
+            "definition": "correct predicted articles labelled follow_up / predicted",
+            "denominator": 0,
+            "not_measurable": "denominator is 0",
+            "numerator": 0,
+            "value": null
+          },
+          "recall": {
+            "definition": "correct predicted articles labelled follow_up / gold",
+            "denominator": 4,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "true_positive": 0,
+          "unit": "articles labelled follow_up"
+        },
+        "no_actionable_event": {
+          "false_negative": 2,
+          "false_positive": 0,
+          "precision": {
+            "definition": "correct predicted articles labelled no_actionable_event / predicted",
+            "denominator": 0,
+            "not_measurable": "denominator is 0",
+            "numerator": 0,
+            "value": null
+          },
+          "recall": {
+            "definition": "correct predicted articles labelled no_actionable_event / gold",
+            "denominator": 2,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "true_positive": 0,
+          "unit": "articles labelled no_actionable_event"
+        },
+        "uncertain": {
+          "false_negative": 0,
+          "false_positive": 28,
+          "precision": {
+            "definition": "correct predicted articles labelled uncertain / predicted",
+            "denominator": 30,
+            "numerator": 2,
+            "value": 0.066667
+          },
+          "recall": {
+            "definition": "correct predicted articles labelled uncertain / gold",
+            "denominator": 2,
+            "numerator": 2,
+            "value": 1.0
+          },
+          "true_positive": 2,
+          "unit": "articles labelled uncertain"
+        }
+      }
+    },
+    "location": {
+      "false_negative": 1,
+      "false_positive": 0,
+      "gold_articles_with_labels": 1,
+      "precision": {
+        "definition": "correct predicted (article, location) pairs / predicted",
+        "denominator": 0,
+        "not_measurable": "denominator is 0",
+        "numerator": 0,
+        "value": null
+      },
+      "recall": {
+        "definition": "correct predicted (article, location) pairs / gold",
+        "denominator": 1,
+        "numerator": 0,
+        "value": 0.0
+      },
+      "true_positive": 0,
+      "unit": "(article, location) pairs"
+    },
+    "topic": {
+      "false_negative": 31,
+      "false_positive": 22,
+      "gold_articles_with_labels": 30,
+      "precision": {
+        "definition": "correct predicted (article, topic) pairs / predicted",
+        "denominator": 30,
+        "numerator": 8,
+        "value": 0.266667
+      },
+      "recall": {
+        "definition": "correct predicted (article, topic) pairs / gold",
+        "denominator": 39,
+        "numerator": 8,
+        "value": 0.205128
+      },
+      "true_positive": 8,
+      "unit": "(article, topic) pairs"
+    }
+  },
+  "hallucination": {
+    "entity": {
+      "definition": "predicted entity values absent from gold / predicted",
+      "denominator": 0,
+      "not_measurable": "denominator is 0",
+      "numerator": 0,
+      "value": null
+    },
+    "location": {
+      "definition": "predicted location values absent from gold / predicted",
+      "denominator": 0,
+      "not_measurable": "denominator is 0",
+      "numerator": 0,
+      "value": null
+    },
+    "topic": {
+      "definition": "predicted topic values absent from gold / predicted",
+      "denominator": 30,
+      "numerator": 22,
+      "value": 0.733333
+    }
+  },
+  "lifecycle_cases": {
+    "cases": {
+      "cancel_stops_further_work": {
+        "expected": {
+          "embedding_stage_calls": 0,
+          "jobs_claimed": 1,
+          "outcomes": [
+            "CANCELLED"
+          ],
+          "provider_calls": 1,
+          "published": 0
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "embedding_stage_calls": 0,
+          "jobs_claimed": 1,
+          "outcomes": [
+            "CANCELLED"
+          ],
+          "provider_calls": 1,
+          "published": 0
+        }
+      },
+      "missing_evidence_reference": {
+        "expected": {
+          "document_retained": true,
+          "failure_codes": [
+            "ungrounded_evidence"
+          ],
+          "outcomes": [
+            "FAILED"
+          ],
+          "provider_calls": 1,
+          "published": 0
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "document_retained": true,
+          "failure_codes": [
+            "ungrounded_evidence"
+          ],
+          "outcomes": [
+            "FAILED"
+          ],
+          "provider_calls": 1,
+          "published": 0
+        }
+      },
+      "poisoned_suggested_tag": {
+        "expected": {
+          "document_retained": true,
+          "failure_codes": [],
+          "outcomes": [
+            "READY"
+          ],
+          "provider_calls": 1,
+          "published": 1,
+          "suggestion_kept_as_suggestion_only": true,
+          "topics": [
+            "transportation"
+          ]
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "document_retained": true,
+          "failure_codes": [],
+          "outcomes": [
+            "READY"
+          ],
+          "provider_calls": 1,
+          "published": 1,
+          "suggestion_kept_as_suggestion_only": true,
+          "topics": [
+            "transportation"
+          ]
+        }
+      },
+      "retry_exhaustion": {
+        "expected": {
+          "document_retained": true,
+          "failure_codes": [
+            "provider_unavailable",
+            "provider_unavailable",
+            "provider_unavailable"
+          ],
+          "outcomes": [
+            "RETRY_SCHEDULED",
+            "RETRY_SCHEDULED",
+            "FAILED"
+          ],
+          "provider_calls": 3,
+          "published": 0
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "document_retained": true,
+          "failure_codes": [
+            "provider_unavailable",
+            "provider_unavailable",
+            "provider_unavailable"
+          ],
+          "outcomes": [
+            "RETRY_SCHEDULED",
+            "RETRY_SCHEDULED",
+            "FAILED"
+          ],
+          "provider_calls": 3,
+          "published": 0
+        }
+      },
+      "stale_revision_mid_call": {
+        "expected": {
+          "document_retained": true,
+          "failure_codes": [],
+          "new_revision_published": true,
+          "old_revision_published": false,
+          "outcomes": [
+            "LOST_OWNERSHIP",
+            "READY"
+          ],
+          "provider_calls": 2,
+          "published": 1
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "document_retained": true,
+          "failure_codes": [],
+          "new_revision_published": true,
+          "old_revision_published": false,
+          "outcomes": [
+            "LOST_OWNERSHIP",
+            "READY"
+          ],
+          "provider_calls": 2,
+          "published": 1
+        }
+      },
+      "timeout_then_success": {
+        "expected": {
+          "claimable_before_backoff": 0,
+          "document_retained": true,
+          "failure_codes": [
+            "provider_timeout"
+          ],
+          "outcomes": [
+            "RETRY_SCHEDULED",
+            "READY"
+          ],
+          "provider_calls": 2,
+          "published": 1,
+          "ready_attempt": 2
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "claimable_before_backoff": 0,
+          "document_retained": true,
+          "failure_codes": [
+            "provider_timeout"
+          ],
+          "outcomes": [
+            "RETRY_SCHEDULED",
+            "READY"
+          ],
+          "provider_calls": 2,
+          "published": 1,
+          "ready_attempt": 2
+        }
+      },
+      "ungrounded_entity": {
+        "expected": {
+          "document_retained": true,
+          "failure_codes": [
+            "ungrounded_metadata"
+          ],
+          "outcomes": [
+            "FAILED"
+          ],
+          "provider_calls": 1,
+          "published": 0
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "document_retained": true,
+          "failure_codes": [
+            "ungrounded_metadata"
+          ],
+          "outcomes": [
+            "FAILED"
+          ],
+          "provider_calls": 1,
+          "published": 0
+        }
+      },
+      "unsupported_taxonomy": {
+        "expected": {
+          "document_retained": true,
+          "failure_codes": [
+            "unsupported_taxonomy"
+          ],
+          "outcomes": [
+            "FAILED"
+          ],
+          "provider_calls": 1,
+          "published": 0
+        },
+        "gating": true,
+        "held": true,
+        "observed": {
+          "document_retained": true,
+          "failure_codes": [
+            "unsupported_taxonomy"
+          ],
+          "outcomes": [
+            "FAILED"
+          ],
+          "provider_calls": 1,
+          "published": 0
+        }
+      }
+    },
+    "held": {
+      "definition": "cases whose observed result equals the expectation",
+      "denominator": 8,
+      "numerator": 8,
+      "value": 1.0
+    }
+  },
+  "limitations": [
+    "Synthetic 30-article corpus; fake keyword enricher; not live quality.",
+    "Gold entity/location lists are empty for every article except 021, so entity/location recall has a denominator of 1.",
+    "In-memory repository: lifecycle semantics only, never DB evidence."
+  ],
+  "report_digest": "sha256:a806275dae9f7f56171b44eeb0d3c8d78d17952edb51fbc28f52ed3c952c2dd0",
+  "safety": {
+    "enricher": "FakeArticleEnricher",
+    "network_connect_attempts": 0
+  },
+  "sample": {
+    "articles": 30,
+    "gold_articles": 30,
+    "jobs_run": 30,
+    "outcome_kinds": [
+      "READY"
+    ],
+    "ready": 30
+  },
+  "schema_version": "enrichment_eval_report.v1",
+  "taxonomy_validity": {
+    "published_topics_in_taxonomy": {
+      "definition": "published topic values inside the controlled TopicTag set",
+      "denominator": 30,
+      "numerator": 30,
+      "value": 1.0
+    },
+    "suggested_tags_promoted_to_topics": 0
+  },
+  "tokens": {
+    "input_tokens_total": 3421,
+    "output_tokens_total": 2821,
+    "output_tokens_unmeasured_calls": 0,
+    "provider_calls": 30,
+    "tokenizer": "fixture regex counter, not a provider tokenizer"
+  },
+  "versions": {
+    "clock": "2026-04-01T00:00:00+00:00",
+    "corpus_count": 30,
+    "corpus_version": "rag-fixture-corpus.v1",
+    "embedding_version": "fixture-embedding.v1",
+    "enrichment_version": "rag-fixture-enrichment.v1",
+    "fixture_digest": "sha256:23e664d057d4a592a8770cd06dfb71cfddd2a3a9d4c213cbcd089a13603d5a22",
+    "gold": "fixtures/rag/enrichments (manual-ground-truth.v1)",
+    "license": "synthetic-authored",
+    "model_version": "manual-ground-truth.v1",
+    "normalization_version": "nfc.v1",
+    "prompt_version": "rag-fixture-prompt.v1",
+    "provenance": "synthetic-authored",
+    "questions_schema": "rag_questions.v1",
+    "ranking_scope": "rag_ranking_scope.v1/fixture-analyst-ranking.v1",
+    "retry_policy": "enrichment-retry.v1",
+    "semantic_labels_schema": "rag_semantic_support.v1",
+    "system_enrichment_version": "article-enrichment.v1",
+    "system_model_version": "fake-enricher.v1",
+    "system_prompt_version": "enrichment-prompt.v1",
+    "tokenizer": "fixture-regex-tokens@v1"
+  }
+}

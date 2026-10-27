@@ -1,0 +1,191 @@
+== current
+Hash Left Join
+  Hash Cond: (cur.article_id = agg.article_id)
+  ->  Hash Join
+        Hash Cond: ((d.article_id = cur.article_id) AND (d.content_hash = cur.content_hash))
+        ->  Seq Scan on rag_article_documents d
+              Filter: (document_json IS NOT NULL)
+        ->  Hash
+              ->  Seq Scan on rag_article_current cur
+                    Filter: ((tombstoned_at IS NULL) AND (article_id = ANY ('{00000000-0000-4000-8000-000000000001,00000000-0000-4000-8000-000000000002,00000000-0000-4000-8000-000000000003,00000000-0000-4000-8000-000000000004,00000000-0000-4000-8000-000000000005}'::uuid[])))
+  ->  Hash
+        ->  Subquery Scan on agg
+              ->  GroupAggregate
+                    Group Key: cur_1.article_id
+                    ->  Sort
+                          Sort Key: cur_1.article_id
+                          ->  Nested Loop
+                                Join Filter: (p.index_generation = cur_1.active_index_generation)
+                                ->  Hash Join
+                                      Hash Cond: (g.generation = cur_1.active_index_generation)
+                                      ->  Seq Scan on rag_index_generations g
+                                            Filter: (status = 'ACTIVE'::text)
+                                      ->  Hash
+                                            ->  Hash Join
+                                                  Hash Cond: ((job.article_id = cur_1.article_id) AND (job.content_hash = cur_1.content_hash))
+                                                  ->  Seq Scan on rag_enrichment_jobs job
+                                                        Filter: (status = 'READY'::text)
+                                                  ->  Hash
+                                                        ->  Seq Scan on rag_article_current cur_1
+                                                              Filter: ((tombstoned_at IS NULL) AND (article_id = ANY ('{00000000-0000-4000-8000-000000000001,00000000-0000-4000-8000-000000000002,00000000-0000-4000-8000-000000000003,00000000-0000-4000-8000-000000000004,00000000-0000-4000-8000-000000000005}'::uuid[])))
+                                ->  Index Scan using rag_enrichment_publications_job_id_claim_generation_key on rag_enrichment_publications p
+                                      Index Cond: ((job_id = job.job_id) AND (claim_generation = job.claim_generation))
+                                      Filter: ((article_id = job.article_id) AND (content_hash = job.content_hash) AND (enrichment_version = job.enrichment_version) AND (model_version = job.model_version) AND (prompt_version = job.prompt_version) AND ((metadata ->> 'status'::text) = 'READY'::text))
+
+== eligibility
+Result
+  CTE scoped
+    ->  Hash Join
+          Hash Cond: ((document.article_id = current.article_id) AND (document.content_hash = current.content_hash))
+          ->  Seq Scan on rag_article_documents document
+          ->  Hash
+                ->  Seq Scan on rag_article_current current
+                      Filter: (tombstoned_at IS NULL)
+  CTE single
+    ->  GroupAggregate
+          Group Key: cur.article_id
+          Filter: (count(*) = 1)
+          ->  Sort
+                Sort Key: cur.article_id
+                ->  Nested Loop Semi Join
+                      Join Filter: (job.article_id = scoped.article_id)
+                      ->  Nested Loop
+                            Join Filter: (g.generation = p.index_generation)
+                            ->  Nested Loop
+                                  Join Filter: (p.index_generation = cur.active_index_generation)
+                                  ->  Hash Join
+                                        Hash Cond: ((job.article_id = cur.article_id) AND (job.content_hash = cur.content_hash))
+                                        ->  Seq Scan on rag_enrichment_jobs job
+                                              Filter: (status = 'READY'::text)
+                                        ->  Hash
+                                              ->  Seq Scan on rag_article_current cur
+                                                    Filter: (tombstoned_at IS NULL)
+                                  ->  Index Scan using rag_enrichment_publications_job_id_claim_generation_key on rag_enrichment_publications p
+                                        Index Cond: ((job_id = job.job_id) AND (claim_generation = job.claim_generation))
+                                        Filter: ((article_id = job.article_id) AND (content_hash = job.content_hash) AND (enrichment_version = job.enrichment_version) AND (model_version = job.model_version) AND (prompt_version = job.prompt_version) AND ((metadata ->> 'status'::text) = 'READY'::text))
+                            ->  Index Scan using rag_index_generations_pkey on rag_index_generations g
+                                  Index Cond: (generation = cur.active_index_generation)
+                                  Filter: (status = 'ACTIVE'::text)
+                      ->  CTE Scan on scoped
+  InitPlan 3
+    ->  Aggregate
+          ->  CTE Scan on scoped scoped_1
+  InitPlan 4
+    ->  Aggregate
+          ->  CTE Scan on single
+  InitPlan 5
+    ->  Aggregate
+          ->  Limit
+                ->  CTE Scan on single s
+
+== lexical
+Sort
+  Sort Key: ranked.article_id, ranked.chunk_index
+  CTE q
+    ->  Aggregate
+          ->  Sort
+                Sort Key: (t.positions[1]), t.lexeme
+                ->  Subquery Scan on t
+                      ->  Limit
+                            ->  Sort
+                                  Sort Key: (v.positions[1]), v.lexeme
+                                  ->  Function Scan on unnest v
+                                        Filter: (lexeme <> ALL ('{}'::text[]))
+  CTE tsq
+    ->  CTE Scan on q
+          SubPlan 2
+            ->  Function Scan on unnest l
+  CTE docs
+    ->  Limit
+          ->  Sort
+                Sort Key: ((ts_rank_cd(document.search_vector, tsq_1.query))::double precision) DESC, document.source_published_at DESC NULLS LAST, document.article_id
+                ->  Nested Loop
+                      ->  Nested Loop
+                            Join Filter: (document.search_vector @@ tsq_1.query)
+                            ->  CTE Scan on tsq tsq_1
+                                  Filter: (query IS NOT NULL)
+                            ->  Seq Scan on rag_article_documents document
+                                  Filter: (document_json IS NOT NULL)
+                      ->  Index Scan using rag_article_current_pkey on rag_article_current current
+                            Index Cond: (article_id = document.article_id)
+                            Filter: ((tombstoned_at IS NULL) AND (document.content_hash = content_hash))
+  CTE windows
+    ->  CTE Scan on docs
+  InitPlan 6
+    ->  CTE Scan on q q_1
+  InitPlan 7
+    ->  Aggregate
+          ->  CTE Scan on windows
+                Filter: (total_chunks > '8'::smallint)
+  ->  Nested Loop Left Join
+        ->  Result
+        ->  Limit
+              ->  Incremental Sort
+                    Sort Key: ranked.article_id, ranked.chunk_index
+                    Presorted Key: ranked.article_id
+                    ->  Subquery Scan on ranked
+                          ->  WindowAgg
+                                Run Condition: (rank() OVER (?) <= '3'::smallint)
+                                ->  Sort
+                                      Sort Key: w.article_id, (cardinality(ARRAY(SubPlan 8))) DESC
+                                      ->  Nested Loop
+                                            Join Filter: (cardinality(ARRAY(SubPlan 9)) > 0)
+                                            ->  Nested Loop
+                                                  ->  CTE Scan on windows w
+                                                  ->  CTE Scan on tsq
+                                            ->  Function Scan on generate_series i
+                                            SubPlan 8
+                                              ->  HashSetOp Intersect
+                                                    ->  Append
+                                                          ->  Subquery Scan on "*SELECT* 1"
+                                                                ->  ProjectSet
+                                                                      ->  Result
+                                                          ->  Subquery Scan on "*SELECT* 2"
+                                                                ->  ProjectSet
+                                                                      ->  Result
+                                            SubPlan 9
+                                              ->  HashSetOp Intersect
+                                                    ->  Append
+                                                          ->  Subquery Scan on "*SELECT* 1_1"
+                                                                ->  ProjectSet
+                                                                      ->  Result
+                                                          ->  Subquery Scan on "*SELECT* 2_1"
+                                                                ->  ProjectSet
+                                                                      ->  Result
+
+== vector_exact
+Limit
+  CTE scored
+    ->  Nested Loop
+          Join Filter: (generation.generation = g.generation)
+          ->  Nested Loop
+                Join Filter: ((g.generation = current.active_index_generation) AND (current.article_id = g.article_id) AND (g.content_hash = current.content_hash))
+                ->  Nested Loop
+                      Join Filter: ((chunk.generation = g.generation) AND (chunk.article_id = g.article_id) AND (chunk.content_hash = g.content_hash))
+                      ->  Nested Loop
+                            Join Filter: ((d.article_id = g.article_id) AND (d.content_hash = g.content_hash))
+                            ->  Hash Join
+                                  Hash Cond: ((g.generation = cur.active_index_generation) AND (g.article_id = cur.article_id) AND (g.content_hash = cur.content_hash))
+                                  Join Filter: (g.expected_chunks = (SubPlan 1))
+                                  ->  Seq Scan on rag_index_generations g
+                                        Filter: ((expected_chunks > 0) AND (status = 'ACTIVE'::text) AND (embedding_model = 'fixture-embedding'::text) AND (embedding_version = 'fixture-embedding.v1'::text) AND (embedding_dimension = '1536'::smallint) AND (chunker_version = 'codepoint-1200-200.v1'::text) AND (normalization_version = 'nfc.v1'::text) AND (corpus_generation = 'rag-fixture-corpus.v1'::text))
+                                  ->  Hash
+                                        ->  Seq Scan on rag_article_current cur
+                                              Filter: (tombstoned_at IS NULL)
+                                  SubPlan 1
+                                    ->  Aggregate
+                                          ->  Seq Scan on rag_chunks x
+                                                Filter: ((article_id = cur.article_id) AND (content_hash = cur.content_hash) AND (generation = g.generation))
+                            ->  Index Scan using rag_article_documents_pkey on rag_article_documents d
+                                  Index Cond: ((article_id = cur.article_id) AND (content_hash = cur.content_hash))
+                      ->  Index Scan using rag_chunks_article_id_content_hash_generation_chunk_index_key on rag_chunks chunk
+                            Index Cond: ((article_id = d.article_id) AND (content_hash = d.content_hash))
+                ->  Index Scan using rag_article_current_pkey on rag_article_current current
+                      Index Cond: (article_id = d.article_id)
+                      Filter: ((tombstoned_at IS NULL) AND (d.content_hash = content_hash))
+          ->  Index Scan using rag_index_generations_pkey on rag_index_generations generation
+                Index Cond: (generation = cur.active_index_generation)
+                Filter: (status = 'ACTIVE'::text)
+  ->  Sort
+        Sort Key: scored.distance, ((scored.article_id)::text), scored.chunk_index
+        ->  CTE Scan on scored

@@ -1,0 +1,72 @@
+{
+  "case_latency": {
+    "max_ms": 750.4,
+    "p50_ms": 103.591,
+    "p95_ms": 750.4,
+    "samples": 16
+  },
+  "graph_overhead_definition": "use-case wall time minus retrieval stage latencies minus synthesis total latency (graph orchestration + admission + reference issuing)",
+  "hybrid": {
+    "end_to_end": {
+      "max_ms": 10.944,
+      "p50_ms": 10.073,
+      "p95_ms": 10.818,
+      "samples": 50
+    },
+    "execution_errors": 0,
+    "graph_overhead": {
+      "max_ms": 4.64,
+      "p50_ms": 4.114,
+      "p95_ms": 4.596,
+      "samples": 50
+    }
+  },
+  "lexical": {
+    "end_to_end": {
+      "max_ms": 42.39,
+      "p50_ms": 10.046,
+      "p95_ms": 15.218,
+      "samples": 50
+    },
+    "execution_errors": 0,
+    "graph_overhead": {
+      "max_ms": 35.94,
+      "p50_ms": 4.248,
+      "p95_ms": 7.207,
+      "samples": 50
+    }
+  },
+  "ranking": {
+    "hybrid": {
+      "end_to_end": {
+        "max_ms": 28.12,
+        "p50_ms": 27.06,
+        "p95_ms": 28.041,
+        "samples": 50
+      },
+      "execution_errors": 0,
+      "graph_overhead": {
+        "max_ms": 4.877,
+        "p50_ms": 4.484,
+        "p95_ms": 4.779,
+        "samples": 50
+      }
+    },
+    "lexical": {
+      "end_to_end": {
+        "max_ms": 12.238,
+        "p50_ms": 10.791,
+        "p95_ms": 11.841,
+        "samples": 50
+      },
+      "execution_errors": 0,
+      "graph_overhead": {
+        "max_ms": 4.452,
+        "p50_ms": 4.06,
+        "p95_ms": 4.426,
+        "samples": 50
+      }
+    }
+  },
+  "status": "measured on this machine; not reproducible; not a production SLO"
+}

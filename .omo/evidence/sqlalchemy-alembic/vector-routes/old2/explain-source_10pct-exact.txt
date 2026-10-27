@@ -1,0 +1,37 @@
+Limit  (cost=324.89..324.89 rows=1 width=132) (actual time=27.396..27.401 rows=10 loops=1)
+  CTE scored
+    ->  Nested Loop  (cost=172.65..324.85 rows=1 width=160) (actual time=1.504..27.011 rows=300 loops=1)
+          ->  Nested Loop  (cost=172.34..323.88 rows=1 width=426) (actual time=1.428..19.142 rows=3000 loops=1)
+                ->  Nested Loop  (cost=172.06..315.09 rows=1 width=362) (actual time=1.409..10.874 rows=3000 loops=1)
+                      ->  Nested Loop  (cost=171.78..314.65 rows=1 width=354) (actual time=1.397..7.682 rows=3000 loops=1)
+                            ->  Hash Join  (cost=171.50..314.12 rows=1 width=192) (actual time=1.382..2.877 rows=3000 loops=1)
+                                  Hash Cond: ((current.active_index_generation = cur.active_index_generation) AND (current.article_id = cur.article_id) AND (current.content_hash = cur.content_hash))
+                                  ->  Seq Scan on rag_article_current current  (cost=0.00..119.00 rows=3000 width=96) (actual time=0.006..0.457 rows=3000 loops=1)
+                                        Filter: (tombstoned_at IS NULL)
+                                  ->  Hash  (cost=119.00..119.00 rows=3000 width=96) (actual time=1.357..1.358 rows=3000 loops=1)
+                                        Buckets: 4096  Batches: 1  Memory Usage: 407kB
+                                        ->  Seq Scan on rag_article_current cur  (cost=0.00..119.00 rows=3000 width=96) (actual time=0.004..0.599 rows=3000 loops=1)
+                                              Filter: (tombstoned_at IS NULL)
+                            ->  Index Scan using rag_chunks_article_id_content_hash_generation_chunk_index_key on rag_chunks chunk  (cost=0.28..0.51 rows=1 width=162) (actual time=0.001..0.001 rows=1 loops=3000)
+                                  Index Cond: ((article_id = cur.article_id) AND (content_hash = cur.content_hash) AND (generation = cur.active_index_generation))
+                      ->  Index Scan using rag_index_generations_pkey on rag_index_generations generation  (cost=0.28..0.44 rows=1 width=8) (actual time=0.001..0.001 rows=1 loops=3000)
+                            Index Cond: (generation = cur.active_index_generation)
+                            Filter: (status = 'ACTIVE'::text)
+                ->  Index Scan using rag_index_generations_pkey on rag_index_generations g  (cost=0.28..8.78 rows=1 width=100) (actual time=0.002..0.002 rows=1 loops=3000)
+                      Index Cond: (generation = cur.active_index_generation)
+                      Filter: ((expected_chunks > 0) AND (status = 'ACTIVE'::text) AND (embedding_model = 'fixture-embedding'::text) AND (embedding_version = 'fixture-embedding.v1'::text) AND (embedding_dimension = '1536'::smallint) AND (chunker_version = 'codepoint-1200-200.v1'::text) AND (normalization_version = 'nfc.v1'::text) AND (corpus_generation = 'rag-fixture-corpus.v1'::text) AND (cur.article_id = article_id) AND (content_hash = cur.content_hash) AND (expected_chunks = (SubPlan 1)))
+                      SubPlan 1
+                        ->  Aggregate  (cost=8.30..8.31 rows=1 width=8) (actual time=0.001..0.001 rows=1 loops=3000)
+                              ->  Index Only Scan using rag_chunks_article_id_content_hash_generation_chunk_index_key on rag_chunks x  (cost=0.28..8.30 rows=1 width=0) (actual time=0.001..0.001 rows=1 loops=3000)
+                                    Index Cond: ((article_id = cur.article_id) AND (content_hash = cur.content_hash) AND (generation = g.generation))
+                                    Heap Fetches: 56
+          ->  Index Scan using rag_article_documents_pkey on rag_article_documents d  (cost=0.31..0.96 rows=1 width=96) (actual time=0.002..0.002 rows=0 loops=3000)
+                Index Cond: ((article_id = g.article_id) AND (content_hash = g.content_hash))
+                Filter: ((document_json ->> 'source_domain'::text) = ANY ('{d0.example,d1.example,d2.example,d3.example,d4.example,d5.example,d6.example,d7.example,d8.example,d9.example}'::text[]))
+                Rows Removed by Filter: 1
+  ->  Sort  (cost=0.04..0.04 rows=1 width=132) (actual time=27.394..27.396 rows=10 loops=1)
+        Sort Key: scored.distance, ((scored.article_id)::text), scored.chunk_index
+        Sort Method: top-N heapsort  Memory: 30kB
+        ->  CTE Scan on scored  (cost=0.00..0.03 rows=1 width=132) (actual time=1.508..27.281 rows=300 loops=1)
+Planning Time: 5.606 ms
+Execution Time: 27.608 ms
