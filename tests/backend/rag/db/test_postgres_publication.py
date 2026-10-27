@@ -14,6 +14,8 @@ from backend.rag.domain.chunking import chunk_document
 from backend.rag.domain.embedding import EmbeddingIdentity
 from backend.rag.domain.staging import StageRequest
 from backend.rag.infra.embeddings.fake_embeddings import FakeEmbeddings
+from backend.rag.infra.postgres.connection import StorageOperationError
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.postgres.publication import PostgresPublication, Publication
 from backend.rag.infra.postgres.staging import (
     IncompleteGenerationError,
@@ -29,7 +31,7 @@ type Metadata = Callable[[ArticleDocument], ArticleEnrichment]
 def stage(url: str, article: ArticleDocument) -> int:
     chunks = chunk_document(article)
     vectors = tuple(FakeEmbeddings().embed(chunk.content) for chunk in chunks)
-    return PostgresStaging(url).stage(
+    return PostgresStaging(rag_engine(url)).stage(
         StageRequest(article, EmbeddingIdentity(), chunks, vectors)
     )
 
@@ -91,14 +93,14 @@ def failing_trigger(url: str, table: str, condition: str) -> Generator[None]:
 def test_publication_commits_ready_metadata_and_pointer_with_owner_fence(
     database_url: str, make_article: Factory, make_metadata: Metadata
 ) -> None:
-    store = PostgresRagStore(database_url)
+    store = PostgresRagStore(rag_engine(database_url))
     article = make_article("Fenced publication article")
     store.persist_article(article)
     generation = stage(database_url, article)
     job = store.enqueue_job(article.article_id, article.content_hash, "v1", "v1", "v1")
     claim = store.claim_job(job)
     assert claim is not None
-    publisher = PostgresPublication(database_url)
+    publisher = PostgresPublication(rag_engine(database_url))
     metadata = make_metadata(article)
     assert not publisher.publish(Publication(job, claim + 1, generation, metadata))
     assert publisher.publish(Publication(job, claim, generation, metadata))
@@ -109,7 +111,7 @@ def test_publication_commits_ready_metadata_and_pointer_with_owner_fence(
 def test_expired_lease_owner_cannot_publish_after_reclaim(
     database_url: str, make_article: Factory, make_metadata: Metadata
 ) -> None:
-    store = PostgresRagStore(database_url)
+    store = PostgresRagStore(rag_engine(database_url))
     article = make_article("Lease fencing article")
     store.persist_article(article)
     generation = stage(database_url, article)
@@ -117,7 +119,7 @@ def test_expired_lease_owner_cannot_publish_after_reclaim(
     worker_a = store.claim_job(job)
     assert worker_a is not None
     assert store.claim_job(job) is None
-    publisher = PostgresPublication(database_url)
+    publisher = PostgresPublication(rag_engine(database_url))
     metadata = make_metadata(article)
     expire(database_url, job)
     # Expiry without reclaim: A no longer owns the job.
@@ -136,7 +138,7 @@ def test_expired_lease_owner_cannot_publish_after_reclaim(
 def test_concurrent_claims_have_exactly_one_winner(
     database_url: str, make_article: Factory
 ) -> None:
-    store = PostgresRagStore(database_url)
+    store = PostgresRagStore(rag_engine(database_url))
     article = make_article("Concurrent claim article")
     store.persist_article(article)
     workers = 8
@@ -159,7 +161,7 @@ def test_concurrent_claims_have_exactly_one_winner(
 def test_interrupted_publication_rolls_back_and_retry_succeeds(
     database_url: str, make_article: Factory, make_metadata: Metadata
 ) -> None:
-    store = PostgresRagStore(database_url)
+    store = PostgresRagStore(rag_engine(database_url))
     article = make_article("Interrupted publication article")
     store.persist_article(article)
     generation = stage(database_url, article)
@@ -168,12 +170,13 @@ def test_interrupted_publication_rolls_back_and_retry_succeeds(
     assert claim is not None
     before = snapshot(database_url, job, article)
     request = Publication(job, claim, generation, make_metadata(article))
-    publisher = PostgresPublication(database_url)
+    publisher = PostgresPublication(rag_engine(database_url))
     with (
         failing_trigger(database_url, "rag_enrichment_versions", "TRUE"),
-        pytest.raises(RaiseException),
+        pytest.raises(StorageOperationError) as failed,
     ):
         _ = publisher.publish(request)
+    assert isinstance(failed.value.__cause__, RaiseException)
     assert snapshot(database_url, job, article) == before
     assert publisher.publish(request)
     assert snapshot(database_url, job, article)[:4] == ("READY", claim, generation, 1)
@@ -186,13 +189,14 @@ def test_interrupted_staging_leaves_no_rows_and_retry_is_idempotent(
     assert len(chunk_document(article)) > 1
     rows = """SELECT (SELECT count(*) FROM rag_index_generations WHERE article_id = %s)
         + (SELECT count(*) FROM rag_chunks WHERE article_id = %s)"""
-    PostgresRagStore(database_url).persist_article(article)
+    PostgresRagStore(rag_engine(database_url)).persist_article(article)
     condition = f"NEW.chunk_index = 1 AND NEW.article_id = '{article.article_id}'"
     with (
         failing_trigger(database_url, "rag_chunks", condition),
-        pytest.raises(RaiseException),
+        pytest.raises(StorageOperationError) as failed,
     ):
         _ = stage(database_url, article)
+    assert isinstance(failed.value.__cause__, RaiseException)
     with psycopg.connect(database_url) as connection:
         count = connection.execute(
             rows.encode(), (article.article_id, article.article_id)
@@ -200,13 +204,13 @@ def test_interrupted_staging_leaves_no_rows_and_retry_is_idempotent(
     assert count == (0,)
     generation = stage(database_url, article)
     assert stage(database_url, article) == generation
-    assert PostgresStaging(database_url).activate(generation)
+    assert PostgresStaging(rag_engine(database_url)).activate(generation)
 
 
 def test_corpus_flip_is_all_or_nothing_when_a_generation_is_incomplete(
     database_url: str, make_article: Factory
 ) -> None:
-    store = PostgresRagStore(database_url)
+    store = PostgresRagStore(rag_engine(database_url))
     first = make_article("Complete corpus member")
     second = make_article("Damaged corpus member")
     for article in (first, second):
@@ -216,7 +220,7 @@ def test_corpus_flip_is_all_or_nothing_when_a_generation_is_incomplete(
         _ = connection.execute(
             "DELETE FROM rag_chunks WHERE generation = %s", (generations[1],)
         )
-    staging = PostgresStaging(database_url)
+    staging = PostgresStaging(rag_engine(database_url))
     assert not staging.activate(generations[1])
     with pytest.raises(IncompleteGenerationError):
         _ = staging.activate_all(generations)

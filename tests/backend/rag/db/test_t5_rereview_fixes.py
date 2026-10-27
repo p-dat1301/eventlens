@@ -24,6 +24,7 @@ from backend.rag.domain.retrieval import (
     CHUNK_NAMESPACE,
     RetrievalAccessDeniedError,
 )
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.postgres.store import PostgresRagStore
 from backend.rag.infra.retrieval.postgres_retrieval import PostgresRetrievalStore
 from retrieval_support import (
@@ -90,10 +91,12 @@ def revoke_during(store: PausingStore, **query: object) -> MutableAccess:
 def test_r5_revoked_during_metadata_read_denies_filter_unavailable_return(
     retrieval_url: str,
 ) -> None:
-    PostgresRagStore(retrieval_url).persist_article(
+    PostgresRagStore(rag_engine(retrieval_url)).persist_article(
         article("Harbor crane inspection closes the gate.")
     )  # no READY metadata -> this query would be filter_unavailable
-    store = PausingStore(PostgresRetrievalStore(retrieval_url), "metadata_eligibility")
+    store = PausingStore(
+        PostgresRetrievalStore(rag_engine(retrieval_url)), "metadata_eligibility"
+    )
 
     access = revoke_during(store, topic_filters=("transportation",))
 
@@ -103,7 +106,7 @@ def test_r5_revoked_during_metadata_read_denies_filter_unavailable_return(
 def test_r5_revoked_during_zero_hit_lexical_read_denies_empty_return(
     retrieval_url: str,
 ) -> None:
-    PostgresRagStore(retrieval_url).persist_article(
+    PostgresRagStore(rag_engine(retrieval_url)).persist_article(
         article("Completely unrelated bakery opening news.", title="Bakery news")
     )  # unfiltered query "harbor" -> zero hits (title must not match either)
     method = next(
@@ -111,7 +114,7 @@ def test_r5_revoked_during_zero_hit_lexical_read_denies_empty_return(
         for name in ("lexical_chunks", "lexical_documents")
         if hasattr(PostgresRetrievalStore, name)
     )
-    store = PausingStore(PostgresRetrievalStore(retrieval_url), method)
+    store = PausingStore(PostgresRetrievalStore(rag_engine(retrieval_url)), method)
 
     access = revoke_during(store)
 
@@ -152,13 +155,13 @@ def test_r6_per_article_cut_uses_frozen_chunk_id_tie_break(
     rng = random.Random(6)  # noqa: S311 - deterministic shuffled insert order
     documents = [tied_article(UUID(int=rng.getrandbits(128))) for _ in range(4)]
     rng.shuffle(documents)
-    store = PostgresRagStore(retrieval_url)
+    store = PostgresRagStore(rag_engine(retrieval_url))
     for document in documents:
         store.persist_article(document)
 
-    result = service(PostgresRetrievalStore(retrieval_url), embeddings=None).execute(
-        briefing("harborword"), CALLER, control(), LEXICAL_NO_RERANK
-    )
+    result = service(
+        PostgresRetrievalStore(rag_engine(retrieval_url)), embeddings=None
+    ).execute(briefing("harborword"), CALLER, control(), LEXICAL_NO_RERANK)
 
     by_id = {a.article_id: a for a in result.articles}
     assert set(by_id) == {d.article_id for d in documents}

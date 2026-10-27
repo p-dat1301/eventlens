@@ -4,13 +4,13 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from uuid import uuid4
 
-from psycopg.rows import scalar_row
 from pydantic import TypeAdapter
+from sqlalchemy import Engine
 
 from backend.rag.domain.article_document import ArticleDocument
 from backend.rag.domain.embedding import EmbeddingIdentity
 from backend.rag.domain.staging import StageRequest
-from backend.rag.infra.postgres.connection import connect
+from backend.rag.infra.postgres.engine import execute, scalar, scalars, transaction
 
 _COMPLETE = """staged.expected_chunks > 0
     AND staged.expected_chunks = (SELECT count(*) FROM rag_chunks chunk
@@ -37,16 +37,16 @@ class DuplicateArticleGenerationError(RuntimeError):
 class PostgresStaging:
     """Stage complete generations idempotently, never expose incomplete chunks."""
 
-    database_url: str
+    engine: Engine
 
     def find_complete(
         self, article: ArticleDocument, identity: EmbeddingIdentity
     ) -> int | None:
         """Return a reusable complete generation for this exact embedding key."""
-        with connect(self.database_url) as connection:
-            row = (
-                connection.cursor(row_factory=scalar_row)
-                .execute(
+        with transaction(self.engine) as connection:
+            row = scalar(
+                execute(
+                    connection,
                     f"""SELECT staged.generation FROM rag_index_generations staged
                     WHERE staged.article_id = %s AND staged.content_hash = %s
                     AND staged.embedding_model = %s AND staged.embedding_version = %s
@@ -65,7 +65,6 @@ class PostgresStaging:
                         identity.corpus_generation,
                     ),
                 )
-                .fetchone()
             )
         adapter: TypeAdapter[int | None] = TypeAdapter(int | None)
         return adapter.validate_python(row)
@@ -78,10 +77,10 @@ class PostgresStaging:
         """
         article = request.article
         identity = request.identity
-        with connect(self.database_url) as connection:
-            row = (
-                connection.cursor(row_factory=scalar_row)
-                .execute(
+        with transaction(self.engine) as connection:
+            row = scalar(
+                execute(
+                    connection,
                     """INSERT INTO rag_index_generations (
                     article_id, content_hash, embedding_model, embedding_version,
                     embedding_dimension, chunker_version, normalization_version,
@@ -104,11 +103,11 @@ class PostgresStaging:
                         len(request.chunks),
                     ),
                 )
-                .fetchone()
             )
             generation = TypeAdapter(int).validate_python(row)
             for chunk, vector in zip(request.chunks, request.vectors, strict=True):
-                _ = connection.execute(
+                _ = execute(
+                    connection,
                     """INSERT INTO rag_chunks (
                         chunk_id, article_id, content_hash, generation, chunk_index,
                         start_offset, end_offset, content, fingerprint, embedding
@@ -144,43 +143,53 @@ class PostgresStaging:
         was corrected or tombstoned after staging are skipped, never activated.
         """
         requested = list(generations)
-        with connect(self.database_url) as connection:
-            cursor = connection.cursor(row_factory=scalar_row)
+        with transaction(self.engine) as connection:
             incomplete = TypeAdapter(list[int]).validate_python(
-                cursor.execute(
-                    f"""SELECT staged.generation FROM rag_index_generations staged
+                scalars(
+                    execute(
+                        connection,
+                        f"""SELECT staged.generation FROM rag_index_generations staged
                     WHERE staged.generation = ANY(%s) AND NOT ({_COMPLETE})""",  # noqa: S608
-                    (requested,),
-                ).fetchall()
+                        (requested,),
+                    )
+                )
             )
             if incomplete:
                 raise IncompleteGenerationError(incomplete)
             eligible = TypeAdapter(list[int]).validate_python(
-                cursor.execute(
-                    """SELECT staged.generation FROM rag_article_current current
+                scalars(
+                    execute(
+                        connection,
+                        """SELECT staged.generation FROM rag_article_current current
                     JOIN rag_index_generations staged USING (article_id, content_hash)
                     WHERE staged.generation = ANY(%s)
                     AND current.tombstoned_at IS NULL
                     FOR UPDATE OF current, staged""",
-                    (requested,),
-                ).fetchall()
+                        (requested,),
+                    )
+                )
             )
             duplicates = TypeAdapter(list[str]).validate_python(
-                cursor.execute(
-                    """SELECT article_id::text FROM rag_index_generations
+                scalars(
+                    execute(
+                        connection,
+                        """SELECT article_id::text FROM rag_index_generations
                     WHERE generation = ANY(%s)
                     GROUP BY article_id HAVING count(*) > 1""",
-                    (eligible,),
-                ).fetchall()
+                        (eligible,),
+                    )
+                )
             )
             if duplicates:
                 raise DuplicateArticleGenerationError(duplicates)
-            _ = cursor.execute(
+            _ = execute(
+                connection,
                 """UPDATE rag_index_generations SET status = 'ACTIVE'
                 WHERE generation = ANY(%s)""",
                 (eligible,),
             )
-            _ = cursor.execute(
+            _ = execute(
+                connection,
                 """UPDATE rag_article_current current
                 SET active_index_generation = staged.generation
                 FROM rag_index_generations staged

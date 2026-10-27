@@ -33,8 +33,8 @@ from backend.rag.domain.retrieval import QueryControl, RetrievalResult
 from backend.rag.infra.access.fixture_access import FixtureAccessPolicy
 from backend.rag.infra.embeddings.fake_embeddings import FakeEmbeddings
 from backend.rag.infra.llm.fixture_tokens import FixtureTokenCounter
-from backend.rag.infra.postgres.connection import connect
-from backend.rag.infra.postgres.migrations import migrate
+from backend.rag.infra.postgres.alembic_runner import upgrade_head
+from backend.rag.infra.postgres.engine import execute, rag_engine, scalar, transaction
 from backend.rag.infra.postgres.publication import PostgresPublication, Publication
 from backend.rag.infra.postgres.staging import PostgresStaging
 from backend.rag.infra.postgres.store import PostgresRagStore
@@ -79,7 +79,7 @@ class Question:
 
 def _service(url: str, reranker: RerankerPort | None) -> RetrieveEvidence:
     return RetrieveEvidence(
-        store=PostgresRetrievalStore(url),
+        store=PostgresRetrievalStore(rag_engine(url)),
         embeddings=FakeEmbeddings(),
         embedding_identity=EmbeddingIdentity(),
         reranker=reranker,
@@ -167,7 +167,7 @@ def summarize(result: RetrievalResult) -> dict[str, object]:
 
 def _publish(url: str, document: ArticleDocument, metadata: ArticleEnrichment) -> None:
     """Real T4 primitives: enqueue -> claim -> stage -> fenced READY publish."""
-    store = PostgresRagStore(url)
+    store = PostgresRagStore(rag_engine(url))
     job = store.enqueue_job(
         document.article_id,
         document.content_hash,
@@ -180,23 +180,23 @@ def _publish(url: str, document: ArticleDocument, metadata: ArticleEnrichment) -
         msg = "fixture job could not be claimed"
         raise RuntimeError(msg)
     staged = EnsureGeneration(
-        PostgresStaging(url), FakeEmbeddings(), EmbeddingIdentity()
+        PostgresStaging(rag_engine(url)), FakeEmbeddings(), EmbeddingIdentity()
     ).execute(document)
-    _ = PostgresPublication(url).publish(
+    _ = PostgresPublication(rag_engine(url)).publish(
         Publication(job, claim, staged.generation, metadata)
     )
 
 
 def load_fixture_corpus(url: str, fixtures: Path) -> list[ArticleDocument]:
     """Migrate and persist the 30 fixture ArticleDocuments (lexical only)."""
-    migrate(url)
-    with connect(url) as connection:
-        row = connection.execute(
-            "SELECT count(*) FROM rag_article_documents"
-        ).fetchone()
-    if row is None or row[0] != 0:
+    _ = upgrade_head(url)
+    with transaction(rag_engine(url), read_only=True) as connection:
+        count = scalar(
+            execute(connection, "SELECT count(*) FROM rag_article_documents")
+        )
+    if count != 0:
         raise SmokeDatabaseNotEmptyError
-    store = PostgresRagStore(url)
+    store = PostgresRagStore(rag_engine(url))
     documents = [
         ArticleDocument.model_validate_json(path.read_text(encoding="utf-8"))
         for path in sorted((fixtures / "articles").glob("*.json"))
@@ -210,7 +210,7 @@ def enrich_fixture_corpus(
     url: str, fixtures: Path, documents: list[ArticleDocument]
 ) -> None:
     """Publish fixture READY metadata; NOT_READY articles get FAILED jobs."""
-    store = PostgresRagStore(url)
+    store = PostgresRagStore(rag_engine(url))
     for number, document in enumerate(documents, start=1):
         path = fixtures / f"enrichments/{number:02d}.json"
         metadata = ArticleEnrichment.model_validate_json(
@@ -224,8 +224,9 @@ def enrich_fixture_corpus(
                 metadata.model_version,
                 metadata.prompt_version,
             )
-            with connect(url) as connection:
-                _ = connection.execute(
+            with transaction(rag_engine(url)) as connection:
+                _ = execute(
+                    connection,
                     """UPDATE rag_enrichment_jobs SET status = 'FAILED'
                     WHERE job_id = %s""",
                     (job,),

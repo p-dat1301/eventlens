@@ -4,8 +4,10 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from uuid import UUID
 
+from sqlalchemy import Engine
+
 from backend.rag.domain.enrichment_lifecycle import PublishResult
-from backend.rag.infra.postgres.connection import connect
+from backend.rag.infra.postgres.engine import execute, first, transaction
 from backend.shared.contracts import ArticleEnrichment, EnrichmentStatus
 
 type LockedHook = Callable[[], None]
@@ -25,7 +27,7 @@ class Publication:
 class PostgresPublication:
     """Serialize current-content checks with job ownership and pointer update."""
 
-    database_url: str
+    engine: Engine
 
     def publish(self, request: Publication) -> bool:
         """Commit READY, metadata and active vector pointer together or not at all."""
@@ -44,8 +46,9 @@ class PostgresPublication:
         """
         if request.metadata.status is not EnrichmentStatus.READY:
             return PublishResult.LOST_OWNERSHIP
-        with connect(self.database_url) as connection:
-            row = connection.execute(
+        with transaction(self.engine) as connection:
+            row = execute(
+                connection,
                 """SELECT job.cancel_requested_generation IS NOT DISTINCT FROM
                     job.claim_generation
                 FROM rag_article_current current
@@ -71,14 +74,16 @@ class PostgresPublication:
                     request.metadata.model_version,
                     request.metadata.prompt_version,
                 ),
-            ).fetchone()
+            )
+            locked = first(row)
             if after_lock is not None:
                 after_lock()
-            if row is None:
+            if locked is None:
                 return PublishResult.LOST_OWNERSHIP
-            if row[0]:
+            if locked[0]:
                 return PublishResult.CANCELLED
-            changed = connection.execute(
+            changed = execute(
+                connection,
                 """UPDATE rag_enrichment_jobs
                 SET status = 'READY', lease_expires_at = NULL, failure_code = NULL,
                     updated_at = clock_timestamp()
@@ -89,12 +94,14 @@ class PostgresPublication:
             if changed != 1:
                 return PublishResult.LOST_OWNERSHIP
             metadata_json = request.metadata.model_dump_json()
-            _ = connection.execute(
+            _ = execute(
+                connection,
                 """INSERT INTO rag_enrichment_versions (job_id, generation, metadata)
                 VALUES (%s,%s,%s::jsonb)""",
                 (request.job_id, request.index_generation, metadata_json),
             )
-            _ = connection.execute(
+            _ = execute(
+                connection,
                 """INSERT INTO rag_enrichment_publications (
                     job_id, claim_generation, index_generation, article_id,
                     content_hash, enrichment_version, model_version, prompt_version,
@@ -114,18 +121,21 @@ class PostgresPublication:
             )
             # A newer identity replaces older READY metadata for this article; the
             # rows stay (history), only their eligibility changes.
-            _ = connection.execute(
+            _ = execute(
+                connection,
                 """UPDATE rag_enrichment_jobs SET status = 'STALE',
                     updated_at = clock_timestamp()
                 WHERE article_id = %s AND job_id <> %s AND status = 'READY'""",
                 (request.metadata.article_id, request.job_id),
             )
-            _ = connection.execute(
+            _ = execute(
+                connection,
                 """UPDATE rag_index_generations SET status = 'ACTIVE'
                 WHERE generation = %s""",
                 (request.index_generation,),
             )
-            _ = connection.execute(
+            _ = execute(
+                connection,
                 """UPDATE rag_article_current SET active_index_generation = %s
                 WHERE article_id = %s AND content_hash = %s""",
                 (

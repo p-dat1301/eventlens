@@ -16,6 +16,7 @@ from backend.rag.infra.diagnostics.vector_routes import (
     pgvector_version,
     unit_vector,
 )
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.retrieval.postgres_retrieval import PostgresRetrievalStore
 
 ARTICLES = 300
@@ -40,7 +41,7 @@ def test_exact_route_matches_brute_force_cosine_under_filters(
     domains = tuple(f"d{i}.example" for i in range(10))
     scope = RetrievalScope(domains, None, None, None)
 
-    hits = PostgresRetrievalStore(retrieval_url).vector_chunks(
+    hits = PostgresRetrievalStore(rag_engine(retrieval_url)).vector_chunks(
         query, EmbeddingIdentity(), scope, 10
     )
 

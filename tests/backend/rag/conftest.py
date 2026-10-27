@@ -14,14 +14,20 @@ from backend.rag.domain.article_document import (
     ArticleDocument,
     normalized_content_hash,
 )
-from backend.rag.infra.postgres.migrations import migrate
-from backend.rag.infra.postgres.store import PostgresRagStore
+from backend.rag.infra.postgres.engine import dispose_engines
 from backend.shared.contracts import ArticleEnrichment
+from schema_support import prepare_schema
 
-MIGRATIONS = Path(__file__).parents[3] / "src/backend/rag/infra/postgres/migrations"
 ENRICHMENT_FIXTURE = Path(__file__).parents[3] / "fixtures/rag/enrichments/01.json"
 
 type ArticleFactory = Callable[[str], ArticleDocument]
+
+
+@pytest.fixture(autouse=True)
+def _dispose_engines() -> Generator[None]:
+    """Close pooled connections so per-test schemas never exhaust the server."""
+    yield
+    dispose_engines()
 
 
 @pytest.fixture
@@ -29,7 +35,7 @@ def database_url() -> str:
     value = os.environ.get("EVENTLENS_RAG_DATABASE_URL")
     if value is None:
         pytest.skip("EVENTLENS_RAG_DATABASE_URL required for real PostgreSQL test")
-    PostgresRagStore(value).migrate(MIGRATIONS)
+    prepare_schema(value)
     return value
 
 
@@ -97,7 +103,7 @@ def retrieval_url(database_url: str) -> Generator[str]:
             sql.SQL("CREATE SCHEMA {}").format(sql.Identifier(schema))
         )
     scoped = make_conninfo(database_url, options=f"-c search_path={schema},public")
-    migrate(scoped)
+    prepare_schema(scoped)
     yield scoped
     with psycopg.connect(database_url, autocommit=True) as connection:
         _ = connection.execute(

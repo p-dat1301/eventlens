@@ -11,20 +11,41 @@ All embeddings are deterministic local fakes with 1536 dimensions.
 ## Local database commands
 
 All commands read `EVENTLENS_RAG_DATABASE_URL` and exit `3` with
-`rag_storage_unavailable` when PostgreSQL cannot be reached.
+`rag_storage_unavailable` when PostgreSQL cannot be reached, and `4` with
+`rag_storage_failed` when a statement fails and its transaction is rolled back
+(the message carries no SQL, values or connection string).
 
-- `eventlens-rag migrate` applies checksum-verified migrations in one transaction;
-  any failure rolls back schema changes and ledger rows together. Never edit an
-  applied migration: add a new numbered file instead.
-- The single migration SQL source is `infra/postgres/migrations/` (shipped in the
-  wheel and read at runtime via `importlib.resources`). File names and bytes are
-  frozen: `test_bundled_sql_preserves_original_migration_bytes` pins the file set
-  and the SHA-256 that existing ledgers recorded. Missing SQL fails before opening a database or reporting success.
+- Access goes through SQLAlchemy 2 (psycopg 3 is only the driver): one pooled
+  `Engine` per process (`infra/postgres/engine.py`), one short transaction per
+  adapter operation, never held across model, embedding or graph calls. Hot
+  statements (FTS, pgvector, `SKIP LOCKED`, fenced publication) keep their exact
+  reviewed SQL; ORM mappings (`infra/postgres/models.py`) never leave `rag.infra`.
+- Alembic is the only migration authority. `eventlens-rag migrate` runs
+  `alembic upgrade head` in one transaction under the migration advisory lock;
+  on an empty database the reviewed baseline `rag_0001_baseline` builds the
+  schema exactly as SQL 001–007 left it (catalog-tested). Revisions live in
+  `infra/postgres/revisions/` (packaged in the wheel); review every new revision
+  by hand, autogenerate does not see views, triggers, functions or pgvector
+  index options. Runtime never creates tables from ORM metadata.
+- Historical SQL `infra/postgres/migrations/001…007` and the
+  `rag_schema_migrations` ledger stay as read-only audit history. File names and
+  bytes are frozen (`test_bundled_sql_preserves_original_migration_bytes`); the
+  baseline records the same seven raw-byte SHA-256 values.
+- Databases built by the historical runner are refused by `migrate` and by the
+  worker (`rag_migration_failed`, nothing changed) until adopted explicitly:
+  back up, stop writers, `eventlens-rag preflight` (read-only: ledger, checksums,
+  catalog, data invariants), then `eventlens-rag adopt-legacy` (repeats the
+  checks under the lock and stamps the baseline in the same transaction; no
+  historical DDL runs, the ledger is untouched). Any failed check exits 1 with
+  `rag_adoption_refused` and changes nothing. Re-running either command on an
+  adopted database repeats the checks: consistent exits 0 with the same report
+  (`"ok": true, "adoptable": false`), any drift exits 1. API and worker never
+  stamp.
 - Untracked legacy tables (created before the migration ledger, e.g. `rag_chunks`
   without `generation`) stop `migrate` with `rag_migration_failed` and change
-  nothing. Existing pre-004 rows cannot be reconstructed from title/content alone:
-  migration stops until exact original ArticleDocuments are restored from an
-  approved source; never fabricate missing document fields.
+  nothing. Existing pre-004 rows cannot be reconstructed from title/content alone;
+  restore exact original ArticleDocuments from an approved source; never
+  fabricate missing document fields.
 - `eventlens-rag load-fixtures` persists `fixtures/rag/articles`; lexical FTS is
   available immediately, before any enrichment.
 - `eventlens-rag rebuild` stages fake-embedding generations for current articles
@@ -253,7 +274,7 @@ Make targets use a separate `eventlens_rag` database on the same server
 ```sh
 make infra
 make rag-db-create      # idempotent CREATE DATABASE eventlens_rag
-make rag-migrate
+make rag-migrate        # Alembic; a pre-Alembic DB needs rag-preflight + rag-adopt
 make rag-load-fixtures
 make rag-rebuild        # second run reuses every generation
 ```
@@ -268,7 +289,10 @@ requires the owner's explicit approval.
 
 - `make rag-db-test` runs `tests/backend/{rag,event_pipeline,crud}` and
   `tests/architecture` (including the T4 rag-worker CLI flows) against an isolated, auto-removed `pgvector/pgvector:0.8.0-pg17`
-  container; any skipped test fails the run. T4/T5 DB tests each use a fresh schema
+  container, once on a fresh Alembic schema and once on an adopted legacy schema
+  (`EVENTLENS_RAG_TEST_SCHEMA_PATH=fresh|adopted`); any skipped test fails the run.
+- `make rag-adopt-smoke` runs the legacy adoption path end to end (historical
+  runner, refusal, preflight, adopt, migrate, rebuild, worker, rag-api citation). T4/T5 DB tests each use a fresh schema
   (T5: `retrieval_url` fixture in `tests/backend/rag/conftest.py`).
 - `make gate-g1` runs the G1 technical checks (worker regression, migrate,
   load-fixtures, rebuild twice with generation reuse, DB suite, unavailable-DB

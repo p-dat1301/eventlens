@@ -44,6 +44,7 @@ from backend.rag.domain.retrieval import (
 from backend.rag.infra.access.fixture_access import FixtureAccessPolicy
 from backend.rag.infra.embeddings.fake_embeddings import FakeEmbeddings
 from backend.rag.infra.llm.fake_enricher import FakeArticleEnricher
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.postgres.staging import PostgresStaging
 from backend.rag.infra.postgres.store import PostgresRagStore
 from backend.rag.infra.repositories.postgres_enrichment import (
@@ -77,7 +78,7 @@ VECTOR_ONLY = RetrievalOptions(lexical_enabled=False)
 
 
 def persist(url: str, *documents: ArticleDocument) -> None:
-    store = PostgresRagStore(url)
+    store = PostgresRagStore(rag_engine(url))
     for document in documents:
         store.persist_article(document)
 
@@ -92,7 +93,7 @@ def retrieve(
     options: RetrievalOptions | None = None,
     **overrides: object,
 ) -> RetrievalResult:
-    return service(PostgresRetrievalStore(url)).execute(
+    return service(PostgresRetrievalStore(rag_engine(url))).execute(
         briefing(query, **overrides), CALLER, control(), options
     )
 
@@ -142,7 +143,7 @@ def test_pending_failed_and_stale_enrichment_keep_lexical_hits(
 ) -> None:
     pending, failed, corrected = harbor("one"), harbor("two"), harbor("three")
     persist(retrieval_url, pending, failed, corrected)
-    store = PostgresRagStore(retrieval_url)
+    store = PostgresRagStore(rag_engine(retrieval_url))
     _ = store.enqueue_job(pending.article_id, pending.content_hash, "v1", "v1", "v1")
     failed_job = store.enqueue_job(
         failed.article_id, failed.content_hash, "v1", "v1", "v1"
@@ -242,7 +243,7 @@ def test_publication_bounds_are_inclusive_exclusive_and_exclude_nulls(
         _ = publish_ready(retrieval_url, document)
 
     def window(**bounds: object) -> set[str]:
-        result = service(PostgresRetrievalStore(retrieval_url)).execute(
+        result = service(PostgresRetrievalStore(rag_engine(retrieval_url))).execute(
             briefing("harbor crane", **bounds), CALLER, control(), options
         )
         names = {v.article_id: k for k, v in docs.items()}
@@ -259,7 +260,7 @@ def test_equal_bounds_are_an_empty_range_without_storage_work(
     retrieval_url: str,
 ) -> None:
     persist(retrieval_url, harbor(published=T0))
-    store = PostgresRetrievalStore(retrieval_url)
+    store = PostgresRetrievalStore(rag_engine(retrieval_url))
 
     result = service(store).execute(
         briefing("harbor", published_after=T0, published_before=T0),
@@ -291,7 +292,7 @@ def test_source_domain_filter_applies_in_each_branch_without_backfill(
 
 def test_fixture_denial_raises_before_any_storage_call(retrieval_url: str) -> None:
     persist(retrieval_url, harbor())
-    store = PostgresRetrievalStore(retrieval_url)
+    store = PostgresRetrievalStore(rag_engine(retrieval_url))
 
     with pytest.raises(RetrievalAccessDeniedError):
         _ = service(store, access=MutableAccess(revoked=True)).execute(
@@ -309,9 +310,9 @@ def test_incompatible_corpus_generation_finds_no_vectors(retrieval_url: str) -> 
     _ = publish_ready(retrieval_url, document)
     other = EmbeddingIdentity(corpus_generation="rag-fixture-corpus.v2")
 
-    result = service(PostgresRetrievalStore(retrieval_url), identity=other).execute(
-        briefing("harbor crane"), CALLER, control()
-    )
+    result = service(
+        PostgresRetrievalStore(rag_engine(retrieval_url)), identity=other
+    ).execute(briefing("harbor crane"), CALLER, control())
 
     assert result.vector_branch_status is VectorBranchStatus.EXECUTED
     assert result.retrieval_mode is RetrievalMode.LEXICAL_ONLY
@@ -330,7 +331,7 @@ def test_incompatible_query_embedding_falls_back_to_lexical_only(
     document = harbor()
     persist(retrieval_url, document)
     _ = publish_ready(retrieval_url, document)
-    store = PostgresRetrievalStore(retrieval_url)
+    store = PostgresRetrievalStore(rag_engine(retrieval_url))
 
     result = service(store, embeddings=WrongVersionEmbeddings()).execute(
         briefing("harbor crane"), CALLER, control()
@@ -349,7 +350,7 @@ def test_staged_and_incomplete_generations_are_never_searched(
     persist(retrieval_url, staged_only, incomplete)
     _ = stage(retrieval_url, staged_only)  # STAGING, never activated
     generation = stage(retrieval_url, incomplete)
-    assert PostgresStaging(retrieval_url).activate(generation)
+    assert PostgresStaging(rag_engine(retrieval_url)).activate(generation)
     vector_only = retrieve(retrieval_url, options=VECTOR_ONLY)
     assert ids(vector_only) == {incomplete.article_id}
 
@@ -400,7 +401,7 @@ def race(url: str, mutate: Callable[[], None], **overrides: object) -> Retrieval
         return reverse_script(request)
 
     return service(
-        PostgresRetrievalStore(url), reranker=ScriptedReranker(script)
+        PostgresRetrievalStore(rag_engine(url)), reranker=ScriptedReranker(script)
     ).execute(briefing("harbor crane", **overrides), CALLER, control())
 
 
@@ -424,7 +425,9 @@ def test_tombstone_during_retrieval_drops_article(retrieval_url: str) -> None:
 
     result = race(
         retrieval_url,
-        lambda: PostgresRagStore(retrieval_url).tombstone_article(gone.article_id),
+        lambda: PostgresRagStore(rag_engine(retrieval_url)).tombstone_article(
+            gone.article_id
+        ),
     )
 
     assert ids(result) == {stable.article_id}
@@ -457,14 +460,15 @@ def test_vector_only_candidate_from_replaced_generation_is_dropped(
     def reactivate() -> None:
         other = EmbeddingIdentity(corpus_generation="rag-fixture-corpus.v9")
         generation = stage(retrieval_url, document, other)
-        assert PostgresStaging(retrieval_url).activate(generation)
+        assert PostgresStaging(rag_engine(retrieval_url)).activate(generation)
 
     def script(request: RerankRequest) -> RerankOutput:
         reactivate()
         return reverse_script(request)
 
     result = service(
-        PostgresRetrievalStore(retrieval_url), reranker=ScriptedReranker(script)
+        PostgresRetrievalStore(rag_engine(retrieval_url)),
+        reranker=ScriptedReranker(script),
     ).execute(briefing("harbor crane"), CALLER, control(), VECTOR_ONLY)
 
     assert result.empty_reason is EmptyReason.DROPPED_AT_FINAL_CHECK
@@ -480,7 +484,7 @@ def test_final_check_is_batched_without_n_plus_one(
         _ = publish_ready(retrieval_url, document)
     counts: list[int] = []
     for limit in (3, 20):
-        store = PostgresRetrievalStore(retrieval_url)
+        store = PostgresRetrievalStore(rag_engine(retrieval_url))
         result = service(store).execute(
             briefing("harbor crane", result_limit=limit), CALLER, control(), options
         )
@@ -497,7 +501,7 @@ def test_final_check_is_batched_without_n_plus_one(
 
 def test_pre_cancelled_query_starts_no_work(retrieval_url: str) -> None:
     persist(retrieval_url, harbor())
-    store = PostgresRetrievalStore(retrieval_url)
+    store = PostgresRetrievalStore(rag_engine(retrieval_url))
     ctl = control()
     ctl.cancel()
 
@@ -508,7 +512,7 @@ def test_pre_cancelled_query_starts_no_work(retrieval_url: str) -> None:
 
 def test_cancel_during_embedding_starts_no_vector_query(retrieval_url: str) -> None:
     persist(retrieval_url, harbor())
-    store = PostgresRetrievalStore(retrieval_url)
+    store = PostgresRetrievalStore(rag_engine(retrieval_url))
     ctl = control()
 
     class CancellingEmbeddings:
@@ -533,7 +537,7 @@ def test_embedding_provider_failure_is_lexical_only_not_semantic(
             raise TimeoutError(text[:0] + "provider timeout")
 
     result = service(
-        PostgresRetrievalStore(retrieval_url), embeddings=BrokenEmbeddings()
+        PostgresRetrievalStore(rag_engine(retrieval_url)), embeddings=BrokenEmbeddings()
     ).execute(briefing("harbor"), CALLER, control())
 
     assert result.vector_branch_status is VectorBranchStatus.EMBEDDING_FAILED
@@ -545,14 +549,14 @@ def test_missing_schema_is_typed_storage_failure_not_empty(database_url: str) ->
     broken = make_conninfo(database_url, options="-c search_path=t5_missing_schema")
 
     with pytest.raises(RetrievalStorageError):
-        _ = service(PostgresRetrievalStore(broken)).execute(
+        _ = service(PostgresRetrievalStore(rag_engine(broken))).execute(
             briefing("harbor"), CALLER, control()
         )
 
 
 def test_unreachable_database_is_typed_storage_failure() -> None:
     store = PostgresRetrievalStore(
-        "postgresql://nobody:secret@127.0.0.1:1/missing?connect_timeout=1"
+        rag_engine("postgresql://nobody:secret@127.0.0.1:1/missing?connect_timeout=1")
     )
     retrieve_evidence: RetrieveEvidence = service(store)
 
@@ -577,7 +581,7 @@ def test_rerank_degradation_is_not_used_for_storage_errors(
 
     with pytest.raises(RetrievalStorageError):
         _ = service(
-            PostgresRetrievalStore(retrieval_url),
+            PostgresRetrievalStore(rag_engine(retrieval_url)),
             reranker=ScriptedReranker(break_storage),
         ).execute(briefing("harbor"), CALLER, control())
 
@@ -594,7 +598,7 @@ def test_end_to_end_ingest_enrich_filtered_retrieval(retrieval_url: str) -> None
     identity = EnrichmentIdentity(
         ENRICHMENT_VERSION, enricher.model_version, enricher.prompt_version
     )
-    repository = PostgresEnrichmentRepository(retrieval_url)
+    repository = PostgresEnrichmentRepository(rag_engine(retrieval_url))
     receipt = IngestArticle(
         repository, FixtureAccessPolicy(), identity, lambda: datetime.now(UTC)
     ).execute(upstream, CALLER)
@@ -606,7 +610,9 @@ def test_end_to_end_ingest_enrich_filtered_retrieval(retrieval_url: str) -> None
         repository=repository,
         enricher=enricher,
         generations=EnsureGeneration(
-            PostgresStaging(retrieval_url), FakeEmbeddings(), EmbeddingIdentity()
+            PostgresStaging(rag_engine(retrieval_url)),
+            FakeEmbeddings(),
+            EmbeddingIdentity(),
         ),
         policy=bundled_retry_policy(),
         clock=lambda: datetime.now(UTC),

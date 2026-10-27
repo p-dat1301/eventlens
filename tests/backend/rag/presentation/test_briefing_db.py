@@ -24,7 +24,7 @@ from backend.rag.composition import (
     runtime_from_environment,
 )
 from backend.rag.domain.retrieval import RetrievalStorageError
-from backend.rag.infra.postgres.migrations import migrate
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.postgres.store import PostgresRagStore
 from backend.rag.infra.repositories.postgres_source_references import (
     PostgresSourceReferences,
@@ -38,6 +38,7 @@ from briefing_support import (
     revise,
     source_of,
 )
+from schema_support import prepare_schema
 
 pytestmark = pytest.mark.anyio
 EXPIRE_ALL = (
@@ -58,8 +59,8 @@ def rag_url() -> Generator[str]:
             sql.SQL("CREATE SCHEMA {}").format(sql.Identifier(schema))
         )
     url = make_conninfo(base, options=f"-c search_path={schema},public")
-    migrate(url)
-    store = PostgresRagStore(url)
+    prepare_schema(url)
+    store = PostgresRagStore(rag_engine(url))
     for document in load_fixture_articles(FIXTURES):
         store.persist_article(document)
     yield url
@@ -71,7 +72,8 @@ def rag_url() -> Generator[str]:
 
 def _runtime(url: str) -> BriefingRuntime:
     return compose_briefing(
-        PostgresRetrievalStore(url), references=PostgresSourceReferences(url)
+        PostgresRetrievalStore(rag_engine(url)),
+        references=PostgresSourceReferences(rag_engine(url)),
     )
 
 
@@ -145,7 +147,7 @@ async def test_tombstoned_source_is_stale(rag_url: str) -> None:
     article = next(
         d for d in load_fixture_articles(FIXTURES) if str(d.canonical_url) == url
     )
-    PostgresRagStore(rag_url).tombstone_article(article.article_id)
+    PostgresRagStore(rag_engine(rag_url)).tombstone_article(article.article_id)
 
     # When
     async with _client(runtime) as client:
@@ -163,7 +165,7 @@ async def test_new_revision_makes_reference_stale(rag_url: str) -> None:
     article = next(
         d for d in load_fixture_articles(FIXTURES) if str(d.canonical_url) == url
     )
-    PostgresRagStore(rag_url).persist_article(revise(article))
+    PostgresRagStore(rag_engine(rag_url)).persist_article(revise(article))
 
     # When
     async with _client(runtime) as client:
@@ -191,7 +193,9 @@ async def test_expired_reference_is_not_found(rag_url: str) -> None:
 
 def test_unreachable_reference_store_is_typed() -> None:
     # Given: a closed local port (no network beyond loopback).
-    references = PostgresSourceReferences("postgresql://nobody:none@127.0.0.1:1/none")
+    references = PostgresSourceReferences(
+        rag_engine("postgresql://nobody:none@127.0.0.1:1/none")
+    )
 
     # When / Then
     with pytest.raises(RetrievalStorageError):

@@ -44,6 +44,7 @@ from backend.rag.domain.retrieval import (
 from backend.rag.domain.staging import StageRequest
 from backend.rag.infra.embeddings.fake_embeddings import FakeEmbeddings
 from backend.rag.infra.llm.fixture_tokens import FixtureTokenCounter
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.postgres.publication import PostgresPublication, Publication
 from backend.rag.infra.postgres.staging import PostgresStaging
 from backend.rag.infra.postgres.store import PostgresRagStore
@@ -410,7 +411,7 @@ def stage(
 ) -> int:
     chunks = chunk_document(document)
     vectors = tuple(FakeEmbeddings().embed(chunk.content) for chunk in chunks)
-    return PostgresStaging(url).stage(
+    return PostgresStaging(rag_engine(url)).stage(
         StageRequest(document, identity or EmbeddingIdentity(), chunks, vectors)
     )
 
@@ -420,7 +421,7 @@ def publish_ready(
 ) -> tuple[UUID, int]:
     """Real T4 path: enqueue -> claim -> stage -> fenced READY publication."""
     metadata = metadata or metadata_for(document)
-    store = PostgresRagStore(url)
+    store = PostgresRagStore(rag_engine(url))
     job = store.enqueue_job(
         document.article_id,
         document.content_hash,
@@ -431,7 +432,7 @@ def publish_ready(
     claim = store.claim_job(job)
     assert claim is not None
     generation = stage(url, document)
-    assert PostgresPublication(url).publish(
+    assert PostgresPublication(rag_engine(url)).publish(
         Publication(job, claim, generation, metadata)
     )
     return job, generation

@@ -9,6 +9,7 @@ from backend.rag.domain.chunking import chunk_document
 from backend.rag.domain.embedding import EmbeddingIdentity
 from backend.rag.domain.staging import StageRequest
 from backend.rag.infra.embeddings.fake_embeddings import FakeEmbeddings
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.postgres.publication import PostgresPublication, Publication
 from backend.rag.infra.postgres.staging import (
     DuplicateArticleGenerationError,
@@ -24,7 +25,9 @@ type Metadata = Callable[[ArticleDocument], ArticleEnrichment]
 def stage(url: str, article: ArticleDocument, identity: EmbeddingIdentity) -> int:
     chunks = chunk_document(article)
     vectors = tuple(FakeEmbeddings().embed(chunk.content) for chunk in chunks)
-    return PostgresStaging(url).stage(StageRequest(article, identity, chunks, vectors))
+    return PostgresStaging(rag_engine(url)).stage(
+        StageRequest(article, identity, chunks, vectors)
+    )
 
 
 def snapshot(url: str, job: UUID) -> tuple[str, int, int | None, int]:
@@ -45,7 +48,7 @@ def snapshot(url: str, job: UUID) -> tuple[str, int, int | None, int]:
 def test_reenqueue_stale_job_after_a_b_a_fences_old_owner(
     database_url: str, make_article: Factory, make_metadata: Metadata
 ) -> None:
-    store = PostgresRagStore(database_url)
+    store = PostgresRagStore(rag_engine(database_url))
     original = make_article("Original report")
     correction = make_article("Corrected report").model_copy(
         update={"article_id": original.article_id}
@@ -72,7 +75,7 @@ def test_reenqueue_stale_job_after_a_b_a_fences_old_owner(
     second_claim = store.claim_job(job)
     assert second_claim == first_claim + 1
     assert second_claim is not None
-    publisher = PostgresPublication(database_url)
+    publisher = PostgresPublication(rag_engine(database_url))
     metadata = make_metadata(original)
     assert not publisher.publish(Publication(job, first_claim, generation, metadata))
     assert publisher.publish(Publication(job, second_claim, generation, metadata))
@@ -81,7 +84,7 @@ def test_reenqueue_stale_job_after_a_b_a_fences_old_owner(
 def test_reenqueue_stale_ready_job_replaces_old_publication(
     database_url: str, make_article: Factory, make_metadata: Metadata
 ) -> None:
-    store = PostgresRagStore(database_url)
+    store = PostgresRagStore(rag_engine(database_url))
     original = make_article("Published original report")
     correction = make_article("Published corrected report").model_copy(
         update={"article_id": original.article_id}
@@ -93,7 +96,7 @@ def test_reenqueue_stale_ready_job_replaces_old_publication(
     )
     first_claim = store.claim_job(job)
     assert first_claim is not None
-    publisher = PostgresPublication(database_url)
+    publisher = PostgresPublication(rag_engine(database_url))
     metadata = make_metadata(original)
     assert publisher.publish(Publication(job, first_claim, generation, metadata))
     store.persist_article(correction)
@@ -114,7 +117,7 @@ def test_reenqueue_stale_ready_job_replaces_old_publication(
 def test_batch_rejects_distinct_generations_of_same_article_atomically(
     database_url: str, make_article: Factory
 ) -> None:
-    store = PostgresRagStore(database_url)
+    store = PostgresRagStore(rag_engine(database_url))
     article = make_article("Two generations of same article")
     store.persist_article(article)
     original = stage(database_url, article, EmbeddingIdentity())
@@ -126,7 +129,7 @@ def test_batch_rejects_distinct_generations_of_same_article_atomically(
         article,
         EmbeddingIdentity(corpus_generation="other-corpus.v1"),
     )
-    staging = PostgresStaging(database_url)
+    staging = PostgresStaging(rag_engine(database_url))
     with pytest.raises(DuplicateArticleGenerationError):
         _ = staging.activate_all([other, original, alternate])
     with psycopg.connect(database_url) as connection:

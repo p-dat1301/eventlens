@@ -1,49 +1,49 @@
-"""PostgreSQL migration and T3 storage primitives."""
+"""T3 storage primitives: persist-first revisions, tombstones and job claims."""
 
-from pathlib import Path
 from typing import final
 from uuid import UUID, uuid4
 
-from psycopg import Connection
-from psycopg.rows import TupleRow, scalar_row
 from pydantic import TypeAdapter
+from sqlalchemy import Connection, Engine, update
+from sqlalchemy.sql import func
 
 from backend.rag.domain.article_document import ArticleDocument
 from backend.rag.domain.records import EnrichmentJobKey
-from backend.rag.infra.postgres.connection import connect
-from backend.rag.infra.postgres.migrations import migrate
+from backend.rag.infra.postgres.engine import execute, scalar, transaction
+from backend.rag.infra.postgres.models import ArticleCurrentRow
+
+_OPTIONAL_INT: TypeAdapter[int | None] = TypeAdapter(int | None)
 
 
-def persist_revision(
-    connection: Connection[TupleRow], document: ArticleDocument
-) -> None:
+def persist_revision(connection: Connection, document: ArticleDocument) -> None:
     """Persist one immutable revision inside the caller's transaction.
 
     A new content hash clears the active vector pointer and marks enrichment
     jobs for older hashes STALE in the same transaction, so old metadata and
     vectors never join the corrected text.
     """
-    with connection.cursor() as cursor:
-        _ = cursor.execute(
-            """
+    _ = execute(
+        connection,
+        """
                 INSERT INTO rag_article_documents (
                     article_id, content_hash, source_id, title, normalized_content,
                     source_published_at, document_json
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s::jsonb)
                 ON CONFLICT (article_id, content_hash) DO NOTHING
                 """,
-            (
-                document.article_id,
-                document.content_hash,
-                document.source_id,
-                document.title,
-                document.normalized_content,
-                document.source_published_at,
-                document.model_dump_json(),
-            ),
-        )
-        _ = cursor.execute(
-            """
+        (
+            document.article_id,
+            document.content_hash,
+            document.source_id,
+            document.title,
+            document.normalized_content,
+            document.source_published_at,
+            document.model_dump_json(),
+        ),
+    )
+    _ = execute(
+        connection,
+        """
                 INSERT INTO rag_article_current (
                     article_id, content_hash, tombstoned_at)
                 VALUES (%s, %s, NULL)
@@ -56,32 +56,33 @@ def persist_revision(
                         ELSE NULL END
                 WHERE rag_article_current.tombstoned_at IS NULL
                 """,
-            (document.article_id, document.content_hash),
-        )
-        _ = cursor.execute(
-            """
+        (document.article_id, document.content_hash),
+    )
+    _ = execute(
+        connection,
+        """
                 UPDATE rag_enrichment_jobs
                 SET status = 'STALE', lease_expires_at = NULL
                 WHERE article_id = %s AND content_hash <> %s
                   AND status <> 'STALE'
                 """,
-            (document.article_id, document.content_hash),
-        )
+        (document.article_id, document.content_hash),
+    )
 
 
-def enqueue_revision_job(
-    connection: Connection[TupleRow], key: EnrichmentJobKey
-) -> UUID:
+def enqueue_revision_job(connection: Connection, key: EnrichmentJobKey) -> UUID:
     """Insert or requeue a stale job inside the caller's transaction."""
-    _ = connection.execute(
+    _ = execute(
+        connection,
         """SELECT article_id FROM rag_article_current
         WHERE article_id = %s FOR UPDATE""",
         (key.article_id,),
     ).fetchone()
-    row = (
-        connection.cursor(row_factory=scalar_row)
-        .execute(
-            """
+    job_id = TypeAdapter(UUID).validate_python(
+        scalar(
+            execute(
+                connection,
+                """
         INSERT INTO rag_enrichment_jobs (
             job_id, article_id, content_hash, enrichment_version, model_version,
             prompt_version
@@ -98,19 +99,19 @@ def enqueue_revision_job(
             THEN 'PENDING' ELSE rag_enrichment_jobs.status END
         RETURNING job_id
         """,
-            (
-                uuid4(),
-                key.article_id,
-                key.content_hash,
-                key.enrichment_version,
-                key.model_version,
-                key.prompt_version,
-            ),
+                (
+                    uuid4(),
+                    key.article_id,
+                    key.content_hash,
+                    key.enrichment_version,
+                    key.model_version,
+                    key.prompt_version,
+                ),
+            )
         )
-        .fetchone()
     )
-    job_id = TypeAdapter(UUID).validate_python(row)
-    _ = connection.execute(
+    _ = execute(
+        connection,
         """DELETE FROM rag_enrichment_versions
         WHERE job_id = %s AND EXISTS (
             SELECT 1 FROM rag_enrichment_jobs
@@ -124,29 +125,22 @@ def enqueue_revision_job(
 class PostgresRagStore:
     """Own atomic document, job, and job-claim writes."""
 
-    def __init__(self, database_url: str) -> None:
-        """Retain explicit connection configuration."""
-        self._database_url = database_url
-
-    def migrate(self, directory: Path) -> None:
-        """Apply ordered, idempotent SQL migrations."""
-        migrate(self._database_url, directory)
+    def __init__(self, engine: Engine) -> None:
+        """Use the process Engine; each method is one short transaction."""
+        self._engine = engine
 
     def persist_article(self, document: ArticleDocument) -> None:
         """Persist immutable revision and make lexical current pointer immediately."""
-        with connect(self._database_url) as connection:
+        with transaction(self._engine) as connection:
             persist_revision(connection, document)
 
     def tombstone_article(self, article_id: UUID) -> None:
         """Synchronously invalidate current lexical/vector visibility."""
-        with connect(self._database_url) as connection:
+        with transaction(self._engine) as connection:
             _ = connection.execute(
-                """
-                UPDATE rag_article_current
-                SET tombstoned_at = now(), active_index_generation = NULL
-                WHERE article_id = %s
-                """,
-                (article_id,),
+                update(ArticleCurrentRow)
+                .where(ArticleCurrentRow.article_id == article_id)
+                .values(tombstoned_at=func.now(), active_index_generation=None)
             )
 
     def enqueue_job(
@@ -165,7 +159,7 @@ class PostgresRagStore:
             model_version=model_version,
             prompt_version=prompt_version,
         )
-        with connect(self._database_url) as connection:
+        with transaction(self._engine) as connection:
             return enqueue_revision_job(connection, key)
 
     def claim_job(self, job_id: UUID, lease_seconds: int = 30) -> int | None:
@@ -174,11 +168,12 @@ class PostgresRagStore:
         The single conditional UPDATE is the transaction-safe claim: concurrent
         callers serialize on the row lock and only one sees a matching predicate.
         """
-        with connect(self._database_url) as connection:
-            row = (
-                connection.cursor(row_factory=scalar_row)
-                .execute(
-                    """
+        with transaction(self._engine) as connection:
+            return _OPTIONAL_INT.validate_python(
+                scalar(
+                    execute(
+                        connection,
+                        """
                 UPDATE rag_enrichment_jobs
                 SET status = 'PROCESSING', claim_generation = claim_generation + 1,
                     lease_expires_at = clock_timestamp()
@@ -189,9 +184,7 @@ class PostgresRagStore:
                        OR lease_expires_at <= clock_timestamp())
                 RETURNING claim_generation
                 """,
-                    (lease_seconds, job_id),
+                        (lease_seconds, job_id),
+                    )
                 )
-                .fetchone()
             )
-            adapter: TypeAdapter[int | None] = TypeAdapter(int | None)
-            return adapter.validate_python(row)

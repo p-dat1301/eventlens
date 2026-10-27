@@ -90,8 +90,10 @@ presentation (FastAPI routers)  ->  application (use cases, ports)  ->  domain
   error handlers, `CallerResolver`), `health.py` (rag-api `/health`),
   `schemas.py` (JSON Schema export of RAG contracts).
 - `infra/`: adapters grouped by capability. `postgres/` holds the connection
-  helper, migration ledger, storage, staging and publication; the single
-  migration source is `infra/postgres/migrations/`.
+  SQLAlchemy Engine/transaction scope, ORM mappings, Alembic runner and
+  revisions, catalog preflight, storage, staging and publication; the historical
+  SQL lives in `infra/postgres/migrations/`. SQLAlchemy and Alembic are
+  imported only inside `rag/infra`.
 - `composition.py`: builds the query runtime (`compose_briefing`,
   `runtime_from_environment`) and the ingestion runtime (`build_runtime`), and
   exposes `prepare_storage` / `json_lines_telemetry` so entry points never
@@ -174,6 +176,9 @@ Node names are unchanged from T4/T7. The conceptual flows map onto them as:
    imports no adapter.
 7. Bounded contexts never import each other; `shared` imports no context.
 8. One migration source; no `apps/`, `contracts/` or `eventlens_*` packages.
+9. SQLAlchemy/Alembic and the ORM rows, Engine and Connection stay in
+   `rag/infra`; no RAG module opens a psycopg connection directly; nothing
+   calls `create_all`.
 
 ## Runtimes
 
@@ -204,7 +209,7 @@ and `docker compose --profile tools run --rm event-pipeline`.
 
 | Command | Module | Subcommands |
 | --- | --- | --- |
-| `eventlens-rag` | `backend.rag.cli_main:app` | `migrate`, `load-fixtures`, `rebuild`, `retrieval-smoke`, `synthesis-smoke`, `vector-route-report`, `db-test` |
+| `eventlens-rag` | `backend.rag.cli_main:app` | `migrate`, `preflight`, `adopt-legacy`, `load-fixtures`, `rebuild`, `retrieval-smoke`, `synthesis-smoke`, `vector-route-report`, `db-test` |
 | `eventlens-rag-worker` | `backend.rag.worker_main:app` | `ingest`, `enrich` |
 | `eventlens-events` | `backend.event_pipeline.presentation.cli:app` | `validate`, `process` |
 | `eventlens-crud-api` / `eventlens-rag-api` | `backend.crud.main:run` / `backend.rag.api_main:run` | — |
@@ -212,11 +217,14 @@ and `docker compose --profile tools run --rm event-pipeline`.
 
 ## Migrations
 
-`src/backend/rag/infra/postgres/migrations/001…007_*.sql` is the only copy; names
-and bytes are unchanged from before the refactor, so the ledger
-(`rag_schema_migrations`, SHA-256 of each script) sees no checksum change. The
-loader uses `importlib.resources.files("backend.rag.infra.postgres")
-.joinpath("migrations")`, which also works from the built wheel.
+Alembic (`src/backend/rag/infra/postgres/revisions/`, loaded as the package
+resource `backend.rag.infra.postgres:revisions`) is the only migration
+authority; `rag_0001_baseline` reproduces the post-007 schema and is stamped,
+never re-run, on adopted historical databases (`docs/rag.md`).
+`src/backend/rag/infra/postgres/migrations/001…007_*.sql` is kept byte-for-byte as
+audit history; the ledger (`rag_schema_migrations`, SHA-256 of each script)
+sees no checksum change. Resources load via `importlib.resources`, so revisions,
+SQL and `expected_schema.json` ship in the wheel.
 
 ## Related documents
 

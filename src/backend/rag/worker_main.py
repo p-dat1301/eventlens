@@ -20,11 +20,13 @@ from backend.rag.composition import (
     json_lines_telemetry,
     prepare_storage,
 )
-from backend.rag.infra.postgres.connection import StorageUnavailableError
+from backend.rag.infra.postgres.alembic_runner import LegacyAdoptionRequiredError
+from backend.rag.infra.postgres.connection import (
+    StorageOperationError,
+    StorageUnavailableError,
+)
 from backend.rag.infra.postgres.migrations import (
-    LegacyDocumentError,
     LegacySchemaError,
-    MigrationResourcesError,
 )
 from backend.shared.contracts.bundle import ArticleBundle
 
@@ -39,6 +41,7 @@ VALIDATION_ERROR = "error:bundle_validation_failed"
 DatabaseUrl = Annotated[str, typer.Option(envvar="EVENTLENS_RAG_DATABASE_URL")]
 UNAVAILABLE_EXIT = 3
 MIGRATION_EXIT = 1
+STORAGE_FAILED_EXIT = 4
 MAX_JOBS_PER_PASS = bundled_retry_policy().max_jobs_per_pass
 
 
@@ -62,13 +65,21 @@ def _unavailable(error: StorageUnavailableError) -> typer.Exit:
     return typer.Exit(UNAVAILABLE_EXIT)
 
 
+def _storage_failed(error: StorageOperationError) -> typer.Exit:
+    """Report a rolled-back statement without SQL, values or traceback."""
+    typer.echo(f"{error.code}: {error}", err=True)
+    return typer.Exit(STORAGE_FAILED_EXIT)
+
+
 def _prepare(database_url: str) -> None:
-    """Apply checksum-verified RAG migrations (idempotent) or exit typed."""
+    """Apply pending Alembic revisions (idempotent) or exit typed; never stamps."""
     try:
         prepare_storage(database_url)
     except StorageUnavailableError as error:
         raise _unavailable(error) from error
-    except (LegacyDocumentError, LegacySchemaError, MigrationResourcesError) as error:
+    except StorageOperationError as error:
+        raise _storage_failed(error) from error
+    except (LegacyAdoptionRequiredError, LegacySchemaError) as error:
         typer.echo(f"rag_migration_failed: {error}", err=True)
         raise typer.Exit(MIGRATION_EXIT) from error
 
@@ -88,6 +99,8 @@ def ingest_command(bundle_path: BundlePath, database_url: DatabaseUrl) -> None:
         )
     except StorageUnavailableError as error:
         raise _unavailable(error) from error
+    except StorageOperationError as error:
+        raise _storage_failed(error) from error
     typer.echo(
         json.dumps(
             {
@@ -117,6 +130,8 @@ def enrich_command(
         report = runtime.runner(json_lines_telemetry(typer.echo)).run(max_jobs)
     except StorageUnavailableError as error:
         raise _unavailable(error) from error
+    except StorageOperationError as error:
+        raise _storage_failed(error) from error
     counts = Counter(outcome.kind.value for outcome in report.outcomes)
     typer.echo(
         json.dumps(

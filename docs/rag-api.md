@@ -83,7 +83,7 @@ The web client calls `${VITE_API_BASE_URL}/briefing` (empty base = same origin).
 ### PostgreSQL opt-in
 
 Set `EVENTLENS_API_RAG_DATABASE_URL` to an already migrated RAG database
-(`make rag-migrate`, migrations 001–007) to serve retrieval and source
+(`make rag-migrate`, Alembic head) to serve retrieval and source
 references from PostgreSQL. The model stays the fixture synthesizer.
 
 ### Caller and source references

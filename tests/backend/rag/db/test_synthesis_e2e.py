@@ -42,6 +42,7 @@ from backend.rag.infra.embeddings.fake_embeddings import FakeEmbeddings
 from backend.rag.infra.llm.fake_enricher import FakeArticleEnricher
 from backend.rag.infra.llm.fake_synthesis import DeterministicFakeSynthesizer
 from backend.rag.infra.llm.scripted_synthesis import ScriptedSynthesizer
+from backend.rag.infra.postgres.engine import rag_engine
 from backend.rag.infra.postgres.staging import PostgresStaging
 from backend.rag.infra.repositories.postgres_enrichment import (
     PostgresEnrichmentRepository,
@@ -83,7 +84,7 @@ def _ingest(url: str) -> Article:
         ENRICHMENT_VERSION, enricher.model_version, enricher.prompt_version
     )
     receipt = IngestArticle(
-        PostgresEnrichmentRepository(url),
+        PostgresEnrichmentRepository(rag_engine(url)),
         FixtureAccessPolicy(),
         identity,
         lambda: datetime.now(UTC),
@@ -94,10 +95,10 @@ def _ingest(url: str) -> Article:
 
 def _enrich(url: str) -> None:
     steps = EnrichmentSteps(
-        repository=PostgresEnrichmentRepository(url),
+        repository=PostgresEnrichmentRepository(rag_engine(url)),
         enricher=FakeArticleEnricher(),
         generations=EnsureGeneration(
-            PostgresStaging(url), FakeEmbeddings(), EmbeddingIdentity()
+            PostgresStaging(rag_engine(url)), FakeEmbeddings(), EmbeddingIdentity()
         ),
         policy=bundled_retry_policy(),
         clock=lambda: datetime.now(UTC),
@@ -111,7 +112,7 @@ def _answer(
 ) -> tuple[SynthesisResult, RetrievalMode]:
     ledger = RequestTokenLedger(COUNTER, SYNTH_POLICY)
     plan = PrepareSynthesis(COUNTER, SYNTH_POLICY).execute(query, ledger)
-    retrieval = service(PostgresRetrievalStore(url)).execute(
+    retrieval = service(PostgresRetrievalStore(rag_engine(url))).execute(
         query,
         CALLER,
         control(),
@@ -119,7 +120,7 @@ def _answer(
     )
     use_case = SynthesizeAnswer(
         model=model,
-        sources=PostgresRetrievalStore(url),
+        sources=PostgresRetrievalStore(rag_engine(url)),
         access=MutableAccess(),
         tokens=COUNTER,
         policy=SYNTH_POLICY,

@@ -2,6 +2,7 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
+import psycopg
 import pytest
 from typer.testing import CliRunner
 
@@ -11,7 +12,8 @@ from backend.rag.domain.article_document import ArticleDocument
 from backend.rag.domain.embedding import EmbeddingIdentity, EmbeddingVector
 from backend.rag.domain.staging import StageRequest
 from backend.rag.infra.embeddings.fake_embeddings import FakeEmbeddings
-from backend.rag.infra.postgres.connection import StorageUnavailableError, connect
+from backend.rag.infra.postgres.connection import StorageUnavailableError
+from backend.rag.infra.postgres.engine import rag_engine, transaction
 from backend.rag.infra.postgres.staging import PostgresStaging
 from backend.rag.infra.postgres.store import PostgresRagStore
 
@@ -76,8 +78,11 @@ def test_content_or_embedding_identity_change_creates_new_generation(
 
 
 def test_unreachable_database_raises_typed_error_without_credentials() -> None:
-    with pytest.raises(StorageUnavailableError) as raised:
-        _ = connect(CLOSED)
+    with (
+        pytest.raises(StorageUnavailableError) as raised,
+        transaction(rag_engine(CLOSED)),
+    ):
+        pass
     assert raised.value.code == "rag_storage_unavailable"
     assert "secret-password" not in str(raised.value)
 
@@ -93,9 +98,9 @@ def test_real_database_reuse_skips_embedding_calls(
     database_url: str, make_article: Factory
 ) -> None:
     article = make_article("Real database reuse")
-    PostgresRagStore(database_url).persist_article(article)
+    PostgresRagStore(rag_engine(database_url)).persist_article(article)
     embeddings = CountingEmbeddings()
-    staging = PostgresStaging(database_url)
+    staging = PostgresStaging(rag_engine(database_url))
     ensure = EnsureGeneration(staging, embeddings, EmbeddingIdentity())
     first = ensure.execute(article)
     second = ensure.execute(article)
@@ -116,7 +121,7 @@ def test_cli_rebuild_publishes_fixture_corpus_then_reuses_it(database_url: str) 
     )
     assert reused is not None
     assert reused.group(1) == reused.group(2)
-    with connect(database_url) as connection:
+    with psycopg.connect(database_url) as connection:
         row = connection.execute(
             """SELECT count(DISTINCT article_id) FROM rag_current_vectors
             WHERE article_id::text LIKE '00000000-0000-4000-8000-0000000000%'"""

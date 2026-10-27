@@ -1,9 +1,6 @@
-"""Typed PostgreSQL connection boundary."""
+"""Typed PostgreSQL storage errors shared by every RAG adapter."""
 
 from typing import ClassVar
-
-import psycopg
-from psycopg.rows import TupleRow
 
 CONNECT_TIMEOUT_SECONDS = 5
 
@@ -18,9 +15,15 @@ class StorageUnavailableError(RuntimeError):
         super().__init__("RAG PostgreSQL storage is unavailable")
 
 
-def connect(database_url: str) -> psycopg.Connection[TupleRow]:
-    """Open one transaction-scoped connection or raise the typed unavailable error."""
-    try:
-        return psycopg.connect(database_url, connect_timeout=CONNECT_TIMEOUT_SECONDS)
-    except psycopg.OperationalError as error:
-        raise StorageUnavailableError from error
+class StorageOperationError(RuntimeError):
+    """A statement failed and its transaction was rolled back.
+
+    The message never carries SQL, bound values or the connection string; the
+    driver error is kept as ``__cause__`` for operators.
+    """
+
+    code: ClassVar[str] = "rag_storage_failed"
+
+    def __init__(self) -> None:
+        """Generic message; nothing from the failed statement is included."""
+        super().__init__("RAG PostgreSQL statement failed; transaction rolled back")
