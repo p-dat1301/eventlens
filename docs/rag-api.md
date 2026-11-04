@@ -12,6 +12,15 @@ binding is loopback only (`make rag-api` / `uv run eventlens-rag-api` →
 | `GET` | `/health` | rag-api readiness (`{"status":"ok"}`); independent of crud-api |
 | `POST` | `/briefing` | Grounded briefing: query → compiled briefing graph → T5 retrieval → T6 synthesis |
 | `GET` | `/briefing/sources/{source_ref}` | Internal read-only source viewer for one citation (D37) |
+| `GET` | `/internal/v1/catalog/{articles,articles/{id},articles/{id}/summary,facets,topics,locations,sources}` | Internal catalog for crud-api (service token; never proxied publicly) |
+| `POST`/`DELETE` | `/api/v1/sessions`, `/api/v1/sessions/current` | Server-side demo session (cookie or bearer token) |
+| `POST`/`GET`/`DELETE` | `/api/v1/conversations`, `/api/v1/conversations/{id}`, `/api/v1/conversations/{id}/messages` | Owner-scoped conversations with a frozen scope definition |
+| `POST` | `/api/v1/conversations/{id}/runs` | Durable run, `202` + `status_url`, `Idempotency-Key` |
+| `GET`/`POST` | `/api/v1/runs/{id}`, `/api/v1/runs/{id}/cancel`, `/api/v1/runs/{id}/citations/{cid}/source-ref` | Poll, cooperative cancel, fresh source ref for a stored citation |
+
+The `/api/v1` and `/internal/v1` routes use the `api_error.v1` envelope and are
+specified in `docs/news-backend.md` (OpenAPI: `docs/openapi/rag-api.openapi.json`).
+The `/briefing` contract below is unchanged.
 
 `POST /briefing` takes a strict `briefing_request.v1` body (unknown fields are
 rejected). Caller identity and access policy are never read from the request;
@@ -79,6 +88,18 @@ The web client calls `${VITE_API_BASE_URL}/briefing` (empty base = same origin).
   and a 30 s read timeout.
 - Separate frontend deployment: build with `VITE_API_BASE_URL` set to the rag-api
   origin and configure CORS for that origin; rag-api has no CORS middleware today.
+
+### Search index opt-in
+
+With `EVENTLENS_API_RAG_DATABASE_URL` set, `EVENTLENS_RAG_SEARCH_BACKEND=elasticsearch`
+and `EVENTLENS_RAG_ELASTICSEARCH_URL` add the Elasticsearch projection as the
+candidate source (`docs/search-platform.md`). The request/response contracts,
+error codes, citations and source references are unchanged; search scores,
+branch ranks and index names are not returned. An index outage falls back to
+PostgreSQL retrieval; with `EVENTLENS_RAG_SEARCH_FALLBACK=none` it returns
+`503 retrieval_unavailable`. Reranker (`EVENTLENS_RAG_RERANK`) and multi-hop
+(`EVENTLENS_RAG_MULTI_HOP`) stay off by default; Ollama is never wired into the
+API. Invalid search settings fail at startup.
 
 ### PostgreSQL opt-in
 

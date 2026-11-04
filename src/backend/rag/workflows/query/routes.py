@@ -3,6 +3,7 @@
 from collections.abc import Callable
 
 from backend.rag.application.ports.briefing import BriefingRoute
+from backend.rag.domain.query_intent import HopStopReason
 from backend.rag.domain.retrieval import (
     EmptyReason,
     ResultStatus,
@@ -64,6 +65,17 @@ def after(next_node: str) -> Callable[[BriefingChannels], str]:
         return _failed(state) or next_node
 
     return route
+
+
+def after_primary(state: BriefingChannels) -> str:
+    """Hop 2 only when the bounded decision allowed it; else straight to fuse."""
+    failed = _failed(state)
+    if failed is not None:
+        return failed
+    primary = state.get("primary")
+    if primary is not None and primary.next_hop is HopStopReason.ALLOWED:
+        return "retrieve_related"
+    return "fuse"
 
 
 def after_retrieve(state: BriefingChannels) -> str:

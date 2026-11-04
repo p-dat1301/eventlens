@@ -30,6 +30,7 @@ from backend.rag.infra.postgres.alembic_runner import (
     PreflightFailedError,
     adopt_legacy,
     alembic_config,
+    head_revision,
     preflight,
     upgrade_head,
 )
@@ -124,13 +125,140 @@ def test_fresh_upgrade_equals_historical_runner_catalog(new_schema: NewSchema) -
     # Given: one schema per tool, both from empty.
     fresh, legacy = new_schema(), new_schema()
 
-    # When
-    assert upgrade_head(fresh) == BASELINE_REVISION
+    # When: the baseline revision alone (later revisions are additive).
+    _upgrade_to(fresh, BASELINE_REVISION)
     migrate(legacy, SQL_DIR)
 
     # Then: identical deparsed catalog, equal to the packaged expectation.
     assert differences(_catalog(fresh), _catalog(legacy)) == []
     assert differences(_catalog(fresh), expected_snapshot()) == []
+
+
+SOURCE_VERSIONS_REVISION = "rag_0002_source_versions"
+SEARCH_OBJECTS = (
+    "rag_search_",
+    "rag_search_outbox_current",
+    "rag_search_outbox_pub",
+    "rag_source_versions",
+    "rag_source_version_immutable",
+)
+# rag_0004_news_backend (catalog taxonomy, labels, summaries, jobs, chat).
+NEWS_OBJECTS = (
+    "rag_topics",
+    "rag_locations",
+    "rag_location_aliases",
+    "rag_article_labels",
+    "rag_label_syncs",
+    "rag_current_labels",
+    "rag_work_jobs",
+    "rag_article_summaries",
+    "rag_sessions",
+    "rag_conversations",
+    "rag_query_runs",
+    "rag_messages",
+    "rag_run_citations",
+    "rag_schedule_summary",
+)
+
+
+def test_head_only_adds_the_search_platform_objects(new_schema: NewSchema) -> None:
+    # Given
+    fresh, legacy = new_schema(), new_schema()
+
+    # When
+    assert upgrade_head(fresh) == head_revision() == "rag_0004_news_backend"
+    migrate(legacy, SQL_DIR)
+
+    # Then: every drift is a new search-platform or news-backend object.
+    drift = differences(_catalog(fresh), _catalog(legacy))
+    assert drift
+    assert all("unexpected" in item for item in drift), drift
+    added = SEARCH_OBJECTS + NEWS_OBJECTS
+    assert all(any(name in item for name in added) for item in drift), drift
+
+
+def test_search_platform_downgrade_removes_only_its_objects(
+    new_schema: NewSchema,
+) -> None:
+    url = new_schema()
+    _ = upgrade_head(url)
+    with transaction(rag_engine(url)) as connection:
+        command.downgrade(alembic_config(connection), BASELINE_REVISION)
+    assert differences(_catalog(url), expected_snapshot()) == []
+
+
+def _outbox_rows(url: str) -> int:
+    with psycopg.connect(url) as connection:
+        row = connection.execute("SELECT count(*) FROM rag_search_outbox").fetchone()
+    assert row is not None
+    count = cast("object", row[0])
+    assert isinstance(count, int)
+    return count
+
+
+def test_database_at_source_versions_upgrades_to_head_keeping_rows(
+    new_schema: NewSchema,
+) -> None:
+    # Given: a database stopped at rag_0002_source_versions with data.
+    url = new_schema()
+    _upgrade_to(url, SOURCE_VERSIONS_REVISION)
+    _ = seed(url)
+    rows_before = fingerprint(url)
+
+    # When
+    assert upgrade_head(url) == head_revision()
+    assert upgrade_head(url) == head_revision()  # repeat is a no-op
+
+    # Then: existing rows untouched; pre-existing data emits no backfill events
+    # (``eventlens-rag index rebuild`` projects it); new writes do.
+    assert fingerprint(url) == rows_before
+    assert _outbox_rows(url) == 0
+    with psycopg.connect(url) as connection:
+        _ = connection.execute(
+            """UPDATE rag_article_current SET tombstoned_at = now()
+            WHERE article_id = (SELECT min(article_id::text)::uuid
+                FROM rag_article_current WHERE tombstoned_at IS NULL)"""
+        )
+    assert _outbox_rows(url) == 1
+
+
+def test_downgrade_to_source_versions_drops_only_derived_search_objects(
+    new_schema: NewSchema,
+) -> None:
+    url = new_schema()
+    _ = upgrade_head(url)
+    _ = seed(url)
+    rows_before = fingerprint(url)
+    assert _outbox_rows(url) > 0
+
+    with transaction(rag_engine(url)) as connection:
+        command.downgrade(alembic_config(connection), SOURCE_VERSIONS_REVISION)
+
+    assert fingerprint(url) == rows_before  # source data and provenance kept
+    drift = [
+        item
+        for item in differences(_catalog(url), expected_snapshot())
+        if "rag_source_version" not in item
+    ]
+    assert drift == []
+    assert _revision(url) == [(SOURCE_VERSIONS_REVISION,)]
+
+
+def _baseline_drift(url: str) -> list[str]:
+    """Drift from the 007 catalog other than the objects revisions 0002-0004 add."""
+    return [
+        item
+        for item in differences(_catalog(url), expected_snapshot())
+        if not (
+            "unexpected" in item
+            and any(n in item for n in SEARCH_OBJECTS + NEWS_OBJECTS)
+        )
+    ]
+
+
+def _upgrade_to(url: str, revision: str) -> None:
+    with transaction(rag_engine(url)) as connection:
+        command.upgrade(alembic_config(connection), revision)
 
 
 def test_fresh_ledger_holds_the_seven_raw_byte_checksums(new_schema: NewSchema) -> None:
@@ -172,7 +300,7 @@ def test_migrate_repeats_without_changes(new_schema: NewSchema) -> None:
     ledger = _ledger(url)
     second = runner.invoke(app, ["migrate", "--database-url", url])
     assert first.exit_code == second.exit_code == 0, first.output + second.output
-    assert f"alembic {BASELINE_REVISION}" in second.output
+    assert f"alembic {head_revision()}" in second.output
     assert _catalog(url) == catalog
     assert _ledger(url) == ledger
 
@@ -197,9 +325,9 @@ def test_concurrent_fresh_migrations_serialize(new_schema: NewSchema) -> None:
     url = new_schema()
     with ThreadPoolExecutor(3) as pool:
         revisions = list(pool.map(upgrade_head, [url] * 3))
-    assert revisions == [BASELINE_REVISION] * 3
+    assert revisions == [head_revision()] * 3
     assert len(_ledger(url)) == 7
-    assert differences(_catalog(url), expected_snapshot()) == []
+    assert _baseline_drift(url) == []
 
 
 def test_baseline_downgrade_is_refused(new_schema: NewSchema) -> None:
@@ -251,10 +379,10 @@ def test_adopt_seeded_legacy_keeps_rows_schema_and_ledger(
     # Then: nothing but alembic_version changed.
     assert report.adoptable, report.problems
     assert checked.exit_code == adopted.exit_code == migrated.exit_code == 0
-    assert again.alembic_revision == BASELINE_REVISION
+    assert again.alembic_revision == head_revision()
     assert fingerprint(url) == rows_before
     assert _ledger(url) == ledger_before
-    assert differences(_catalog(url), expected_snapshot()) == []
+    assert _baseline_drift(url) == []
     assert dict(report.row_counts)["rag_article_documents"] == 32
 
 

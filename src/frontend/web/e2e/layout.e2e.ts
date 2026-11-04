@@ -84,9 +84,11 @@ afterAll(async () => {
   server.stop(true)
 })
 
+const ANALYST = new URL("/analyst", server.url).href
+
 const open = async (width: number): Promise<Page> => {
   const page = await browser.newPage({ viewport: { width, height: 900 } })
-  await page.goto(server.url.href)
+  await page.goto(ANALYST)
   return page
 }
 
@@ -164,8 +166,11 @@ describe("keyboard", () => {
     flakyCalls = 0
 
     await page.keyboard.press("Tab")
-    expect(await page.evaluate(() => document.activeElement?.textContent)).toBe("Skip to content")
-
+    expect(await page.evaluate(() => document.activeElement?.textContent)).toBe(
+      "Bỏ qua, đến nội dung chính",
+    )
+    // The skip link moves focus past the site navigation into the main content.
+    await page.keyboard.press("Enter")
     await page.keyboard.press("Tab")
     expect(await page.evaluate(() => document.activeElement?.tagName)).toBe("TEXTAREA")
     await page.keyboard.type("flaky question")
@@ -237,7 +242,7 @@ describe.each([320, 1280])("request lifecycle at %ipx", (width) => {
     await page.getByRole("status").getByText("Retrieving evidence").waitFor()
     await page.goto("about:blank")
     releaseSlow()
-    await page.goto(server.url.href)
+    await page.goto(ANALYST)
 
     await page.getByRole("button", { name: "Request briefing" }).waitFor()
     expect(await page.getByText(NO_MATCH).count()).toBe(0)

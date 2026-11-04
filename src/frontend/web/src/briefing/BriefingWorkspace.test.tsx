@@ -33,6 +33,8 @@ const mount = (...replies: Parameters<typeof scriptedFetch>) => {
   document.body.append(container)
   root = createRoot(container)
   const client = createBriefingClient({ fetch: scripted.fetch })
+  // The analyst briefing workspace lives at /analyst since the news app took "/".
+  window.history.replaceState(null, "", "/analyst")
   act(() => root?.render(<App client={client} />))
   return { ...scripted, container }
 }

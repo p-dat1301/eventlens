@@ -50,8 +50,10 @@ def briefing(base: str) -> None:
     )
     answer = cast("dict[str, object]", payload)
     citations = cast("list[dict[str, object]]", answer.get("citations") or [])
-    print(f"briefing {status} outcome={answer.get('outcome')} "
-          f"mode={answer.get('retrieval_mode')} citations={len(citations)}")
+    print(
+        f"briefing {status} outcome={answer.get('outcome')} "
+        f"mode={answer.get('retrieval_mode')} citations={len(citations)}"
+    )
     if status != 200 or answer.get("outcome") != "answered" or not citations:
         raise SystemExit("briefing did not return a cited answer")
     ref = str(citations[0]["source_ref"])

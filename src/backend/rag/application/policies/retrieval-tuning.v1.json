@@ -1,0 +1,43 @@
+{
+  "schema_version": "retrieval-tuning.v1",
+  "default": "baseline",
+  "rationale": "Opt-in retrieval tunings (2026-10-28). Values were fixed before any measurement; selection between them happens on the dev split only. The two *-selected aliases are the only entries edited after a measurement step and say which dev result chose them. Production default stays baseline (EVENTLENS_RAG_RETRIEVAL_TUNING unset).",
+  "profiles": {
+    "baseline": {
+      "note": "Frozen retrieval-policy.v3 behaviour: RRF weights 1:1, 3 spans/article, no overlap filter, article-major packing, no per-article cap on index branches, v3 branch freshness, BM25 boosts 3:1.5:1."
+    },
+    "sel3": {
+      "note": "Selection only: overlap filter (>= 0.5 of the shorter span) + breadth-first packing, 3 spans/article; index branches unchanged.",
+      "selection": {"max_spans_per_article": 3, "overlap_threshold": 0.5, "packing": "breadth_first"}
+    },
+    "div3": {
+      "note": "sel3 + per-article cap 3 on each index branch with one bounded backfill to depth 100.",
+      "extends": "sel3",
+      "diversity": {"max_chunks_per_article": 3, "backfill_depth": 100, "max_backfill_calls": 1, "min_remaining_seconds": 1.0}
+    },
+    "div2": {
+      "note": "div3 with 2 chunks per article on branches and in the selection.",
+      "extends": "div3",
+      "selection": {"max_spans_per_article": 2},
+      "diversity": {"max_chunks_per_article": 2}
+    },
+    "div-selected": {
+      "note": "Alias of the diversity profile chosen on dev in run r1 (2026-10-28): sel3 ties baseline on every dev metric; div3 loses 1/48 and div2 7/48 gold passages in the payload. See .omo/evidence/search-platform/retrieval-improvement/final-decision.md.",
+      "extends": "sel3"
+    },
+    "w1-0": {"note": "div-selected, BM25 only (semantic weight 0: branch disabled, no query embedding).", "extends": "div-selected", "weights": [1.0, 0.0]},
+    "w0-1": {"note": "div-selected, semantic only (BM25 weight 0: branch disabled).", "extends": "div-selected", "weights": [0.0, 1.0]},
+    "w1-1": {"note": "div-selected, equal weights (same fusion as baseline).", "extends": "div-selected", "weights": [1.0, 1.0]},
+    "w1-2": {"note": "div-selected, semantic weighted 2x. Candidate only, never a default.", "extends": "div-selected", "weights": [1.0, 2.0]},
+    "wrrf-selected": {
+      "note": "Alias of the weighting chosen on dev in run r2 (2026-10-28): w1-2 ties w1-1 on every payload metric (A nDCG +0.001, CI [-0.001,+0.003]); w1-0 and w0-1 lose gold passages. Equal weights kept. See final-decision.md.",
+      "extends": "w1-1"
+    },
+    "fresh3": {"note": "wrrf-selected + intent freshness, half-life 3 days.", "extends": "wrrf-selected", "freshness": {"mode": "intent", "half_life_days": 3.0, "max_rank_shift": 5, "intents": ["update"]}},
+    "fresh7": {"note": "wrrf-selected + intent freshness, half-life 7 days.", "extends": "wrrf-selected", "freshness": {"mode": "intent", "half_life_days": 7.0, "max_rank_shift": 5, "intents": ["update"]}},
+    "fresh30": {"note": "wrrf-selected + intent freshness, half-life 30 days.", "extends": "wrrf-selected", "freshness": {"mode": "intent", "half_life_days": 30.0, "max_rank_shift": 5, "intents": ["update"]}},
+    "fill6": {"note": "wrrf-selected + fill pass up to 6 spans/article into budget left after every base span (base cap stays 3), article-major packing. Added after r2: every gold passage lost between candidates and payload was the 4th+ chunk of the rank-1 article (dev 1, test 6) while payloads used ~4.3k of 12k tokens; breadth-first packing lost 3 dev gold passages under a binding budget (r2, +r20).", "extends": "wrrf-selected", "selection": {"fill_spans_per_article": 6, "packing": "article_major"}},
+    "boost2-1-1": {"note": "wrrf-selected + BM25 boosts title:sapo:content 2:1:1.", "extends": "wrrf-selected", "boosts": {"title": 2.0, "sapo": 1.0, "text": 1.0}},
+    "boost5-2-1": {"note": "wrrf-selected + BM25 boosts title:sapo:content 5:2:1.", "extends": "wrrf-selected", "boosts": {"title": 5.0, "sapo": 2.0, "text": 1.0}}
+  }
+}

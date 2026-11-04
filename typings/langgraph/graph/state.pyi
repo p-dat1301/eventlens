@@ -4,6 +4,7 @@ from langgraph.runtime import Runtime
 
 from backend.rag.workflows.ingestion.context import EnrichmentContext
 from backend.rag.workflows.query.context import BriefingContext
+from backend.rag.workflows.summarization.context import SummaryContext
 
 type ConditionalRoute[StateT] = Callable[[StateT], str]
 
@@ -13,7 +14,7 @@ class CompiledStateGraph[StateT, ContextT, InputT, OutputT]:
 
 class StateGraph[
     StateT,
-    ContextT: EnrichmentContext | BriefingContext,
+    ContextT: EnrichmentContext | BriefingContext | SummaryContext,
     InputT,
     OutputT,
 ]:

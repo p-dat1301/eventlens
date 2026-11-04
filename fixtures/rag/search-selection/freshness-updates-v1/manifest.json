@@ -1,0 +1,20 @@
+{
+  "chunk_ids_for": "paragraph-900-1.v1",
+  "corpus_digest": "sha256:b172be7bbc0b211f0fbe240e44e46cb3ae24ec5e821d3653d027d8b31aed3ca1",
+  "counts": {
+    "articles": 23,
+    "qrels": 48,
+    "questions": 12
+  },
+  "dataset_id": "eventlens-freshness-updates",
+  "files": {
+    "articles.jsonl": "sha256:67611d483462d294520347444b764c9dd2edf99637bc40d0d49d6bd8e1af80a3",
+    "qrels.jsonl": "sha256:b35f4647bad0347cddecabe188cf01a9f963820c5eda0072acfdf293f14cac37",
+    "questions.jsonl": "sha256:d0eeefe27ed4da7d30f64c5fb698aba06ddeb61ba9acd045013d203745ed5107"
+  },
+  "labels": "author-labeled synthetic update scenarios; mechanism test only",
+  "license": "authored for EventLens tests; no publisher text",
+  "query_clock": "2026-05-20T00:00:00+00:00",
+  "synthetic": true,
+  "version": "freshness-updates.v1"
+}

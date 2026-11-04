@@ -1,0 +1,90 @@
+# Persistent local demo of the news web: PostgreSQL (named volume, database
+# eventlens_news_eval), rag-api, crud-api, rag-worker serve and the production
+# web image (Nginx, same origin). Started/stopped by scripts/news/demo.sh; the
+# secrets come from .private/news-demo.env (gitignored, generated once).
+# Every port binds to 127.0.0.1 and differs from the default stack.
+name: eventlens-news-demo
+
+x-backend-env: &backend-env
+  EVENTLENS_RAG_DATABASE_URL: postgresql://eventlens_demo:${NEWS_DEMO_DB_PASSWORD:?run scripts/news/demo.sh}@postgres:5432/eventlens_news_eval
+  EVENTLENS_API_RAG_DATABASE_URL: postgresql://eventlens_demo:${NEWS_DEMO_DB_PASSWORD}@postgres:5432/eventlens_news_eval
+  EVENTLENS_RAG_INTERNAL_SERVICE_TOKEN: ${NEWS_DEMO_SERVICE_TOKEN:?run scripts/news/demo.sh}
+  EVENTLENS_RAG_CURSOR_SECRET: ${NEWS_DEMO_CURSOR_SECRET:?run scripts/news/demo.sh}
+  # none (default): AI unavailable, shown as such. fixture: explicit simulated AI.
+  EVENTLENS_RAG_ANSWER_PROVIDER: ${NEWS_DEMO_AI_MODE:-none}
+  EVENTLENS_RAG_SUMMARY_PROVIDER: ${NEWS_DEMO_AI_MODE:-none}
+
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.0-pg17
+    environment:
+      POSTGRES_DB: eventlens_news_eval
+      POSTGRES_USER: eventlens_demo
+      POSTGRES_PASSWORD: ${NEWS_DEMO_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eventlens_demo -d eventlens_news_eval"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    ports:
+      - "127.0.0.1:${NEWS_DEMO_PG_PORT:-55442}:5432"
+    volumes:
+      - news-demo-pg:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  rag-api:
+    build:
+      context: ..
+      dockerfile: docker/rag-api.Dockerfile
+    image: eventlens-news-demo/backend:local
+    environment: *backend-env
+    ports:
+      - "127.0.0.1:${NEWS_DEMO_RAG_PORT:-18001}:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  crud-api:
+    image: eventlens-news-demo/backend:local
+    command: ["uv", "run", "--no-dev", "uvicorn", "backend.crud.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      EVENTLENS_CRUD_RAG_CATALOG_URL: http://rag-api:8001
+      EVENTLENS_CRUD_RAG_SERVICE_TOKEN: ${NEWS_DEMO_SERVICE_TOKEN}
+    ports:
+      - "127.0.0.1:${NEWS_DEMO_CRUD_PORT:-18000}:8000"
+    depends_on:
+      - rag-api
+    restart: unless-stopped
+
+  rag-worker:
+    image: eventlens-news-demo/backend:local
+    command: ["uv", "run", "--no-dev", "eventlens-rag-worker", "serve"]
+    environment: *backend-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # One-off CLI (migrate); never started by `up`. The handoff import runs on
+  # the host (scripts/news/demo.sh import) so no host folder is mounted.
+  tools:
+    image: eventlens-news-demo/backend:local
+    entrypoint: ["uv", "run", "--no-dev"]
+    environment: *backend-env
+    profiles: ["tools"]
+
+  web:
+    build:
+      context: ..
+      dockerfile: docker/web.Dockerfile
+    image: eventlens-news-demo/web:local
+    ports:
+      - "127.0.0.1:${NEWS_DEMO_WEB_PORT:-18080}:80"
+    depends_on:
+      - crud-api
+      - rag-api
+    restart: unless-stopped
+
+volumes:
+  news-demo-pg:

@@ -1,0 +1,54 @@
+# Search-platform dependencies (Elasticsearch, and PostgreSQL for the
+# postgres-lexical benchmark). Never part of the "eventlens" Compose project:
+# scripts/rag/search-*.sh always pass --project-name explicitly
+#   eventlens-search-dev            developer env (make search-eval-up/down)
+#   eventlens-search-eval-<run-id>  one benchmark/test run, removed afterwards
+# so cleanup can only touch resources of that project.
+#
+# Ports bind to 127.0.0.1. An empty EVENTLENS_SEARCH_ES_PORT/_PG_PORT lets
+# Docker pick a free host port (runs never grab 9200 from another service).
+# Memory: ES heap EVENTLENS_SEARCH_ES_HEAP (default 512m) inside a container
+# limit EVENTLENS_SEARCH_ES_MEMORY (default 1536m) that leaves native/off-heap
+# room; PostgreSQL is limited to EVENTLENS_SEARCH_PG_MEMORY (default 512m).
+name: eventlens-search-dev
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.0
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      xpack.security.enrollment.enabled: "false"
+      ES_JAVA_OPTS: "-Xms${EVENTLENS_SEARCH_ES_HEAP:-512m} -Xmx${EVENTLENS_SEARCH_ES_HEAP:-512m}"
+    mem_limit: ${EVENTLENS_SEARCH_ES_MEMORY:-1536m}
+    memswap_limit: ${EVENTLENS_SEARCH_ES_MEMORY:-1536m}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl --fail --silent 'http://127.0.0.1:9200/_cluster/health?wait_for_status=yellow&timeout=1s'",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 36
+      start_period: 20s
+    ports:
+      - "127.0.0.1:${EVENTLENS_SEARCH_ES_PORT:-}:9200"
+
+  postgres:
+    image: pgvector/pgvector:0.8.0-pg17
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_DB: rag_eval
+      POSTGRES_USER: rag_eval
+      POSTGRES_PASSWORD: rag-eval-only
+    tmpfs:
+      - /var/lib/postgresql/data
+    mem_limit: ${EVENTLENS_SEARCH_PG_MEMORY:-512m}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag_eval -d rag_eval"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    ports:
+      - "127.0.0.1:${EVENTLENS_SEARCH_PG_PORT:-}:5432"

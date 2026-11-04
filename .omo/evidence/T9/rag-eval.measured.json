@@ -1,69 +1,69 @@
 {
   "case_latency": {
-    "max_ms": 589.856,
-    "p50_ms": 83.786,
-    "p95_ms": 589.856,
+    "max_ms": 751.793,
+    "p50_ms": 104.111,
+    "p95_ms": 751.793,
     "samples": 16
   },
   "graph_overhead_definition": "use-case wall time minus retrieval stage latencies minus synthesis total latency (graph orchestration + admission + reference issuing)",
   "hybrid": {
     "end_to_end": {
-      "max_ms": 15.149,
-      "p50_ms": 8.541,
-      "p95_ms": 10.21,
+      "max_ms": 18.13,
+      "p50_ms": 10.539,
+      "p95_ms": 15.869,
       "samples": 50
     },
     "execution_errors": 0,
     "graph_overhead": {
-      "max_ms": 8.343,
-      "p50_ms": 3.542,
-      "p95_ms": 5.123,
+      "max_ms": 9.351,
+      "p50_ms": 4.801,
+      "p95_ms": 8.279,
       "samples": 50
     }
   },
   "lexical": {
     "end_to_end": {
-      "max_ms": 16.307,
-      "p50_ms": 8.284,
-      "p95_ms": 11.989,
+      "max_ms": 40.226,
+      "p50_ms": 10.854,
+      "p95_ms": 27.818,
       "samples": 50
     },
     "execution_errors": 0,
     "graph_overhead": {
-      "max_ms": 9.363,
-      "p50_ms": 3.422,
-      "p95_ms": 5.842,
+      "max_ms": 17.432,
+      "p50_ms": 4.987,
+      "p95_ms": 12.619,
       "samples": 50
     }
   },
   "ranking": {
     "hybrid": {
       "end_to_end": {
-        "max_ms": 80.7,
-        "p50_ms": 24.295,
-        "p95_ms": 57.81,
+        "max_ms": 71.425,
+        "p50_ms": 27.566,
+        "p95_ms": 46.36,
         "samples": 50
       },
       "execution_errors": 0,
       "graph_overhead": {
-        "max_ms": 16.396,
-        "p50_ms": 4.141,
-        "p95_ms": 9.672,
+        "max_ms": 39.367,
+        "p50_ms": 5.747,
+        "p95_ms": 13.03,
         "samples": 50
       }
     },
     "lexical": {
       "end_to_end": {
-        "max_ms": 73.358,
-        "p50_ms": 10.601,
-        "p95_ms": 28.324,
+        "max_ms": 48.617,
+        "p50_ms": 11.805,
+        "p95_ms": 26.233,
         "samples": 50
       },
       "execution_errors": 0,
       "graph_overhead": {
-        "max_ms": 24.652,
-        "p50_ms": 3.823,
-        "p95_ms": 14.894,
+        "max_ms": 22.117,
+        "p50_ms": 5.176,
+        "p95_ms": 9.648,
         "samples": 50
       }
     }

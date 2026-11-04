@@ -253,7 +253,7 @@ def test_workflow_state_carries_no_session_client_or_adapter() -> None:
     # When
     found = [
         item
-        for workflow in ("ingestion", "query")
+        for workflow in ("ingestion", "query", "summarization")
         for item in violations(RAG / "workflows" / workflow / "state.py", forbidden)
     ]
 
@@ -273,6 +273,7 @@ def test_graphs_compile_only_in_graph_modules() -> None:
     assert compiling == [
         "rag/workflows/ingestion/graph.py",
         "rag/workflows/query/graph.py",
+        "rag/workflows/summarization/graph.py",
     ]
 
 
@@ -288,7 +289,7 @@ def test_routes_modules_stay_pure() -> None:
     # When
     found = [
         item
-        for workflow in ("ingestion", "query")
+        for workflow in ("ingestion", "query", "summarization")
         for item in violations(RAG / "workflows" / workflow / "routes.py", forbidden)
     ]
 
@@ -412,3 +413,56 @@ def test_alembic_revisions_are_packaged_beside_the_historical_sql() -> None:
     assert (revisions / "script.py.mako").is_file()
     assert versions[0] == "rag_0001_baseline.py"
     assert (RAG / "infra/postgres/expected_schema.json").is_file()
+
+
+def test_elasticsearch_and_model_adapters_stay_in_infra_or_composition() -> None:
+    # Given: the search index and model adapters are driven adapters.
+    adapters = (
+        "backend.rag.infra.elasticsearch",
+        "backend.rag.infra.embeddings.bge_m3",
+        "backend.rag.infra.rerankers",
+        "backend.rag.infra.search",
+    )
+    allowed = {"composition.py", "cli_main.py"}
+
+    # When
+    importers = sorted(
+        str(path.relative_to(RAG))
+        for path in RAG.rglob("*.py")
+        if not {"infra", "evaluation"} & set(path.relative_to(RAG).parts)
+        and any(
+            name == adapter or name.startswith(adapter + ".")
+            for name in imports_of(path)
+            for adapter in adapters
+        )
+    )
+
+    # Then
+    assert set(importers) <= allowed
+
+
+def test_core_layers_never_import_model_libraries_or_http() -> None:
+    forbidden = (
+        "sentence_transformers",
+        "torch",
+        "transformers",
+        "elasticsearch",
+        "urllib.request",
+    )
+    for area in ("domain", "application", "workflows", "presentation"):
+        assert violations(RAG / area, forbidden) == []
+
+
+def test_ollama_benchmark_is_reachable_only_from_the_cli() -> None:
+    importers = sorted(
+        str(path.relative_to(RAG))
+        for path in RAG.rglob("*.py")
+        if "evaluation" not in path.relative_to(RAG).parts
+        and "ollama" in path.read_text(encoding="utf-8").lower()
+    )
+    assert importers == ["cli_main.py"]
+
+
+def test_model_libraries_are_imported_lazily_by_their_adapters_only() -> None:
+    # sentence-transformers is an optional (bench) dependency: never a static import.
+    assert violations(RAG, ("sentence_transformers", "torch", "transformers")) == []

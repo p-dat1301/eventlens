@@ -1,0 +1,139 @@
+{
+  "schema": "handoff-validation-report.v1",
+  "ok": true,
+  "export_id": "search-test-200-v1",
+  "articles_sha256": "bdb7918289b282d435ccb14781f9fdc95e0be4a2ace047ef8b3bd5ae49c644ab",
+  "articles_bytes": 1354082,
+  "line_count": 200,
+  "valid_records": 200,
+  "error_count": 0,
+  "warning_count": 15,
+  "errors": [],
+  "warning_summary": {
+    "content_starts_with_title": 1,
+    "html_entity": 4,
+    "invisible_or_format_characters": 10
+  },
+  "warnings": [
+    {
+      "code": "invisible_or_format_characters",
+      "line": 25,
+      "detail": "content:U+00A0x1"
+    },
+    {
+      "code": "html_entity",
+      "line": 30,
+      "detail": "title:1"
+    },
+    {
+      "code": "invisible_or_format_characters",
+      "line": 46,
+      "detail": "content:U+200Bx1"
+    },
+    {
+      "code": "invisible_or_format_characters",
+      "line": 56,
+      "detail": "content:U+200Bx1"
+    },
+    {
+      "code": "invisible_or_format_characters",
+      "line": 66,
+      "detail": "content:U+200Bx1"
+    },
+    {
+      "code": "html_entity",
+      "line": 72,
+      "detail": "title:2"
+    },
+    {
+      "code": "invisible_or_format_characters",
+      "line": 82,
+      "detail": "content:U+200Fx50"
+    },
+    {
+      "code": "invisible_or_format_characters",
+      "line": 96,
+      "detail": "content:U+200Bx1"
+    },
+    {
+      "code": "invisible_or_format_characters",
+      "line": 106,
+      "detail": "content:U+200Bx1"
+    },
+    {
+      "code": "invisible_or_format_characters",
+      "line": 118,
+      "detail": "content:U+00A0x2"
+    },
+    {
+      "code": "invisible_or_format_characters",
+      "line": 119,
+      "detail": "title:U+00A0x1"
+    },
+    {
+      "code": "invisible_or_format_characters",
+      "line": 128,
+      "detail": "content:U+00A0x3"
+    },
+    {
+      "code": "html_entity",
+      "line": 152,
+      "detail": "title:2"
+    },
+    {
+      "code": "content_starts_with_title",
+      "line": 170,
+      "detail": ""
+    },
+    {
+      "code": "html_entity",
+      "line": 182,
+      "detail": "title:2"
+    }
+  ],
+  "near_duplicates": [
+    {
+      "article_id": "9fc24feb-a74c-4140-8bbe-acc90c726469",
+      "other_article_id": "abcdf2c3-50f9-4578-866b-f9c817cd2456",
+      "jaccard": 0.8243,
+      "containment": 0.9544
+    }
+  ],
+  "counts": {
+    "source_counts": {
+      "bbc.com": 20,
+      "cafef.vn": 20,
+      "nhandan.vn": 20,
+      "thanhnien.vn": 20,
+      "tuoitre.vn": 20,
+      "vietnamplus.vn": 20,
+      "vietstock.vn": 20,
+      "vneconomy.vn": 20,
+      "vnexpress.net": 20,
+      "vtv.vn": 20
+    },
+    "language_counts": {
+      "vi": 200
+    },
+    "parse_version_counts": {
+      "parser-v1": 68,
+      "parser-v2": 132
+    },
+    "quality_status_counts": {
+      "passed": 200
+    },
+    "normalization_version_counts": {
+      "normalize-v1": 68,
+      "normalize-v4": 132
+    },
+    "parse_normalization_pairs": {
+      "parser-v1/normalize-v1": 68,
+      "parser-v2/normalize-v4": 132
+    }
+  },
+  "hash_mapping": {
+    "records": 200,
+    "upstream_equals_rag_nfc_sha256": 0,
+    "upstream_differs_from_rag_nfc_sha256": 200
+  }
+}

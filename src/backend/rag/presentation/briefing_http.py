@@ -397,6 +397,11 @@ def _error_response(_: Request, error: Exception) -> JSONResponse:
     return JSONResponse(status_code=status, content=body.model_dump(mode="json"))
 
 
+def error_response(request: Request, error: Exception) -> JSONResponse:
+    """Public ``briefing_error.v1`` handler (legacy ``/briefing*`` routes)."""
+    return _error_response(request, error)
+
+
 def install_error_handlers(app: FastAPI) -> None:
     """Register the stable error mapping on ``app``."""
     for kind in HANDLED:

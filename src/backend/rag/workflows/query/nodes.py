@@ -10,7 +10,13 @@ from dataclasses import dataclass
 
 from langgraph.runtime import Runtime
 
-from backend.rag.application.ports.briefing import BriefingRoute, BriefingSteps
+from backend.rag.application.ports.briefing import (
+    BriefingRoute,
+    BriefingSteps,
+    PrimaryHop,
+)
+from backend.rag.application.use_cases.retrieve import RetrievalDraft
+from backend.rag.domain.query_intent import IntentDecision
 from backend.rag.domain.retrieval import RetrievalError, RetrievalResult
 from backend.rag.domain.synthesis import SynthesisPlan
 from backend.rag.domain.synthesis_errors import SynthesisError
@@ -43,6 +49,27 @@ def _retrieval(state: BriefingChannels) -> RetrievalResult:
     return value
 
 
+def _intent(state: BriefingChannels) -> IntentDecision:
+    value = state.get("intent")
+    if value is None:
+        raise BriefingGraphStateError("intent")
+    return value
+
+
+def _draft(state: BriefingChannels, channel: str) -> RetrievalDraft:
+    value = state.get("fused") if channel == "fused" else state.get("filtered")
+    if value is None:
+        raise BriefingGraphStateError(channel)
+    return value
+
+
+def _primary(state: BriefingChannels) -> PrimaryHop:
+    value = state.get("primary")
+    if value is None:
+        raise BriefingGraphStateError("primary")
+    return value
+
+
 @dataclass(frozen=True, slots=True)
 class BriefingNodes:
     """Node callables bound to the injected application steps."""
@@ -59,13 +86,71 @@ class BriefingNodes:
         except (RetrievalError, SynthesisError) as error:
             return {"failure": error}
 
-    def retrieve(
+    def classify_intent(
         self, state: BriefingChannels, runtime: Runtime[BriefingContext]
     ) -> BriefingChannels:
-        """Retrieve and assemble the evidence context."""
+        """Deterministic intent (rules only, no model)."""
+        del state
+        try:
+            return {"intent": self.steps.classify(runtime.context.invocation)}
+        except (RetrievalError, SynthesisError) as error:
+            return {"failure": error}
+
+    def apply_filters(
+        self, state: BriefingChannels, runtime: Runtime[BriefingContext]
+    ) -> BriefingChannels:
+        """Access, publication window and metadata filters."""
         invocation = runtime.context.invocation
         try:
-            return {"retrieval": self.steps.retrieve(invocation, _plan(state))}
+            return {"filtered": self.steps.apply_filters(invocation, _plan(state))}
+        except (RetrievalError, SynthesisError) as error:
+            return {"failure": error}
+
+    def retrieve_primary(
+        self, state: BriefingChannels, runtime: Runtime[BriefingContext]
+    ) -> BriefingChannels:
+        """Hop 1 and the bounded hop-2 decision."""
+        invocation = runtime.context.invocation
+        try:
+            primary = self.steps.retrieve_primary(
+                invocation, _intent(state), _draft(state, "filtered"), _plan(state)
+            )
+        except (RetrievalError, SynthesisError) as error:
+            return {"failure": error}
+        return {"primary": primary}
+
+    def retrieve_related(
+        self, state: BriefingChannels, runtime: Runtime[BriefingContext]
+    ) -> BriefingChannels:
+        """Optional bounded hop 2 (runs at most once; no loop edge exists)."""
+        invocation = runtime.context.invocation
+        try:
+            return {"related": self.steps.retrieve_related(invocation, _primary(state))}
+        except (RetrievalError, SynthesisError) as error:
+            return {"failure": error}
+
+    def fuse(
+        self, state: BriefingChannels, runtime: Runtime[BriefingContext]
+    ) -> BriefingChannels:
+        """Merge hops; single bounded rerank."""
+        invocation = runtime.context.invocation
+        try:
+            fused = self.steps.fuse(
+                invocation, _intent(state), _primary(state), state.get("related")
+            )
+        except (RetrievalError, SynthesisError) as error:
+            return {"failure": error}
+        return {"fused": fused}
+
+    def assemble_evidence(
+        self, state: BriefingChannels, runtime: Runtime[BriefingContext]
+    ) -> BriefingChannels:
+        """Final current-revision check and the budgeted evidence context."""
+        invocation = runtime.context.invocation
+        try:
+            return {
+                "retrieval": self.steps.assemble(invocation, _draft(state, "fused"))
+            }
         except (RetrievalError, SynthesisError) as error:
             return {"failure": error}
 

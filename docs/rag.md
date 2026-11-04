@@ -6,7 +6,10 @@ Domain and application (including `application/ports`) are framework-free (no
 LangGraph, Typer, psycopg or concrete adapters). LangGraph resides only in
 `workflows/`; PostgreSQL and fake adapters reside in `infra/`. Paths below are
 relative to `src/backend/rag`.
-All embeddings are deterministic local fakes with 1536 dimensions.
+PostgreSQL retrieval embeddings are deterministic local fakes with 1536
+dimensions. The optional search platform (derived Elasticsearch projection,
+BGE-M3 1024-dimension embeddings in their own generation and cache, never
+overwriting the 1536 fakes) is described in `docs/search-platform.md`.
 
 ## Local database commands
 
@@ -20,7 +23,9 @@ All commands read `EVENTLENS_RAG_DATABASE_URL` and exit `3` with
   adapter operation, never held across model, embedding or graph calls. Hot
   statements (FTS, pgvector, `SKIP LOCKED`, fenced publication) keep their exact
   reviewed SQL; ORM mappings (`infra/postgres/models.py`) never leave `rag.infra`.
-- Alembic is the only migration authority. `eventlens-rag migrate` runs
+- Alembic is the only migration authority (single head
+  `rag_0001_baseline → rag_0002_source_versions → rag_0003_search_platform`,
+  `docs/search-indexing.md`). `eventlens-rag migrate` runs
   `alembic upgrade head` in one transaction under the migration advisory lock;
   on an empty database the reviewed baseline `rag_0001_baseline` builds the
   schema exactly as SQL 001–007 left it (catalog-tested). Revisions live in
@@ -197,6 +202,20 @@ sh scripts/rag/with-test-db.sh uv run eventlens-rag \
 
 The production vector route is exact; HNSW iterative scan is measured by
 `vector-route-report` only and stays disabled in `retrieval-policy.v3`.
+
+### Search platform hooks (opt-in)
+
+`RetrieveEvidence` is phased (`apply_filters → retrieve_primary →
+[retrieve_related] → fuse → assemble`); `execute` runs them in order with
+identical results. An optional `CandidateSource` (the Elasticsearch index)
+replaces the two PostgreSQL branches; everything after the branches, including
+the batched final current/tombstone/scope check, is unchanged. Index outages
+fall back to the PostgreSQL branches unless `EVENTLENS_RAG_SEARCH_FALLBACK=none`.
+Chunk offsets are re-validated with the chunker that produced them
+(`codepoint-1200-200.v1` or `paragraph-900-1.v1`). Provenance records
+`search_backend`, `index_generation`, fallback reason, intent and hops.
+Defaults: PostgreSQL branches, identity reranker, multi-hop off. See
+`docs/search-platform.md` and `docs/query-intents.md`.
 
 ## T6 grounded synthesis, citation validation and model budgets
 

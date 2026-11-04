@@ -11,8 +11,11 @@ from typing import Protocol
 from uuid import UUID
 
 from backend.rag.application.ports.synthesis import AdmissionLease, TokenLedger
+from backend.rag.application.use_cases.retrieve import RetrievalDraft
 from backend.rag.domain.access import CallerScope
+from backend.rag.domain.article_scope import ArticleRestriction
 from backend.rag.domain.query import BriefingQuery
+from backend.rag.domain.query_intent import HopStopReason, HopTrace, IntentDecision
 from backend.rag.domain.retrieval import QueryControl, RetrievalResult
 from backend.rag.domain.synthesis import SynthesisPlan, SynthesisResult
 
@@ -41,6 +44,7 @@ class BriefingInvocation:
     control: QueryControl
     ledger: TokenLedger
     lease: AdmissionLease
+    scope: ArticleRestriction | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,6 +55,23 @@ class BriefingRun:
     retrieval: RetrievalResult | None
     result: SynthesisResult | None
     error: Exception | None
+
+
+@dataclass(frozen=True, slots=True)
+class PrimaryHop:
+    """Hop-1 draft plus the bounded decision about hop 2."""
+
+    draft: RetrievalDraft
+    trace: HopTrace
+    next_hop: HopStopReason
+
+
+@dataclass(frozen=True, slots=True)
+class RelatedHop:
+    """Hop-2 draft (``None`` when it was skipped) and its trace."""
+
+    draft: RetrievalDraft | None
+    trace: HopTrace
 
 
 class BriefingSteps(Protocol):
@@ -64,6 +85,48 @@ class BriefingSteps(Protocol):
         self, invocation: BriefingInvocation, plan: SynthesisPlan
     ) -> RetrievalResult:
         """Run T5 retrieval within the planned evidence budget."""
+        ...
+
+    def classify(self, invocation: BriefingInvocation) -> IntentDecision:
+        """Deterministic query intent (no model call)."""
+        ...
+
+    def apply_filters(
+        self, invocation: BriefingInvocation, plan: SynthesisPlan
+    ) -> RetrievalDraft:
+        """Access, publication window and metadata filters (one bounded read)."""
+        ...
+
+    def retrieve_primary(
+        self,
+        invocation: BriefingInvocation,
+        intent: IntentDecision,
+        draft: RetrievalDraft,
+        plan: SynthesisPlan,
+    ) -> PrimaryHop:
+        """Hop 1 on the user query plus the hop-2 decision."""
+        ...
+
+    def retrieve_related(
+        self, invocation: BriefingInvocation, primary: PrimaryHop
+    ) -> RelatedHop:
+        """Bounded hop 2 (one expansion, same filters); never loops."""
+        ...
+
+    def fuse(
+        self,
+        invocation: BriefingInvocation,
+        intent: IntentDecision,
+        primary: PrimaryHop,
+        related: RelatedHop | None,
+    ) -> RetrievalDraft:
+        """Merge hops and run the single bounded rerank."""
+        ...
+
+    def assemble(
+        self, invocation: BriefingInvocation, draft: RetrievalDraft
+    ) -> RetrievalResult:
+        """Final current/tombstone/scope check and budgeted evidence."""
         ...
 
     def synthesize(

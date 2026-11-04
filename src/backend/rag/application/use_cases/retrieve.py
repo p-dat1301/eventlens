@@ -36,6 +36,10 @@ from backend.rag.application.evidence_context import (
     PreparedSpan,
 )
 from backend.rag.application.ports.access import AccessPolicy
+from backend.rag.application.ports.candidates import (
+    CandidateSource,
+    CandidateSourceUnavailableError,
+)
 from backend.rag.application.ports.embeddings import EmbeddingPort
 from backend.rag.application.ports.reranker import (
     RerankCandidate,
@@ -51,25 +55,35 @@ from backend.rag.application.ports.retrieval import (
 from backend.rag.application.ports.tokens import TokenCounter
 from backend.rag.domain.access import CallerScope
 from backend.rag.domain.article_document import ArticleDocument
+from backend.rag.domain.article_scope import ArticleRestriction
 from backend.rag.domain.chunking import DEFAULT_POLICY, ChunkingPolicy, chunk_bounds
 from backend.rag.domain.embedding import EmbeddingIdentity, EmbeddingVector
 from backend.rag.domain.fusion import (
-    aggregate_articles,
+    apply_intent_freshness,
     fuse,
+    merge_hops,
     order_after_rerank,
     rank_lexical,
     rank_vector,
     suppress_duplicates,
     validate_rerank_scores,
 )
+from backend.rag.domain.paragraph_chunking import (
+    DEFAULT_PARAGRAPH_POLICY,
+    ParagraphChunkingPolicy,
+    paragraph_chunk_bounds,
+)
 from backend.rag.domain.query import BriefingQuery
+from backend.rag.domain.query_intent import HopTrace, classify_intent
 from backend.rag.domain.retrieval import (
     Branch,
     BranchCandidate,
+    ChunkRef,
     CoverageStatus,
     EmptyReason,
     EvidenceContext,
     FilterCoverage,
+    FreshnessPolicy,
     FusedCandidate,
     LexicalLimits,
     MetadataProvenance,
@@ -86,11 +100,18 @@ from backend.rag.domain.retrieval import (
     RetrievalPolicy,
     RetrievalProvenance,
     RetrievalResult,
+    RetrievalStorageError,
     RetrievedArticle,
     RetrievedSpan,
     StageMetric,
     VectorBranchStatus,
     build_span,
+)
+from backend.rag.domain.retrieval_tuning import (
+    BASELINE_TUNING,
+    RetrievalTuning,
+    SpanKey,
+    select_spans,
 )
 
 POLICY_RESOURCE = "retrieval-policy.v3.json"
@@ -121,6 +142,7 @@ class RetrievalOptions:
     vector_enabled: bool = True
     rerank_enabled: bool = True
     remaining_context_budget: int | None = None
+    article_scope: ArticleRestriction | None = None
 
 
 @dataclass(slots=True)
@@ -129,12 +151,28 @@ class _Run:
 
     timer: Callable[[], float]
     stages: list[StageMetric] = field(default_factory=list[StageMetric])
+    backend: str = "postgres"
+    index_generation: str | None = None
+    fallback_reason: str | None = None
+    source_chunker: str | None = None
+    source_embedding: str | None = None
+    intent: str | None = None
+    hops: tuple[HopTrace, ...] = ()
     storage_calls: int = 0
     embedding_calls: int = 0
     rerank_calls: int = 0
     suppressed: int = 0
     dropped: int = 0
     lexical_truncated: int = 0
+    branch_cap_dropped: int = 0
+    backfill_calls: int = 0
+    overlap_dropped: int = 0
+    cap_dropped: int = 0
+    freshness: str = "policy_mode"
+    freshness_boosted: int = 0
+    freshness_max_promotion: int = 0
+    fill_ids: frozenset[UUID] = frozenset()
+    fill_selected: int = 0
 
     def record(self, stage: str, started: float, inputs: int, outputs: int) -> None:
         latency = max(0.0, (self.timer() - started) * 1000.0)
@@ -149,6 +187,14 @@ class _Run:
             suppressed_duplicates=self.suppressed,
             dropped_at_final_check=self.dropped,
             lexical_truncated_articles=self.lexical_truncated,
+            branch_cap_dropped=self.branch_cap_dropped,
+            backfill_calls=self.backfill_calls,
+            selection_overlap_dropped=self.overlap_dropped,
+            selection_cap_dropped=self.cap_dropped,
+            freshness=self.freshness,
+            freshness_boosted=self.freshness_boosted,
+            freshness_max_promotion=self.freshness_max_promotion,
+            fill_spans_sent=self.fill_selected,
         )
 
 
@@ -207,6 +253,16 @@ def call_with_slice[T](
     return slot
 
 
+@dataclass(frozen=True, slots=True)
+class ArticleGroups:
+    """Selected spans per article (best-chunk order) and what was dropped."""
+
+    groups: tuple[tuple[UUID, tuple[RankedCandidate, ...]], ...]
+    overlap_dropped: int
+    cap_dropped: int
+    fill_chunk_ids: frozenset[UUID] = frozenset()
+
+
 def _validated_scores(expected: list[UUID], output: object) -> dict[UUID, float] | None:
     """Validate an untrusted reranker result; any malformed shape is invalid."""
     if not isinstance(output, RerankOutput):
@@ -249,6 +305,61 @@ def _basis(branches: set[Branch]) -> RetrievalMode:
     return RetrievalMode.LEXICAL_ONLY
 
 
+@dataclass(frozen=True, slots=True)
+class RetrievalDraft:
+    """Retrieval between graph steps; ``result`` set means already terminal.
+
+    Carries only values (query, caller, control, candidates, per-query
+    counters); never a session, adapter or client.
+    """
+
+    call: _Call
+    coverage: FilterCoverage = field(default_factory=_empty_coverage)
+    state: _State | None = None
+    candidates: tuple[FusedCandidate, ...] = ()
+    ranked: tuple[RankedCandidate, ...] | None = None
+    rerank: tuple[RerankStatus, RerankDegradeReason | None] = (
+        RerankStatus.SKIPPED,
+        None,
+    )
+    term_count: int | None = None
+    result: RetrievalResult | None = None
+
+    @classmethod
+    def finished(cls, call: _Call, result: RetrievalResult) -> "RetrievalDraft":
+        """Terminal draft; later steps pass it through unchanged."""
+        return cls(call=call, result=result)
+
+    @property
+    def candidate_count(self) -> int:
+        """Fused candidates so far (0 for terminal drafts)."""
+        return len(self.candidates)
+
+    @property
+    def control(self) -> QueryControl:
+        """The query's cancellation/deadline control."""
+        return self.call.control
+
+    def anchor_texts(self, limit: int) -> tuple[str, ...]:
+        """Leading text of the top candidates (hop-2 expansion anchors)."""
+        return tuple(item.text[:200] for item in self.candidates[:limit])
+
+    def empty_reason(self, state: _State) -> EmptyReason:
+        """Why a draft without candidates is empty (same rules as T5)."""
+        reason = (
+            EmptyReason.NO_QUERY_TERMS
+            if self.term_count == 0
+            and state.vector_status is not VectorBranchStatus.EXECUTED
+            else EmptyReason.NO_MATCHES
+        )
+        if (
+            reason is EmptyReason.NO_MATCHES
+            and state.coverage.status is CoverageStatus.FILTER_UNAVAILABLE
+        ):
+            return EmptyReason.FILTER_UNAVAILABLE
+        return reason
+
+
 def _in_scope(document: ArticleDocument, scope: RetrievalScope) -> bool:
     if scope.source_domains and document.source_domain not in scope.source_domains:
         return False
@@ -260,6 +371,17 @@ def _in_scope(document: ArticleDocument, scope: RetrievalScope) -> bool:
     return scope.published_before is None or (
         published is not None and published < scope.published_before
     )
+
+
+def _restrict(
+    allowed: tuple[UUID, ...] | None, restriction: ArticleRestriction | None
+) -> tuple[UUID, ...] | None:
+    """Intersect metadata-eligible IDs with the server-resolved article scope."""
+    if restriction is None:
+        return allowed
+    scoped = restriction.article_ids
+    keep = scoped if allowed is None else scoped & set(allowed)
+    return tuple(sorted(keep, key=str))
 
 
 def _metadata_matches(state: CurrentArticleState, query: BriefingQuery) -> bool:
@@ -287,6 +409,26 @@ class RetrieveEvidence:
     clock: Callable[[], datetime]
     timer: Callable[[], float] = time.perf_counter
     chunking: ChunkingPolicy = DEFAULT_POLICY
+    candidates: CandidateSource | None = None
+    fallback_to_store: bool = True
+    paragraphs: ParagraphChunkingPolicy = DEFAULT_PARAGRAPH_POLICY
+    tuning: RetrievalTuning = BASELINE_TUNING
+
+    @property
+    def lexical_on(self) -> bool:
+        """Lexical branch weight > 0 (a zero weight disables the branch)."""
+        return self.tuning.weights.lexical_enabled
+
+    @property
+    def semantic_on(self) -> bool:
+        """Semantic branch weight > 0 (zero: no query embedding at all)."""
+        return self.tuning.weights.semantic_enabled
+
+    def _branch_freshness(self) -> FreshnessPolicy:
+        """v3 branch bonus, or none when intent freshness replaces it."""
+        if self.tuning.freshness.mode == "intent":
+            return self.policy.freshness.model_copy(update={"weight": 0.0})
+        return self.policy.freshness
 
     def _check_configuration(self, options: RetrievalOptions) -> None:
         if self.policy.chunker_version != self.chunking.version:
@@ -308,6 +450,19 @@ class RetrieveEvidence:
         options: RetrievalOptions | None = None,
     ) -> RetrievalResult:
         """Run the full pipeline or raise a typed ``RetrievalError``."""
+        draft = self.retrieve_primary(
+            self.apply_filters(query, caller, control, options)
+        )
+        return self.assemble(self.fuse(draft))
+
+    def apply_filters(
+        self,
+        query: BriefingQuery,
+        caller: CallerScope,
+        control: QueryControl,
+        options: RetrievalOptions | None = None,
+    ) -> RetrievalDraft:
+        """Access/configuration check, publication range and metadata filters."""
         options = options or RetrievalOptions()
         control.admit()
         run = _Run(self.timer)
@@ -334,63 +489,192 @@ class RetrieveEvidence:
             query.published_after is not None
             and query.published_after == query.published_before
         ):
-            return self._empty(call, EmptyReason.EMPTY_PUBLICATION_RANGE, None)
+            return RetrievalDraft.finished(
+                call, self._empty(call, EmptyReason.EMPTY_PUBLICATION_RANGE, None)
+            )
         coverage, allowed = self._metadata(call)
-        call = _Call(
-            query=call.query,
-            caller=call.caller,
-            control=call.control,
-            options=call.options,
-            now=call.now,
-            run=call.run,
-            scope=RetrievalScope(
-                source_domains=call.scope.source_domains,
-                published_after=call.scope.published_after,
-                published_before=call.scope.published_before,
-                allowed_article_ids=allowed,
-            ),
-        )
+        allowed = _restrict(allowed, options.article_scope)
+        call = replace(call, scope=replace(call.scope, allowed_article_ids=allowed))
         if allowed is not None and not allowed:
             reason = (
                 EmptyReason.FILTER_UNAVAILABLE
                 if coverage.status is CoverageStatus.FILTER_UNAVAILABLE
                 else EmptyReason.NO_MATCHES
             )
-            return self._empty(
+            return RetrievalDraft.finished(
                 call,
-                reason,
-                _State(coverage, RetrievalMode.NONE, VectorBranchStatus.NOT_NEEDED),
+                self._empty(
+                    call,
+                    reason,
+                    _State(coverage, RetrievalMode.NONE, VectorBranchStatus.NOT_NEEDED),
+                ),
             )
-        return self._search(call, coverage)
+        return RetrievalDraft(call=call, coverage=coverage)
 
-    def _search(self, call: _Call, coverage: FilterCoverage) -> RetrievalResult:
-        lexical, term_count = self._lexical(call)
-        vector, vector_status = self._vector(call)
+    def retrieve_primary(self, draft: RetrievalDraft) -> RetrievalDraft:
+        """Hop 1: both branches on the user query, RRF and dedup."""
+        if draft.result is not None:
+            return draft
+        return self._gather(draft, draft.call.query.query, hop=1)
+
+    def retrieve_related(self, draft: RetrievalDraft, text: str) -> RetrievalDraft:
+        """Bounded hop 2: same scope and filters, one expanded query text."""
+        if draft.result is not None:
+            return draft
+        return self._gather(draft, text, hop=2)
+
+    def fuse(
+        self,
+        primary: RetrievalDraft,
+        related: RetrievalDraft | None = None,
+        *,
+        intent: str | None = None,
+        hops: tuple[HopTrace, ...] = (),
+    ) -> RetrievalDraft:
+        """Merge hop results (RRF over hop ranks), then the single bounded rerank."""
+        call = primary.call
+        call.run.intent = intent
+        call.run.hops = hops
+        if primary.result is not None:
+            return primary
+        state = primary.state
+        assert state is not None  # noqa: S101 - set by _gather
+        merged = primary.candidates
+        if related is not None and related.result is None and related.candidates:
+            started = call.run.timer()
+            merged = merge_hops(
+                primary.candidates, related.candidates, self.policy.rrf.k
+            )
+            merged, suppressed = suppress_duplicates(merged, self.policy.dedup)
+            call.run.suppressed += suppressed
+            call.run.record(
+                "hop_fusion",
+                started,
+                len(primary.candidates) + len(related.candidates),
+                len(merged),
+            )
+        call.control.admit()
+        if not merged:
+            return RetrievalDraft.finished(
+                call, self._empty(call, primary.empty_reason(state), state)
+            )
+        ranked, status, degrade = self._rerank(call, merged)
+        call.control.admit()
+        return replace(
+            primary, candidates=merged, ranked=ranked, rerank=(status, degrade)
+        )
+
+    def assemble(self, draft: RetrievalDraft) -> RetrievalResult:
+        """Final current/tombstone/scope check and token-budgeted evidence."""
+        if draft.result is not None:
+            return draft.result
+        if draft.state is None or draft.ranked is None:
+            message = "assemble requires a fused draft"
+            raise RetrievalConfigurationError(message)
+        status, degrade = draft.rerank
+        return self._finish(draft.call, draft.state, draft.ranked, status, degrade)
+
+    def _gather(self, draft: RetrievalDraft, text: str, *, hop: int) -> RetrievalDraft:
+        call = draft.call
+        coverage = draft.coverage
+        lexical, vector, vector_status, term_count = self._branches(call, text)
         state = _State(coverage, _mode(lexical, vector), vector_status)
         call.control.admit()
         started = call.run.timer()
-        fused = fuse(lexical, vector, self.policy.rrf.k)
-        call.run.record("fusion", started, len(lexical) + len(vector), len(fused))
+        fused = fuse(lexical, vector, self.policy.rrf.k, self.tuning.weights)
+        stage = "fusion" if hop == 1 else f"fusion_hop{hop}"
+        call.run.record(stage, started, len(lexical) + len(vector), len(fused))
         started = call.run.timer()
         deduped, suppressed = suppress_duplicates(fused, self.policy.dedup)
-        call.run.suppressed = suppressed
-        call.run.record("dedup", started, len(fused), len(deduped))
-        call.control.admit()
-        if not deduped:
-            reason = (
-                EmptyReason.NO_QUERY_TERMS
-                if term_count == 0
-                and state.vector_status is not VectorBranchStatus.EXECUTED
-                else EmptyReason.NO_MATCHES
+        call.run.suppressed += suppressed
+        call.run.record(
+            "dedup" if hop == 1 else f"dedup_hop{hop}",
+            started,
+            len(fused),
+            len(deduped),
+        )
+        if hop == 1 and self.tuning.freshness.mode == "intent":
+            # After dedup on purpose: dedup re-sorts by fused score, so the
+            # rank guard must be the last reordering of the hop-1 list. The
+            # baseline is the deduplicated, unboosted order; a representative
+            # is boosted by its own (shown) publication time.
+            started = call.run.timer()
+            deduped, decision = apply_intent_freshness(
+                deduped,
+                call.now,
+                self.tuning.freshness,
+                classify_intent(call.query.query).intent.value,
+                self.policy.rrf.k,
+                explicit_window=call.query.published_after is not None
+                or call.query.published_before is not None,
+                weight_sum=(self.tuning.weights.lexical if lexical else 0.0)
+                + (self.tuning.weights.semantic if vector else 0.0),
             )
-            if reason is EmptyReason.NO_MATCHES and (
-                coverage.status is CoverageStatus.FILTER_UNAVAILABLE
-            ):
-                reason = EmptyReason.FILTER_UNAVAILABLE
-            return self._empty(call, reason, state)
-        ranked, status, degrade = self._rerank(call, deduped)
+            call.run.freshness = decision.reason
+            call.run.freshness_boosted = decision.boosted
+            call.run.freshness_max_promotion = decision.max_promotion
+            call.run.record("freshness", started, len(deduped), decision.boosted)
         call.control.admit()
-        return self._finish(call, state, ranked, status, degrade)
+        if hop > 1:
+            return replace(draft, candidates=deduped)
+        return replace(draft, state=state, candidates=deduped, term_count=term_count)
+
+    def _branches(
+        self, call: _Call, text: str
+    ) -> tuple[
+        tuple[BranchCandidate, ...],
+        tuple[BranchCandidate, ...],
+        VectorBranchStatus,
+        int | None,
+    ]:
+        """Index-backed candidates when configured, else (or on outage) PostgreSQL."""
+        source = self.candidates
+        if source is not None:
+            call.control.admit()
+            started = call.run.timer()
+            try:
+                batch = source.candidates(
+                    text,
+                    call.scope,
+                    call.query,
+                    call.caller,
+                    call.control,
+                    lexical=call.options.lexical_enabled and self.lexical_on,
+                    semantic=call.options.vector_enabled and self.semantic_on,
+                    tuning=self.tuning,
+                )
+            except CandidateSourceUnavailableError as error:
+                call.control.admit()
+                if not self.fallback_to_store:
+                    raise RetrievalStorageError from error
+                call.run.backend = "postgres_fallback"
+                call.run.fallback_reason = error.reason
+                call.run.record("search_index", started, 1, 0)
+            else:
+                call.control.admit()
+                call.run.backend = batch.backend
+                call.run.index_generation = batch.generation
+                call.run.source_chunker = batch.chunker_version
+                call.run.source_embedding = batch.embedding_identity
+                call.run.storage_calls += batch.storage_calls
+                call.run.embedding_calls += batch.embedding_calls
+                call.run.branch_cap_dropped += batch.branch_cap_dropped
+                call.run.backfill_calls += batch.backfill_calls
+                call.run.record(
+                    "search_index",
+                    started,
+                    1,
+                    len(batch.lexical) + len(batch.vector),
+                )
+                return (
+                    batch.lexical,
+                    batch.vector,
+                    batch.vector_status,
+                    batch.term_count,
+                )
+        lexical, term_count = self._lexical(call, text)
+        vector, vector_status = self._vector(call, text)
+        return lexical, vector, vector_status, term_count
 
     def _metadata(self, call: _Call) -> tuple[FilterCoverage, tuple[UUID, ...] | None]:
         query = call.query
@@ -430,16 +714,18 @@ class RetrieveEvidence:
             matching,
         )
 
-    def _lexical(self, call: _Call) -> tuple[tuple[BranchCandidate, ...], int | None]:
+    def _lexical(
+        self, call: _Call, text: str
+    ) -> tuple[tuple[BranchCandidate, ...], int | None]:
         """Bounded lexical branch; returns candidates and the query lexeme count."""
-        if not call.options.lexical_enabled:
+        if not call.options.lexical_enabled or not self.lexical_on:
             return (), None
         call.control.admit()
         started = call.run.timer()
         call.run.storage_calls += 1
         lexical = self.policy.lexical
         page = self.store.lexical_chunks(
-            call.query.query,
+            text,
             call.scope,
             LexicalLimits(
                 stopwords=self.policy.tokenizer.stopwords,
@@ -463,7 +749,7 @@ class RetrieveEvidence:
             page,
             call.now,
             lexical,
-            self.policy.freshness,
+            self._branch_freshness(),
             self.policy.chunker_version,
         )
         ranked = ranked[: lexical.max_text_chunks]
@@ -493,15 +779,19 @@ class RetrieveEvidence:
         )
 
     def _vector(
-        self, call: _Call
+        self, call: _Call, text: str
     ) -> tuple[tuple[BranchCandidate, ...], VectorBranchStatus]:
-        if not call.options.vector_enabled or self.embeddings is None:
+        if (
+            not call.options.vector_enabled
+            or not self.semantic_on
+            or self.embeddings is None
+        ):
             return (), VectorBranchStatus.DISABLED
         call.control.admit()
         started = call.run.timer()
         call.run.embedding_calls += 1
         try:
-            vector = self.embeddings.embed(normalize("NFC", call.query.query))
+            vector = self.embeddings.embed(normalize("NFC", text))
         except RetrievalError:
             raise
         except Exception:  # noqa: BLE001 - provider failure means lexical_only
@@ -522,7 +812,7 @@ class RetrieveEvidence:
             hits,
             call.now,
             self.policy.vector,
-            self.policy.freshness,
+            self._branch_freshness(),
             self.policy.chunker_version,
         )
         call.run.record("vector", started, len(hits), len(ranked))
@@ -625,9 +915,16 @@ class RetrieveEvidence:
             return None
         if not _in_scope(document, call.scope):
             return None
+        restriction = call.options.article_scope
+        if restriction is not None and not restriction.admits(
+            document.article_id, document.content_hash
+        ):
+            return None
         if metadata_requested and not _metadata_matches(state, call.query):
             return None
-        length = len(document.normalized_content)
+        # Index-backed candidates were checked against their own generation
+        # by the search adapter; PostgreSQL only confirms the current revision.
+        indexed = call.run.backend not in {"postgres", "postgres_fallback"}
         spans: list[PreparedSpan] = []
         branches: set[Branch] = set()
         for item in items:
@@ -635,11 +932,11 @@ class RetrieveEvidence:
             ref = candidate.chunk
             if (
                 candidate.lexical_rank is None
+                and not indexed
                 and candidate.vector_generation != state.active_index_generation
             ):
                 continue
-            bounds = chunk_bounds(length, ref.chunk_index, self.chunking)
-            if bounds != (ref.start_offset, ref.end_offset):
+            if self._bounds(document, ref) != (ref.start_offset, ref.end_offset):
                 continue
             if not document.normalized_content[
                 ref.start_offset : ref.end_offset
@@ -656,6 +953,7 @@ class RetrieveEvidence:
                 branch
                 for branch in candidate.branches
                 if branch is Branch.LEXICAL
+                or indexed
                 or candidate.vector_generation == state.active_index_generation
             )
             branches.update(current_branches)
@@ -673,6 +971,8 @@ class RetrieveEvidence:
                         rerank_score=item.rerank_score,
                         truncated=False,
                     ),
+                    fill=ref.chunk_id in call.run.fill_ids,
+                    priority=item.position,
                 )
             )
         if not spans:
@@ -700,7 +1000,7 @@ class RetrieveEvidence:
             retrieval_basis=basis,
             vector_generation=(
                 None
-                if basis is RetrievalMode.LEXICAL_ONLY
+                if basis is RetrievalMode.LEXICAL_ONLY or indexed
                 else state.active_index_generation
             ),
             metadata=provenance,
@@ -715,6 +1015,51 @@ class RetrieveEvidence:
                 )
             ),
             spans=tuple(spans),
+            indexed=indexed,
+        )
+
+    def _bounds(
+        self, document: ArticleDocument, ref: ChunkRef
+    ) -> tuple[int, int] | None:
+        """Recompute a chunk's offsets with the chunker that produced it."""
+        text = document.normalized_content
+        if ref.chunker_version == self.chunking.version:
+            return chunk_bounds(len(text), ref.chunk_index, self.chunking)
+        if ref.chunker_version == self.paragraphs.version:
+            return paragraph_chunk_bounds(text, ref.chunk_index, self.paragraphs)
+        return None
+
+    def select(self, ranked: tuple[RankedCandidate, ...]) -> ArticleGroups:
+        """Article/passage selection (cap, overlap) in best-chunk order."""
+        selection = self.tuning.selection
+        cap = (
+            selection.max_spans_per_article
+            or self.policy.aggregation.max_spans_per_article
+        )
+        chosen = select_spans(
+            tuple(
+                SpanKey(
+                    article_id=item.candidate.chunk.article_id,
+                    content_hash=item.candidate.chunk.content_hash,
+                    start=item.candidate.chunk.start_offset,
+                    end=item.candidate.chunk.end_offset,
+                )
+                for item in ranked
+            ),
+            cap,
+            selection.overlap_threshold,
+            selection.fill_spans_per_article,
+        )
+        return ArticleGroups(
+            groups=tuple(
+                (article_id, tuple(ranked[i] for i in positions))
+                for article_id, positions in chosen.groups
+            ),
+            overlap_dropped=chosen.overlap_dropped,
+            cap_dropped=chosen.cap_dropped,
+            fill_chunk_ids=frozenset(
+                ranked[i].candidate.chunk.chunk_id for i in chosen.fill
+            ),
         )
 
     def _budget(self, call: _Call) -> int:
@@ -732,10 +1077,11 @@ class RetrieveEvidence:
     ) -> RetrievalResult:
         started = call.run.timer()
         article_cap = min(call.query.result_limit, self.policy.output.max_articles)
-        groups = aggregate_articles(
-            ranked, self.policy.aggregation.max_spans_per_article
-        )
-        pool = groups[
+        groups = self.select(ranked)
+        call.run.overlap_dropped += groups.overlap_dropped
+        call.run.cap_dropped += groups.cap_dropped
+        call.run.fill_ids = groups.fill_chunk_ids
+        pool = groups.groups[
             : article_cap * self.policy.aggregation.final_check_pool_multiplier
         ]
         call.run.record("aggregate", started, len(ranked), len(pool))
@@ -745,10 +1091,16 @@ class RetrieveEvidence:
                 call, EmptyReason.DROPPED_AT_FINAL_CHECK, state, status, degrade
             )
         started = call.run.timer()
-        assembled = EvidenceAssembler(self.tokens, self.policy.output).assemble(
-            tuple(prepared), self._budget(call)
-        )
+        assembled = EvidenceAssembler(
+            self.tokens, self.policy.output, self.tuning.selection.packing
+        ).assemble(tuple(prepared), self._budget(call))
         call.run.record("assemble", started, len(prepared), len(assembled.articles))
+        call.run.fill_selected = sum(
+            1
+            for article in assembled.articles
+            for span in article.spans
+            if span.chunk_id in call.run.fill_ids
+        )
         call.control.admit()
         if not self.access.allows(call.caller):  # R1: response boundary
             raise RetrievalAccessDeniedError
@@ -773,7 +1125,15 @@ class RetrieveEvidence:
     def _provenance(self, call: _Call) -> RetrievalProvenance:
         identity = self.embedding_identity
         reranker = None if self.reranker is None else self.reranker.identity
+        run = call.run
         return RetrievalProvenance(
+            search_backend=run.backend,
+            index_generation=run.index_generation,
+            search_fallback_reason=run.fallback_reason,
+            source_chunker_version=run.source_chunker,
+            source_embedding_identity=run.source_embedding,
+            query_intent=run.intent,
+            hops=run.hops,
             policy_id=self.policy.policy_id,
             fusion_policy_id=self.policy.fusion_policy_id,
             index_version=(
@@ -790,6 +1150,7 @@ class RetrieveEvidence:
             reranker_version=None if reranker is None else reranker.version,
             publication_time_basis="source_published_at",
             query_time=call.now,
+            tuning_id=self.tuning.tuning_id,
         )
 
     def _empty(
@@ -834,6 +1195,8 @@ class RetrieveEvidence:
 
 
 __all__ = [
+    "ArticleGroups",
+    "RetrievalDraft",
     "RetrievalOptions",
     "RetrieveEvidence",
     "RetrievedArticle",

@@ -1,0 +1,747 @@
+{
+  "schema_version": "search-questions.v1",
+  "corpus_export_id": "search-test-200-v1",
+  "corpus_digest": "sha256:30e474d573e82a80d8f1c25d91e866d5bcedc94b9191efe1778d20dc3ba389ff",
+  "chunker_version": "codepoint-1200-200.v1",
+  "split_seed": "search-selection-v1",
+  "dev_fraction": 0.4,
+  "questions": [
+    {
+      "qid": "h-01",
+      "question": "Vì sao Kho bạc Nhà nước phát hành trái phiếu kỳ hạn 10 năm vượt kế hoạch, và kế hoạch phát hành cả năm được điều chỉnh ra sao?",
+      "category": "multi_source",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "2720fc74-e16c-4be1-aad0-4726c74693a4",
+          "content_hash": "sha256:75146147bfda80b4e6ab29ad2f53773d9630c0b5b03604a7a3c5c905dce1fdfe",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 265,
+              "end": 304,
+              "excerpt_sha256": "71b58e3a92dfc8fadebd00b6922647db39e75307e3b9b880b7506ff704c3f3a5"
+            }
+          ]
+        },
+        {
+          "article_id": "e8e14b2d-e37d-4d72-b6df-d29754caf199",
+          "content_hash": "sha256:698cef84a79bf2c5dbc0cf4385bcae0b7c1e20260d4590a72f7ff7caca18de78",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 94,
+              "end": 134,
+              "excerpt_sha256": "3f4e7a185aaae4a7e0e2f5e23df0823c89767e15231b134bbf90d9cdda85ebc1"
+            }
+          ]
+        },
+        {
+          "article_id": "09ff1ccd-db5d-4743-bd84-a3ba6a99b00d",
+          "content_hash": "sha256:9ec2b38f28b322c334ff1e48675f1dc1d16f4f7aff2b884d3dfb32955b5f64d3",
+          "grade": 1,
+          "spans": [
+            {
+              "start": 211,
+              "end": 272,
+              "excerpt_sha256": "2e2617cade63a21461242212c5b6e81539b70969f1680b8fc7d1c3a001c43bb2"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Cầu kỳ hạn 10 năm tăng đột biến (chào mua 17.600 tỷ so với kế hoạch 8.000 tỷ); kế hoạch năm giảm từ 500.000 xuống 400.000 tỷ đồng.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-02",
+      "question": "Trong tháng 9, kỳ hạn 10 năm chiếm bao nhiêu phần trăm khối lượng trái phiếu chính phủ phát hành và lãi suất trúng thầu của kỳ hạn này là bao nhiêu?",
+      "category": "deep_single",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "09ff1ccd-db5d-4743-bd84-a3ba6a99b00d",
+          "content_hash": "sha256:9ec2b38f28b322c334ff1e48675f1dc1d16f4f7aff2b884d3dfb32955b5f64d3",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 277,
+              "end": 312,
+              "excerpt_sha256": "217147e2ebe57fa291ef43b7fd166691040ce49458de1e50041aab2e348c7b0b"
+            },
+            {
+              "start": 783,
+              "end": 816,
+              "excerpt_sha256": "248cc1567cda0df35cd72fc5890021cbf4951a5dedfbaa62fe8be599a9f488b4"
+            }
+          ]
+        },
+        {
+          "article_id": "2720fc74-e16c-4be1-aad0-4726c74693a4",
+          "content_hash": "sha256:75146147bfda80b4e6ab29ad2f53773d9630c0b5b03604a7a3c5c905dce1fdfe",
+          "grade": 1,
+          "spans": [
+            {
+              "start": 490,
+              "end": 523,
+              "excerpt_sha256": "a865b3eb1cd952a8c376a8efd5df8b43c8cd201d15710721932bc0fcd41d268c"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Khoảng 63,3% khối lượng; lãi suất trúng thầu 4,43%/năm.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-03",
+      "question": "Tính đến cuối quý III, nhà nước đã vay được bao nhiêu qua các phiên đấu thầu công trái và hoàn thành bao nhiêu phần trăm mục tiêu năm?",
+      "category": "paraphrase",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "09ff1ccd-db5d-4743-bd84-a3ba6a99b00d",
+          "content_hash": "sha256:9ec2b38f28b322c334ff1e48675f1dc1d16f4f7aff2b884d3dfb32955b5f64d3",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 143,
+              "end": 208,
+              "excerpt_sha256": "3ff6389d1a31d7d028d8a7727a1c4f90a50d295daea479dddea7222077b8b1a7"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "299.060,5 tỷ đồng, đạt 60% kế hoạch năm 2026.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-04",
+      "question": "Người dân đi lại thế nào trên đường Nguyễn Thị Minh Khai sau khi phân luồng phục vụ thi công ga ST2 Tao Đàn?",
+      "category": "multi_source",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "62582f31-7413-40c8-909a-f64c91f1b248",
+          "content_hash": "sha256:7669afbae2b65467b2d85d9f863130fe090cba6732bf8ceca2b2a1b108678e21",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 355,
+              "end": 426,
+              "excerpt_sha256": "b036aeb61c4d0b65530237973a0baf53f421c704afc20b6c8d61eae2be007655"
+            }
+          ]
+        },
+        {
+          "article_id": "0e34ca62-048c-4933-8d83-b0f0fed258bc",
+          "content_hash": "sha256:e6e064827c60dec06ba04b164b2c9505d67674d97b71c679535900b92a2bfb30",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 102,
+              "end": 132,
+              "excerpt_sha256": "260bc88be0c832d2c5bdeb0b6608807e79a388ed8b51f885f7ecb6f72301a934"
+            }
+          ]
+        },
+        {
+          "article_id": "e7726b6b-0827-4df4-8dec-cacb6c7094dc",
+          "content_hash": "sha256:de8867cc743fdf544c050e727a9adcbce26d98c01145f0ece7d37dcbe6ef017b",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 212,
+              "end": 256,
+              "excerpt_sha256": "239d102159ffb28bf64d5b15c3c6eca755ea68381841854cd99e306cb5673281"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Nhiều người còn lúng túng, chưa nắm rõ phân luồng; nhiều người đi ngược chiều, lực lượng chức năng phải nhắc nhở.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-05",
+      "question": "Trên đường Nguyễn Thị Minh Khai, đoạn nào vẫn được đi hai chiều và từ đâu phương tiện bắt đầu chỉ được đi một chiều?",
+      "category": "deep_single",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "62582f31-7413-40c8-909a-f64c91f1b248",
+          "content_hash": "sha256:7669afbae2b65467b2d85d9f863130fe090cba6732bf8ceca2b2a1b108678e21",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 888,
+              "end": 1005,
+              "excerpt_sha256": "585c9d8de519a7f4bfe5704781df4f0f3dd77863b057d8ccbf6c8f4c046e8e45"
+            },
+            {
+              "start": 1086,
+              "end": 1131,
+              "excerpt_sha256": "52fbc19c577ec15037cb57f7c6d01277f359a8099597ad19438ef86674bbe75c"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Từ ngã sáu Cộng Hòa đến hẻm 306 đi hai chiều; từ khu vực hẻm 306 bắt đầu đi một chiều.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-06",
+      "question": "Thâm hụt ngân sách của Mỹ trong năm tài chính 2026 là bao nhiêu và IMF đánh giá thế nào về cách Mỹ định giảm nợ?",
+      "category": "multi_source",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "266e74ee-1eb5-475c-9b1d-0b55d66e42a9",
+          "content_hash": "sha256:f63decf9d9d589d44e61588bb28374396a750c4637a057eee317645d823cdf40",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 60,
+              "end": 91,
+              "excerpt_sha256": "490a59ebcec709b062ce50ea042606bb9e0952c4aeb8839828ce7edcb03866c6"
+            }
+          ]
+        },
+        {
+          "article_id": "9c4345a3-d1d1-4044-b39f-63dc3288a091",
+          "content_hash": "sha256:84ae4d7083c2bb9ccba3840497c8e8bc583dc0530494fc2a21fd38f717051937",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 175,
+              "end": 260,
+              "excerpt_sha256": "82dc66c9a63f153e48da1deec429d8ce936fcbc8bcdd4860bda921c9a029f73a"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "1.992 tỉ USD; IMF cho rằng dựa vào tăng trưởng để kiểm soát nợ là chưa đủ, cần thêm biện pháp tài khóa.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-07",
+      "question": "Lần gần nhất chính quyền liên bang Hoa Kỳ thu nhiều hơn chi là vào năm nào?",
+      "category": "paraphrase",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "266e74ee-1eb5-475c-9b1d-0b55d66e42a9",
+          "content_hash": "sha256:f63decf9d9d589d44e61588bb28374396a750c4637a057eee317645d823cdf40",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 637,
+              "end": 719,
+              "excerpt_sha256": "a3b8e316001d100e326ca5418fb2972ad880ca45fe34f63863298ee55be5f516"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Năm 2001.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-08",
+      "question": "Tỷ lệ nợ trên GDP của Mỹ từng đạt đỉnh bao nhiêu sau Thế chiến thứ hai và vào năm nào?",
+      "category": "paraphrase",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "9c4345a3-d1d1-4044-b39f-63dc3288a091",
+          "content_hash": "sha256:84ae4d7083c2bb9ccba3840497c8e8bc583dc0530494fc2a21fd38f717051937",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1870,
+              "end": 1958,
+              "excerpt_sha256": "f568da76eb41186c8123d07e7601527ffbdcd81f96cb3d6407020335368e95b5"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "106%, năm 1946.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-09",
+      "question": "Lễ đón Tổng thống Thụy Sĩ Guy Parmelin được tổ chức ở đâu, và kim ngạch, đầu tư giữa hai nước tăng trưởng ra sao?",
+      "category": "multi_source",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "e762289f-ae0e-4f32-a396-d5c5697aa717",
+          "content_hash": "sha256:b2f33d048a18da18a23c4a4919bc19a94cd8930b03718927fbe7f9ea507250d2",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 13,
+              "end": 135,
+              "excerpt_sha256": "73f10a0736390204751206472dd955211e0eafda53a2a3988ba45ebe47e390f2"
+            }
+          ]
+        },
+        {
+          "article_id": "41da98fe-6a8d-4dae-ba0a-8f3063702f67",
+          "content_hash": "sha256:459b9ee3cc986ae956459610be5f84deba3a7fc50a6137f8f16e79fdc497352d",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1027,
+              "end": 1098,
+              "excerpt_sha256": "32df9a2574557ed0353f3baa25b499eced160860ffd2f5a18af1ea61a13c05e5"
+            }
+          ]
+        },
+        {
+          "article_id": "9364c3e4-a708-4f61-8eaa-22ea7f71ba35",
+          "content_hash": "sha256:baaf068780dafb3b6d2e1b84328bb9bbb9be4be56b6bf996f445b9df5e80e143",
+          "grade": 1,
+          "spans": [
+            {
+              "start": 141,
+              "end": 190,
+              "excerpt_sha256": "bc636861564af3c0ebefa238540b8ccc4f509576867eac153e405663d7c19362"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Tại Nhà Quốc hội; kim ngạch tăng đều 7%, đầu tư tăng 8% mỗi năm trong 4 năm qua.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-10",
+      "question": "Vị nguyên thủ châu Âu vừa sang thăm Hà Nội tháng 10 từng giữ ghế bộ trưởng quốc phòng nước mình trong giai đoạn nào?",
+      "category": "paraphrase",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "9364c3e4-a708-4f61-8eaa-22ea7f71ba35",
+          "content_hash": "sha256:baaf068780dafb3b6d2e1b84328bb9bbb9be4be56b6bf996f445b9df5e80e143",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1719,
+              "end": 1800,
+              "excerpt_sha256": "b4fd37034f71f6936c35e4f29103f90af05ae7f26a4cedd80d5a7cade4498fd9"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "2016-2018.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-11",
+      "question": "Hà Nội đang làm gì với cây xanh đường phố: định hướng loài cây cho từng tuyến phố và xử lý cây hoa sữa ra sao?",
+      "category": "multi_source",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "bb81ef8a-9c33-4d34-bf03-8eb15e42e1cf",
+          "content_hash": "sha256:2558e1f4c027230ad854b5189746c6e85c804a26eadf5c32d94cf1bc56f86f02",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 18,
+              "end": 93,
+              "excerpt_sha256": "35ba5d0bf5223e292c6bc2b0443741c8ed99e19021f9c7606b8469eb133848b0"
+            }
+          ]
+        },
+        {
+          "article_id": "0c1ef892-e5a9-4475-8b5c-7799bef70911",
+          "content_hash": "sha256:fba1d31b91ec66630df10c00604bf9fa2c28d97dd23f69351f3c0f577d890a49",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 142,
+              "end": 190,
+              "excerpt_sha256": "665e824dfbbeef97ec3d892c6c78f08f8cbc7bc20a5b7cc70b3a20e299554d37"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Mỗi tuyến phố trồng chủ đạo một loài (tối đa 2); bắt đầu cắt tỉa bớt hoa sữa để giảm mùi.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-12",
+      "question": "Với những con phố nhỏ ở khu nội đô lịch sử, thủ đô ưu tiên trồng cây có đặc điểm gì để không làm hỏng vỉa hè?",
+      "category": "paraphrase",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "bb81ef8a-9c33-4d34-bf03-8eb15e42e1cf",
+          "content_hash": "sha256:2558e1f4c027230ad854b5189746c6e85c804a26eadf5c32d94cf1bc56f86f02",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 975,
+              "end": 1075,
+              "excerpt_sha256": "9f1b76a27991fbd6665625e90d2f6cd28a509892913290c6672b5cceaa1818c2"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Cây cao vừa phải, tán gọn, rễ ăn sâu.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-13",
+      "question": "Khi cắt tỉa cây hoa sữa, các đơn vị cây xanh ở Hà Nội làm vào lúc nào và phải tránh những gì?",
+      "category": "deep_single",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "0c1ef892-e5a9-4475-8b5c-7799bef70911",
+          "content_hash": "sha256:fba1d31b91ec66630df10c00604bf9fa2c28d97dd23f69351f3c0f577d890a49",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 767,
+              "end": 803,
+              "excerpt_sha256": "51badeacaf53fd32a8be0191d08f860a542c66f32d84737b1e01efbda98cf794"
+            },
+            {
+              "start": 1664,
+              "end": 1701,
+              "excerpt_sha256": "10537885466d621130be847422231585059bc313ad51f7c8735e8835aff55206"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Cắt ngoài giờ cao điểm; không cắt cụt ngọn, không tỉa quá mức, không dùng hóa chất ức chế ra hoa chưa được phép.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-14",
+      "question": "Từ chiều ngày 15 tháng 10, giá bán tối đa mỗi lít xăng sinh học E5 RON92 là bao nhiêu?",
+      "category": "paraphrase",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "2d5ba378-d075-4bfb-a06d-9ddcbfa37334",
+          "content_hash": "sha256:fc4baa0c8188968cd58e568b902b13d873f64ff035088d45aee526e8e8d56510",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 230,
+              "end": 259,
+              "excerpt_sha256": "cab1e48eeb079a56931f8b6573cc530c57e9ae0e62beefafcd95673d59317925"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "26.971 đồng/lít.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-15",
+      "question": "Vì sao nhiều xe đầu kéo chở hàng vẫn chạy trên quốc lộ cũ thay vì tuyến đường nhanh nối Hà Nội với Hải Phòng?",
+      "category": "paraphrase",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "5e240935-af74-4524-bb07-afc702341a04",
+          "content_hash": "sha256:f7272cb346d8e3408bf9da97d50b2fab6a53fdcba7c6a0ebaef0f4e258b67501",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 920,
+              "end": 961,
+              "excerpt_sha256": "a5a35c20b3038a386d2bbf5d875d2306f91b6fc1c653913877be689cdef5567f"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Chủ yếu vì chi phí: phí cao tốc cao (675.000-870.000 đồng/lượt).",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-16",
+      "question": "Một người bị tổn thương ngón cái vì thiết bị di động nổ khi đang nạp pin đã được bác sĩ phẫu thuật bằng kỹ thuật gì?",
+      "category": "paraphrase",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "acdb142a-0e26-405a-88f6-21a75addb92b",
+          "content_hash": "sha256:0f6c909a9f7cd4fff7763a111c99a31c4ae46d71d5197f0f11f4861cd7c39adb",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 544,
+              "end": 605,
+              "excerpt_sha256": "14ec1e0c93eb686098c02e7f61966513090a5aec7bbbce5fbc0b44da3fe5157f"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Chuyển vạt bẹn để che phủ phần mềm khuyết ở ngón cái.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-17",
+      "question": "Người kinh doanh cá thể còn nợ bao nhiêu tiền thuế và trễ hạn bao lâu thì có thể bị cấm ra nước ngoài tạm thời?",
+      "category": "paraphrase",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "5acff39b-13df-44be-bc19-5c6847726ec4",
+          "content_hash": "sha256:d0183163b32410570bd3706b216a1496c657eea2ea16d1f1217f35ccfe862a67",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 303,
+              "end": 358,
+              "excerpt_sha256": "152f61fcf9a2935180cba945a8567e396a07a659e3cdccdd1bc95be6d6dc060d"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Nợ từ 50 triệu đồng và quá hạn từ 120 ngày.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-18",
+      "question": "Moskva đề xuất hợp tác hàng không với Việt Nam theo hình thức nào để bù cho đội bay đang phải nằm đất?",
+      "category": "paraphrase",
+      "split": "holdout",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "1419cbdb-8818-4e3f-b776-6eb54fd3b2a5",
+          "content_hash": "sha256:563ceaa4f68f4518e409fa326b99430dd19166192c0648c55a0cb4ac1eea4845",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 501,
+              "end": 563,
+              "excerpt_sha256": "5d4edd7dc4f11506902ecf750ccd55391f6f3fb030e522893a7d52e7a8f62a1f"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Thuê ướt: thuê trọn gói máy bay, phi hành đoàn, bảo hành, bảo dưỡng.",
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-19",
+      "question": "Kho bạc Nhà nước nâng kế hoạch phát hành trái phiếu chính phủ năm 2026 lên 600.000 tỷ đồng vào ngày nào?",
+      "category": "no_answer",
+      "split": "holdout",
+      "answerable": false,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [],
+      "reference_answer": null,
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    },
+    {
+      "qid": "h-20",
+      "question": "Tổng thống Thụy Sĩ Guy Parmelin đã làm việc với lãnh đạo Đà Nẵng về những dự án nào?",
+      "category": "no_answer",
+      "split": "holdout",
+      "answerable": false,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [],
+      "reference_answer": null,
+      "label_status": "candidate",
+      "origin": "ai_drafted_holdout",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "AI-drafted holdout candidate (Claude, 2026-10-28) written after reading the articles; not reviewed; never used to choose retrieval parameters"
+    }
+  ]
+}

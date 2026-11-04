@@ -33,6 +33,8 @@ from backend.rag.application.ports.briefing import (
     BriefingInvocation,
     BriefingRoute,
     BriefingWorkflow,
+    PrimaryHop,
+    RelatedHop,
 )
 from backend.rag.application.ports.source_references import SourceReferenceRegistry
 from backend.rag.application.ports.synthesis import ConcurrencyLimiter
@@ -42,6 +44,7 @@ from backend.rag.application.ports.telemetry import (
 )
 from backend.rag.application.ports.tokens import TokenCounter
 from backend.rag.application.use_cases.retrieve import (
+    RetrievalDraft,
     RetrievalOptions,
     RetrieveEvidence,
 )
@@ -52,7 +55,18 @@ from backend.rag.application.use_cases.synthesize import (
 from backend.rag.domain.access import CallerScope
 from backend.rag.domain.activation import ActivationDecision
 from backend.rag.domain.answer import Citation
+from backend.rag.domain.article_scope import ArticleRestriction
 from backend.rag.domain.query import BriefingQuery
+from backend.rag.domain.query_intent import (
+    DEFAULT_HOP_POLICY,
+    HopPolicy,
+    HopStopReason,
+    HopTrace,
+    IntentDecision,
+    classify_intent,
+    expansion_query,
+    second_hop_decision,
+)
 from backend.rag.domain.retrieval import (
     QueryControl,
     RetrievalCancelledError,
@@ -112,6 +126,8 @@ class BriefingServices:
     access: AccessPolicy
     tokens: TokenCounter
     policy: SynthesisPolicy
+    hops: HopPolicy = DEFAULT_HOP_POLICY
+    timer: Callable[[], float] = time.perf_counter
 
     def __post_init__(self) -> None:
         """Reject wiring that would split token counting or policies."""
@@ -139,8 +155,125 @@ class BriefingServices:
             invocation.query,
             invocation.caller,
             invocation.control,
-            RetrievalOptions(remaining_context_budget=plan.remaining_context_budget),
+            RetrievalOptions(
+                remaining_context_budget=plan.remaining_context_budget,
+                article_scope=invocation.scope,
+            ),
         )
+
+    @staticmethod
+    def classify(invocation: BriefingInvocation) -> IntentDecision:
+        """Deterministic intent; never a model call."""
+        _admit(invocation.control)
+        return classify_intent(invocation.query.query)
+
+    def apply_filters(
+        self, invocation: BriefingInvocation, plan: SynthesisPlan
+    ) -> RetrievalDraft:
+        """Access, publication window and metadata eligibility."""
+        return self.retriever.apply_filters(
+            invocation.query,
+            invocation.caller,
+            invocation.control,
+            RetrievalOptions(
+                remaining_context_budget=plan.remaining_context_budget,
+                article_scope=invocation.scope,
+            ),
+        )
+
+    def retrieve_primary(
+        self,
+        invocation: BriefingInvocation,
+        intent: IntentDecision,
+        draft: RetrievalDraft,
+        plan: SynthesisPlan,
+    ) -> PrimaryHop:
+        """Hop 1 plus the bounded decision about hop 2."""
+        started = self.timer()
+        primary = self.retriever.retrieve_primary(draft)
+        decision = (
+            HopStopReason.NO_PRIMARY_RESULTS
+            if primary.result is not None
+            else second_hop_decision(
+                intent.intent,
+                primary_candidates=primary.candidate_count,
+                hops_done=1,
+                expansions_done=0,
+                remaining_seconds=invocation.control.remaining(),
+                budget_remaining=plan.remaining_context_budget,
+                policy=self.hops,
+            )
+        )
+        trace = HopTrace(
+            hop=1,
+            kind="primary",
+            candidates=primary.candidate_count,
+            latency_ms=(self.timer() - started) * 1000.0,
+            decision=HopStopReason.ALLOWED,
+        )
+        return PrimaryHop(draft=primary, trace=trace, next_hop=decision)
+
+    def retrieve_related(
+        self, invocation: BriefingInvocation, primary: PrimaryHop
+    ) -> RelatedHop:
+        """One expansion query anchored on the top hop-1 chunks, same filters."""
+        started = self.timer()
+        if primary.next_hop is not HopStopReason.ALLOWED:
+            return RelatedHop(
+                draft=None,
+                trace=HopTrace(2, "related", 0, 0.0, primary.next_hop),
+            )
+        # Re-check the deadline right before the hop (it may have moved).
+        decision = second_hop_decision(
+            classify_intent(invocation.query.query).intent,
+            primary_candidates=primary.draft.candidate_count,
+            hops_done=1,
+            expansions_done=0,
+            remaining_seconds=invocation.control.remaining(),
+            policy=self.hops,
+        )
+        if decision is not HopStopReason.ALLOWED:
+            return RelatedHop(
+                draft=None, trace=HopTrace(2, "related", 0, 0.0, decision)
+            )
+        text = expansion_query(
+            invocation.query.query, primary.draft.anchor_texts(2), self.hops
+        )
+        related = self.retriever.retrieve_related(primary.draft, text)
+        return RelatedHop(
+            draft=related,
+            trace=HopTrace(
+                hop=2,
+                kind="related",
+                candidates=related.candidate_count,
+                latency_ms=(self.timer() - started) * 1000.0,
+                decision=HopStopReason.ALLOWED,
+            ),
+        )
+
+    def fuse(
+        self,
+        invocation: BriefingInvocation,
+        intent: IntentDecision,
+        primary: PrimaryHop,
+        related: RelatedHop | None,
+    ) -> RetrievalDraft:
+        """Merge hop candidates and run the single bounded rerank."""
+        _admit(invocation.control)
+        traces = (primary.trace,) if related is None else (primary.trace, related.trace)
+        return self.retriever.fuse(
+            primary.draft,
+            None if related is None else related.draft,
+            intent=intent.intent.value,
+            hops=traces,
+        )
+
+    def assemble(
+        self, invocation: BriefingInvocation, draft: RetrievalDraft
+    ) -> RetrievalResult:
+        """Final PostgreSQL current-revision check and budgeted evidence."""
+        del invocation
+        return self.retriever.assemble(draft)
 
     def synthesize(
         self, invocation: BriefingInvocation, retrieval: RetrievalResult
@@ -249,11 +382,14 @@ class BriefingUseCase:
         *,
         caller: CallerScope | None = None,
         control: QueryControl | None = None,
+        scope: ArticleRestriction | None = None,
     ) -> BriefingOutcome:
         """Run one isolated briefing; typed failures propagate unchanged.
 
         ``caller`` comes from the server-side caller resolver; it defaults to
         the composed caller and is never taken from the request body.
+        ``scope`` is a server-resolved article restriction (conversation runs);
+        ``/briefing`` never passes one.
         """
         caller = caller if caller is not None else self.caller
         control = control if control is not None else self.new_control()
@@ -273,6 +409,7 @@ class BriefingUseCase:
                 control=control,
                 ledger=RequestTokenLedger(self.services.tokens, self.services.policy),
                 lease=lease,
+                scope=scope,
             )
             run = self.workflow.run(invocation)
         finally:

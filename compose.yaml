@@ -5,6 +5,10 @@ services:
     build:
       context: .
       dockerfile: docker/crud-api.Dockerfile
+    environment:
+      # Internal catalog of rag-api (never through the public proxy).
+      EVENTLENS_CRUD_RAG_CATALOG_URL: http://rag-api:8001
+      EVENTLENS_CRUD_RAG_SERVICE_TOKEN: ${EVENTLENS_INTERNAL_SERVICE_TOKEN:-}
     ports:
       - "8000:8000"
 
@@ -12,6 +16,11 @@ services:
     build:
       context: .
       dockerfile: docker/rag-api.Dockerfile
+    environment:
+      # Empty = fixture-only runtime (catalog/chat answer 503, legacy /briefing works).
+      EVENTLENS_API_RAG_DATABASE_URL: ${EVENTLENS_API_RAG_DATABASE_URL:-}
+      EVENTLENS_RAG_INTERNAL_SERVICE_TOKEN: ${EVENTLENS_INTERNAL_SERVICE_TOKEN:-}
+      EVENTLENS_RAG_ANSWER_PROVIDER: ${EVENTLENS_RAG_ANSWER_PROVIDER:-none}
     ports:
       - "8001:8001"
 
@@ -22,6 +31,7 @@ services:
     ports:
       - "5173:80"
     depends_on:
+      - crud-api
       - rag-api
 
   rag-worker:

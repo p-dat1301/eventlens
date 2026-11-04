@@ -3226,7 +3226,7 @@
       }
     }
   },
-  "report_digest": "sha256:be3348b5a8bf364a906140db74c7745dffce602a32713a4ce9ea405b31c6786d",
+  "report_digest": "sha256:ee7d8db65a34bf96b7ff0f734457aa79f90e2b49287752fab07080b6227bebc7",
   "safety": {
     "activation_mode": "fixture",
     "default_model": "DeterministicFakeSynthesizer",
@@ -3335,7 +3335,7 @@
     "embedding_version": "fixture-embedding.v1",
     "enricher": "fake-enricher.v1/enrichment-prompt.v1",
     "enrichment_version": "rag-fixture-enrichment.v1",
-    "fixture_digest": "sha256:23e664d057d4a592a8770cd06dfb71cfddd2a3a9d4c213cbcd089a13603d5a22",
+    "fixture_digest": "sha256:bb89f32821a7eba700cf99f5c70aa6c7ed814ed4c711a9df2d1670dc2afa8311",
     "license": "synthetic-authored",
     "model_version": "manual-ground-truth.v1",
     "normalization_version": "nfc.v1",

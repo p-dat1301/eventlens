@@ -1,6 +1,7 @@
 """T6 grounding: ID/span/offset/fingerprint attacks, temporal and Unicode."""
 
 from collections.abc import Callable
+from dataclasses import replace
 from datetime import UTC, datetime
 from hashlib import sha256
 from unicodedata import normalize
@@ -14,7 +15,7 @@ from backend.rag.application.citations import (
     validate_draft,
 )
 from backend.rag.domain.query import BriefingQuery
-from backend.rag.domain.retrieval import RetrievalResult
+from backend.rag.domain.retrieval import Branch, RetrievalResult
 from backend.rag.domain.synthesis import (
     SynthesisOutcome,
     TrustedSource,
@@ -28,6 +29,7 @@ from backend.rag.domain.synthesis_draft import (
 from backend.rag.domain.synthesis_errors import (
     GroundingFailureCode,
     MalformedOutputReason,
+    SynthesisEvidenceStaleError,
     SynthesisGroundingError,
     SynthesisMalformedOutputError,
 )
@@ -515,3 +517,34 @@ def test_rendered_answer_contains_only_claims_and_templates() -> None:
     assert result.answer.answer == expected
     assert result.answer.uncertainties[0].claim_id == result.answer.claims[0].claim_id
     assert [b.kind for b in result.answer.display_blocks] == ["claim", "uncertainty"]
+
+
+def _vector_only(retrieval: RetrievalResult, *, indexed: bool) -> RetrievalResult:
+    """Every span reached only through the semantic branch, no pgvector generation."""
+    articles = tuple(
+        replace(
+            article,
+            vector_generation=None,
+            indexed=indexed,
+            spans=tuple(replace(s, branches=(Branch.VECTOR,)) for s in article.spans),
+        )
+        for article in retrieval.articles
+    )
+    return replace(retrieval, articles=articles)
+
+
+def test_index_backed_semantic_span_is_cited_after_postgres_checks() -> None:
+    # Regression: Elasticsearch semantic-only evidence (no pgvector generation)
+    # made every briefing fail as stale on the real 200-article batch.
+    store, query, retrieval = _setup()
+
+    registry = _registry(_vector_only(retrieval, indexed=True), store, query)
+
+    assert registry.sources
+
+
+def test_pgvector_semantic_span_without_generation_stays_stale() -> None:
+    store, query, retrieval = _setup()
+
+    with pytest.raises(SynthesisEvidenceStaleError):
+        _ = _registry(_vector_only(retrieval, indexed=False), store, query)

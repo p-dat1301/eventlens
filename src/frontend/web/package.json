@@ -9,9 +9,12 @@
     "test": "bun test",
     "build": "vite build",
     "check": "biome check .",
-    "test:e2e": "vite build && cd e2e && bun test ./layout.e2e.ts"
+    "test:e2e": "vite build && cd e2e && bun test ./layout.e2e.ts",
+    "test:e2e:live": "cd e2e && bun test ./news.e2e.ts"
   },
   "dependencies": {
+    "@fontsource/be-vietnam-pro": "5.3.0",
+    "@fontsource/newsreader": "5.3.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "zod": "4.6.5"

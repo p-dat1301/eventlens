@@ -1,14 +1,14 @@
 {
   "lifecycle_case_latency": {
-    "max_ms": 24.203,
-    "p50_ms": 2.307,
-    "p95_ms": 24.203,
+    "max_ms": 8.336,
+    "p50_ms": 2.803,
+    "p95_ms": 8.336,
     "samples": 8
   },
   "provider_call_latency": {
-    "max_ms": 0.268,
-    "p50_ms": 0.067,
-    "p95_ms": 0.128,
+    "max_ms": 0.299,
+    "p50_ms": 0.077,
+    "p95_ms": 0.131,
     "samples": 30
   },
   "status": "measured on this machine; not reproducible; not a production SLO"

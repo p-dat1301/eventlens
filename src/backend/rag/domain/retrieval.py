@@ -22,6 +22,7 @@ from uuid import UUID, uuid5
 from pydantic import Field, PositiveInt, model_validator
 from pydantic_core import PydanticCustomError
 
+from backend.rag.domain.query_intent import HopTrace
 from backend.shared.contracts.base import ContractModel, NonEmptyText
 from backend.shared.contracts.evidence import EvidenceSpan
 
@@ -545,6 +546,10 @@ class RetrievedArticle:
     metadata: MetadataProvenance | None
     duplicate_article_ids: tuple[UUID, ...]
     spans: tuple[RetrievedSpan, ...]
+    # Candidates came from the derived search index (Elasticsearch): their
+    # vectors live in an index generation, not in PostgreSQL pgvector, so the
+    # pgvector generation guard does not apply; hash/span checks still do.
+    indexed: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -595,6 +600,14 @@ class RetrievalMetrics:
     suppressed_duplicates: int
     dropped_at_final_check: int
     lexical_truncated_articles: int
+    branch_cap_dropped: int = 0
+    backfill_calls: int = 0
+    selection_overlap_dropped: int = 0
+    selection_cap_dropped: int = 0
+    freshness: str = "policy_mode"
+    freshness_boosted: int = 0
+    freshness_max_promotion: int = 0
+    fill_spans_sent: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -613,6 +626,14 @@ class RetrievalProvenance:
     reranker_version: str | None
     publication_time_basis: Literal["source_published_at"]
     query_time: datetime
+    search_backend: str = "postgres"
+    index_generation: str | None = None
+    search_fallback_reason: str | None = None
+    source_chunker_version: str | None = None
+    source_embedding_identity: str | None = None
+    query_intent: str | None = None
+    hops: tuple[HopTrace, ...] = ()
+    tuning_id: str = "baseline"
 
 
 @dataclass(frozen=True, slots=True)

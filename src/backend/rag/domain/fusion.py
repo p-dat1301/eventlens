@@ -26,6 +26,13 @@ from backend.rag.domain.retrieval import (
     dedup_fingerprint,
     text_terms,
 )
+from backend.rag.domain.retrieval_tuning import (
+    FreshnessDecision,
+    FusionWeights,
+    IntentFreshness,
+    freshness_decision,
+)
+from backend.rag.domain.retrieval_tuning import freshness_bonus as intent_bonus
 
 SECONDS_PER_DAY = 86_400.0
 
@@ -182,12 +189,26 @@ def fused_key(candidate: FusedCandidate) -> tuple[float, PublishedKey, str, str]
 
 
 def fuse(
-    lexical: Sequence[BranchCandidate], vector: Sequence[BranchCandidate], k: int
+    lexical: Sequence[BranchCandidate],
+    vector: Sequence[BranchCandidate],
+    k: int,
+    weights: FusionWeights | None = None,
 ) -> tuple[FusedCandidate, ...]:
-    """Reciprocal rank fusion; a branch without the chunk contributes 0."""
+    """(Weighted) reciprocal rank fusion; a branch without the chunk adds 0.
+
+    ``score = w_lex / (k + rank_lex) + w_vec / (k + rank_vec)``. Without
+    ``weights`` both are 1 (the frozen v3 formula). A branch with weight 0 is
+    disabled: its candidates are ignored, so a chunk found only by it can
+    never be fused in. Raw branch scores are never added.
+    """
+    weights = weights or FusionWeights()
     lexical_rank: dict[UUID, BranchCandidate] = {}
     vector_rank: dict[UUID, BranchCandidate] = {}
-    for target, items in ((lexical_rank, lexical), (vector_rank, vector)):
+    branches = (
+        (lexical_rank, lexical if weights.lexical_enabled else ()),
+        (vector_rank, vector if weights.semantic_enabled else ()),
+    )
+    for target, items in branches:
         for item in items:
             existing = target.get(item.chunk.chunk_id)
             if existing is None or item.rank < existing.rank:
@@ -199,7 +220,11 @@ def fuse(
         base = lex if lex is not None else vec
         if base is None:  # pragma: no cover - union of both key sets
             continue
-        score = sum(1.0 / (k + item.rank) for item in (lex, vec) if item is not None)
+        score = sum(
+            weight / (k + item.rank)
+            for item, weight in ((lex, weights.lexical), (vec, weights.semantic))
+            if item is not None
+        )
         fused.append(
             FusedCandidate(
                 chunk=base.chunk,
@@ -213,6 +238,83 @@ def fuse(
             )
         )
     return tuple(sorted(fused, key=fused_key))
+
+
+def apply_intent_freshness(  # noqa: PLR0913 - explicit gate inputs
+    fused: Sequence[FusedCandidate],
+    now: datetime,
+    policy: IntentFreshness,
+    intent: str | None,
+    k: int,
+    *,
+    explicit_window: bool,
+    weight_sum: float = 1.0,
+) -> tuple[tuple[FusedCandidate, ...], FreshnessDecision]:
+    """Recency bonus on the RRF scale, then a hard ``max_rank_shift`` guard.
+
+    The baseline is ``fused`` in the frozen fused order. Each candidate gets
+    the bounded RRF-scale bonus (``retrieval_tuning``); the output is then
+    built position by position: at output position ``p`` only candidates whose
+    baseline position is ``<= p + R`` are eligible, and the best of them by
+    (boosted score, frozen fused tie-break, baseline position) is placed. So
+    ``baseline_position(d) - final_position(d) <= R`` for every ``d``, the
+    candidate set is unchanged, and with no bonus the output is the baseline.
+    Demotion is not bounded (each promotion pushes others down). The guard
+    limits how far a date can move a chunk; it says nothing about relevance.
+    It must be the last reordering of the list: ``suppress_duplicates``
+    re-sorts by fused score, so callers deduplicate first (``RetrieveEvidence``
+    does) and pass the deduplicated, unboosted order as ``fused``.
+    """
+    decision = freshness_decision(policy, intent, explicit_window=explicit_window)
+    if not decision.applied or not fused:
+        return tuple(fused), decision
+    baseline = sorted(fused, key=fused_key)
+    future = sum(
+        1
+        for item in baseline
+        if item.source_published_at is not None and item.source_published_at > now
+    )
+    missing = sum(1 for item in baseline if item.source_published_at is None)
+    boosted = 0
+    rescored: list[FusedCandidate] = []
+    for item in baseline:
+        bonus = intent_bonus(item.source_published_at, now, policy, k, weight_sum)
+        if bonus > 0:
+            boosted += 1
+            item = replace(item, fused_score=item.fused_score + bonus)  # noqa: PLW2901
+        rescored.append(item)
+    order = rank_shift_guarded(rescored, policy.max_rank_shift)
+    return tuple(rescored[i] for i in order), FreshnessDecision(
+        applied=True,
+        reason="applied",
+        boosted=boosted,
+        future_timestamps=future,
+        missing_timestamps=missing,
+        max_promotion=max(
+            (original - final for final, original in enumerate(order)), default=0
+        ),
+    )
+
+
+def rank_shift_guarded(rescored: Sequence[FusedCandidate], shift: int) -> list[int]:
+    """Baseline indexes in output order; nothing moves up more than ``shift``.
+
+    ``rescored[i]`` is the candidate at baseline position ``i`` with its
+    boosted score. Deterministic: ties fall back to the frozen fused key and
+    then to the baseline position. O(n * window); n is the fused pool (<= a few
+    hundred candidates).
+    """
+    remaining = list(range(len(rescored)))
+    order: list[int] = []
+    for position in range(len(rescored)):
+        limit = position + shift
+        best = min(
+            (i for i in remaining if i <= limit),
+            key=lambda i: (fused_key(rescored[i]), i),
+        )
+        remaining.remove(best)
+        order.append(best)
+    return order
 
 
 def _shingles(text: str, size: int) -> frozenset[tuple[str, ...]]:
@@ -387,3 +489,44 @@ def aggregate_articles(
         if len(bucket) < max_spans_per_article:
             bucket.append(item)
     return tuple((article_id, tuple(items)) for article_id, items in groups.items())
+
+
+def merge_hops(
+    primary: tuple[FusedCandidate, ...],
+    related: tuple[FusedCandidate, ...],
+    k: int,
+) -> tuple[FusedCandidate, ...]:
+    """RRF over the fused orders of two retrieval hops (bounded multi-hop).
+
+    Each hop contributes ``1 / (k + position)``; a chunk found by both hops
+    keeps the primary candidate (its branch ranks) with the summed score.
+    Ties break on primary position first, then ``chunk_id``.
+    """
+    scores: dict[UUID, float] = {}
+    first: dict[UUID, FusedCandidate] = {}
+    primary_position: dict[UUID, int] = {}
+    for position, candidate in enumerate(primary, start=1):
+        chunk_id = candidate.chunk.chunk_id
+        scores[chunk_id] = scores.get(chunk_id, 0.0) + 1.0 / (k + position)
+        _ = first.setdefault(chunk_id, candidate)
+        _ = primary_position.setdefault(chunk_id, position)
+    for position, candidate in enumerate(related, start=1):
+        chunk_id = candidate.chunk.chunk_id
+        scores[chunk_id] = scores.get(chunk_id, 0.0) + 1.0 / (k + position)
+        _ = first.setdefault(chunk_id, candidate)
+    order = sorted(
+        scores,
+        key=lambda chunk_id: (
+            -scores[chunk_id],
+            primary_position.get(chunk_id, len(primary) + 1),
+            str(chunk_id),
+        ),
+    )
+    return tuple(
+        replace(
+            first[chunk_id],
+            fused_score=scores[chunk_id],
+            own_fused_score=scores[chunk_id],
+        )
+        for chunk_id in order
+    )

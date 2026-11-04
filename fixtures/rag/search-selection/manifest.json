@@ -1,0 +1,19 @@
+{
+  "chunk_ids_for": "paragraph-900-1.v1",
+  "corpus_digest": "sha256:080a7c407e05e30edf4ff738d0aef11c9570f564457ab978aa1162bff48c90a9",
+  "counts": {
+    "articles": 30,
+    "qrels": 91,
+    "questions": 40
+  },
+  "dataset_id": "eventlens-search-selection",
+  "files": {
+    "articles.jsonl": "sha256:c840906ca7f2346eb9575419fb56da010daab52cc595afb08b1ce969f9b4c535",
+    "qrels.jsonl": "sha256:cf32b49a9903aec1d06c674af792eb3b6fbcd6ced9cc57e2cd5b0d4a9a7cd5ef",
+    "questions.jsonl": "sha256:f715bc8e94627ed6f3053b24e5378a19cdccd746358a41678fb8a9cc21b5198d"
+  },
+  "labels": "author-labeled (single annotator); not independently reviewed",
+  "license": "authored for EventLens tests; no publisher text",
+  "synthetic": true,
+  "version": "search-selection.v1"
+}

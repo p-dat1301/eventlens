@@ -8,5 +8,6 @@ RUN bun run build
 
 FROM nginx:1.27-alpine
 COPY src/frontend/web/nginx.conf /etc/nginx/conf.d/default.conf
+COPY src/frontend/web/proxy-common.inc /etc/nginx/conf.d/proxy-common.inc
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80

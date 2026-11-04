@@ -116,11 +116,20 @@ def _vector_current(
     spans: tuple[RetrievedSpan, ...],
     state: CurrentArticleState,
 ) -> bool:
-    """A vector-only span stays eligible only on the same active generation."""
+    """A vector-only span stays eligible only on the same active generation.
+
+    Index-backed evidence (``article.indexed``) carries no pgvector generation;
+    its revision and exact span are re-checked against PostgreSQL by the
+    content-hash and span predicates instead.
+    """
     vector_only = any(item.branches == (Branch.VECTOR,) for item in spans)
-    return not vector_only or (
-        article.vector_generation is not None
-        and article.vector_generation == state.active_index_generation
+    return (
+        article.indexed
+        or not vector_only
+        or (
+            article.vector_generation is not None
+            and article.vector_generation == state.active_index_generation
+        )
     )
 
 

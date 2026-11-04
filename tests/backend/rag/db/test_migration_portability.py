@@ -215,6 +215,9 @@ ALEMBIC_RESOURCES = (
     "backend/rag/infra/postgres/revisions/env.py",
     "backend/rag/infra/postgres/revisions/script.py.mako",
     "backend/rag/infra/postgres/revisions/versions/rag_0001_baseline.py",
+    "backend/rag/infra/postgres/revisions/versions/rag_0002_source_versions.py",
+    "backend/rag/infra/postgres/revisions/versions/rag_0003_search_platform.py",
+    "backend/rag/infra/postgres/revisions/versions/rag_0004_news_backend.py",
     "backend/rag/infra/postgres/expected_schema.json",
 )
 
@@ -268,9 +271,9 @@ def test_wheel_runs_alembic_migrate_outside_checkout(
         for _ in range(2)
     ]
 
-    # Then: baseline applied from packaged revisions, then a no-op.
+    # Then: every packaged revision applied, then a no-op.
     assert [run.returncode for run in runs] == [0, 0], runs[0].stderr
-    assert all("alembic rag_0001_baseline" in run.stdout for run in runs)
+    assert all("alembic rag_0004_news_backend" in run.stdout for run in runs)
     with psycopg.connect(scoped_url) as connection:
         version = connection.execute(
             "SELECT version_num FROM alembic_version"
@@ -278,5 +281,5 @@ def test_wheel_runs_alembic_migrate_outside_checkout(
         ledger = connection.execute(
             "SELECT count(*) FROM rag_schema_migrations"
         ).fetchone()
-    assert version == [("rag_0001_baseline",)]
+    assert version == [("rag_0004_news_backend",)]
     assert ledger == (7,)

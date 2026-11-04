@@ -547,7 +547,7 @@
     "Gold entity/location lists are empty for every article except 021, so entity/location recall has a denominator of 1.",
     "In-memory repository: lifecycle semantics only, never DB evidence."
   ],
-  "report_digest": "sha256:a806275dae9f7f56171b44eeb0d3c8d78d17952edb51fbc28f52ed3c952c2dd0",
+  "report_digest": "sha256:c559dd3b3a4e5d2eee7f7644f0643c4532611c9b6999153fbe78df4f4f8a03e4",
   "safety": {
     "enricher": "FakeArticleEnricher",
     "network_connect_attempts": 0
@@ -584,7 +584,7 @@
     "corpus_version": "rag-fixture-corpus.v1",
     "embedding_version": "fixture-embedding.v1",
     "enrichment_version": "rag-fixture-enrichment.v1",
-    "fixture_digest": "sha256:23e664d057d4a592a8770cd06dfb71cfddd2a3a9d4c213cbcd089a13603d5a22",
+    "fixture_digest": "sha256:bb89f32821a7eba700cf99f5c70aa6c7ed814ed4c711a9df2d1670dc2afa8311",
     "gold": "fixtures/rag/enrichments (manual-ground-truth.v1)",
     "license": "synthetic-authored",
     "model_version": "manual-ground-truth.v1",

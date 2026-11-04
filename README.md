@@ -81,6 +81,22 @@ make web           # http://localhost:5173 (proxies /briefing to EVENTLENS_RAG_A
 make rag-worker    # needs the RAG database: make infra rag-db-create rag-migrate
 ```
 
+## Search platform (opt-in)
+
+PostgreSQL stays the source of truth; Elasticsearch is a rebuildable search
+projection fed by a transactional outbox (`docs/search-platform.md`). Defaults
+are unchanged (PostgreSQL retrieval, reranker and multi-hop off).
+
+```bash
+make search-index-test   # ES adapter + PG -> outbox -> ES suite on throwaway containers
+make search-eval         # mechanics benchmark (fake embeddings/reranker), >= 3 repeats
+make search-eval-up      # developer Elasticsearch on 127.0.0.1:9200 (project eventlens-search-dev)
+make search-eval-down
+```
+
+Real-model benchmark (local Hugging Face cache, pinned revisions, `uv sync --group dev --group bench`)
+and the benchmark rules: `docs/search-evaluation.md`. Index lifecycle: `docs/search-indexing.md`.
+
 ## Containers
 
 ```bash

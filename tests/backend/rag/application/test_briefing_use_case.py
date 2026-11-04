@@ -358,7 +358,12 @@ def test_graph_compiles_once_with_every_route() -> None:
     assert h.runtime.use_case.workflow is h.runtime.graph
     assert set(h.runtime.graph.node_names) == {
         "prepare",
-        "retrieve",
+        "classify_intent",
+        "apply_filters",
+        "retrieve_primary",
+        "retrieve_related",
+        "fuse",
+        "assemble_evidence",
         "synthesize",
         "abstain",
         "answered",
