@@ -6,20 +6,26 @@ tied to ``article_id``, ``revision_id``, ``content_hash``, ``chunk_version``
 and the index generation that produced it. Nothing here performs I/O.
 """
 
+import math
 from dataclasses import dataclass, field, replace
 from datetime import datetime
 from enum import StrEnum
 from hashlib import sha256
-from typing import Final
+from typing import ClassVar, Final
 from uuid import UUID, uuid5
 
-from backend.rag.domain.retrieval import CHUNK_NAMESPACE
+from backend.rag.domain.retrieval import CHUNK_NAMESPACE, ChunkRef
 
 REVISION_NAMESPACE: Final = UUID("2d6a1c3e-8b4f-4e7a-9c15-7f3e0b9a6d41")
+
 DEFAULT_BM25_DEPTH: Final = 50
+
 DEFAULT_SEMANTIC_DEPTH: Final = 50
+
 DEFAULT_RRF_K: Final = 60
+
 DEFAULT_CANDIDATE_POOL: Final = 45
+
 MAX_BRANCH_DEPTH: Final = 100
 
 
@@ -74,8 +80,6 @@ def search_chunk_id(
     )
 
 
-# ArticleDocument.visibility -> caller scopes allowed to see it. Only the fixture
-# scope exists today; an unknown visibility maps to no scope (never visible).
 VISIBILITY_SCOPES: Final[dict[str, tuple[str, ...]]] = {
     "internal": ("fixture-internal",),
 }
@@ -362,3 +366,84 @@ def search_mode(lexical: int, semantic: int) -> SearchMode:
     if semantic:
         return SearchMode.SEMANTIC_ONLY
     return SearchMode.NONE
+
+
+CHUNK_TEXT_TEMPLATE = "{title}\n\n{content}"
+
+
+class InvalidEmbeddingError(ValueError):
+    """An embedder returned a vector of the wrong size or non-finite values."""
+
+    code: ClassVar[str] = "embedding_invalid"
+
+    def __init__(self, expected: int, actual: int) -> None:
+        """Describe the shape problem without any vector values."""
+        super().__init__(f"expected {expected} finite values, got {actual}")
+
+
+@dataclass(frozen=True, slots=True)
+class IndexedChunk:
+    """One chunk window plus the filter fields every engine indexes."""
+
+    chunk: ChunkRef
+    title: str
+    content: str
+    source_domain: str
+    source_published_at: datetime | None
+
+    @property
+    def text(self) -> str:
+        """Frozen engine input (``CHUNK_TEXT_TEMPLATE``)."""
+        return CHUNK_TEXT_TEMPLATE.format(title=self.title, content=self.content)
+
+
+@dataclass(frozen=True, slots=True)
+class ScoredChunk:
+    """Engine hit; ``score`` is engine-specific and only ordered within one run."""
+
+    chunk: ChunkRef
+    score: float
+    source_published_at: datetime | None
+
+
+@dataclass(frozen=True, slots=True)
+class LexicalIndexIdentity:
+    """Everything that changes lexical ranking; recorded in every report."""
+
+    engine: str
+    engine_version: str
+    analyzer_id: str
+    analyzer_digest: str
+    similarity: str
+
+
+@dataclass(frozen=True, slots=True)
+class EmbedderIdentity:
+    """Model, revision and input conventions of a real or fake embedder.
+
+    Unlike the production ``EmbeddingIdentity`` (fixed 1536 schema), this
+    identity accepts any dimension: evaluation vectors live in their own
+    per-identity tables and never in ``rag_chunks``.
+    """
+
+    model: str
+    revision: str
+    dimension: int
+    pooling: str
+    query_prefix: str
+    document_prefix: str
+    max_tokens: int
+    normalized: bool = True
+
+    @property
+    def slug(self) -> str:
+        """Stable short name for tables and reports."""
+        base = "".join(ch if ch.isalnum() else "_" for ch in self.model.lower())
+        return f"{base}_{self.dimension}"[:48].strip("_")
+
+
+def checked_vector(values: tuple[float, ...], dimension: int) -> tuple[float, ...]:
+    """Reject wrong sizes and non-finite values; never pad or truncate."""
+    if len(values) != dimension or not all(math.isfinite(v) for v in values):
+        raise InvalidEmbeddingError(dimension, len(values))
+    return values

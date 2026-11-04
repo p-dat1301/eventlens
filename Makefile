@@ -1,4 +1,4 @@
-.PHONY: news-openapi news-smoke rag-worker-serve sync test lint typecheck build check up infra down web crud-api rag-api rag-worker validate-fixture rag-db-create rag-migrate rag-load-fixtures rag-rebuild rag-db-test rag-adopt-smoke rag-preflight rag-adopt gate-g1 enrichment-eval rag-eval search-eval-up search-eval search-eval-down search-index-test search-index-rebuild search-index-reconcile search-index-health web-browser-test gate-g3
+.PHONY: search-bench news-openapi news-smoke rag-worker-serve sync test lint typecheck build check up infra down web crud-api rag-api rag-worker validate-fixture rag-db-create rag-migrate rag-load-fixtures rag-rebuild rag-db-test rag-adopt-smoke rag-preflight rag-adopt gate-g1 enrichment-eval rag-eval search-eval-up search-eval search-eval-down search-index-test search-index-rebuild search-index-reconcile search-index-health web-browser-test gate-g3
 
 # Local RAG index lives in its own database on the Compose server. The legacy
 # `eventlens` database holds untracked pre-ledger RAG tables and is never targeted.
@@ -174,3 +174,7 @@ web-browser-test:
 
 gate-g3:
 	sh scripts/rag/gate-g3.sh
+
+# PR #7 controlled benchmark; search-eval-up/down keep the isolated platform scripts.
+search-bench:
+	sh scripts/rag/search-bench.sh bench
