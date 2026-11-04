@@ -1,0 +1,44 @@
+{
+  "articles_bytes": 1354082,
+  "articles_object": "exports/rag/search-test-200-v1/articles.jsonl",
+  "articles_sha256": "bdb7918289b282d435ccb14781f9fdc95e0be4a2ace047ef8b3bd5ae49c644ab",
+  "export_id": "search-test-200-v1",
+  "exported_at": "2026-10-26T14:26:14.597964Z",
+  "fetched_at_max": "2026-10-18T00:45:03.027002Z",
+  "fetched_at_min": "2026-10-11T15:15:02.511338Z",
+  "language_counts": {
+    "vi": 200
+  },
+  "missing_published_at_count": 0,
+  "parse_version_counts": {
+    "parser-v1": 68,
+    "parser-v2": 132
+  },
+  "published_at_max": "2026-10-18T00:34:00Z",
+  "published_at_min": "2026-09-09T04:26:00.947000Z",
+  "quality_status_counts": {
+    "passed": 200
+  },
+  "record_count": 200,
+  "schema_version": "eventlens-rag-handoff-v1",
+  "selection": {
+    "current_only": true,
+    "quality_status": [
+      "passed"
+    ],
+    "sampling": "deterministic_source_balanced",
+    "seed": "search-test-200-v1"
+  },
+  "source_counts": {
+    "bbc.com": 20,
+    "cafef.vn": 20,
+    "nhandan.vn": 20,
+    "thanhnien.vn": 20,
+    "tuoitre.vn": 20,
+    "vietnamplus.vn": 20,
+    "vietstock.vn": 20,
+    "vneconomy.vn": 20,
+    "vnexpress.net": 20,
+    "vtv.vn": 20
+  }
+}

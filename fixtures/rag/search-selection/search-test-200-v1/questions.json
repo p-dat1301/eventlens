@@ -1,0 +1,3358 @@
+{
+  "schema_version": "search-questions.v1",
+  "corpus_export_id": "search-test-200-v1",
+  "corpus_digest": "sha256:30e474d573e82a80d8f1c25d91e866d5bcedc94b9191efe1778d20dc3ba389ff",
+  "chunker_version": "codepoint-1200-200.v1",
+  "split_seed": "search-selection-v1",
+  "dev_fraction": 0.4,
+  "questions": [
+    {
+      "qid": "s00-01",
+      "question": "Ông Lê Trương Hải Hiếu, con trai cựu Bí thư Thành ủy TP HCM Lê Thanh Hải, vừa được bổ nhiệm vào chức vụ gì tại Thành ủy TP HCM?",
+      "category": "proper_noun",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "7e5c5b5d-b661-4cc8-8f7c-74b109891a6f",
+          "content_hash": "sha256:dcc070d77a1c857c2be30662e9ff704b15cbe8982de88eb3eedd2331c08251d9",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 129,
+              "excerpt_sha256": "be5d73bb558ea0f62e21a1e3d92020811e5e5bf160a2e7c6b79856963f3f709d"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Phó trưởng Ban Tổ chức Thành ủy TP HCM.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-02",
+      "question": "Thủ tướng Lê Minh Hưng đã đến thăm nhà máy nào của Vinamilk tại Campuchia, và tổng vốn đầu tư của dự án này hiện đạt bao nhiêu?",
+      "category": "proper_noun",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "b77963a3-e3bf-4bf1-84b7-27070d393be9",
+          "content_hash": "sha256:386f8773208a7af6eccb4b3d43fff58b966a85c652207afb50428291e437e3cb",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 140,
+              "excerpt_sha256": "892aaa291299bafadc85f32516f18bc2f0df91be77a04998036bc9755dba3651"
+            },
+            {
+              "start": 2422,
+              "end": 2539,
+              "excerpt_sha256": "5e7f296034695c18c4661165b7ec6a0c8030b3f5aebf8e1f6be51e25678b8418"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Nhà máy AngkorMilk; tổng vốn đầu tư đạt 51,7 triệu USD.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-03",
+      "question": "Meta vừa công bố hai mô hình trí tuệ nhân tạo mới mang tên gì?",
+      "category": "proper_noun",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "b6eea6e9-59cb-49ab-a466-34cec0f34496",
+          "content_hash": "sha256:930a3324509227edb2867ba51ca4b47de7b0500bc1feee328c708b20afa25d54",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 239,
+              "excerpt_sha256": "5e3dd8c53b6d6c0a094041abd66246f136d77da8d997aa6295d09339e3f2f5d9"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Muse Wonder và Muse Wonder Full.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-04",
+      "question": "Tân Thư ký báo chí Nhà Trắng nào đang bị chất vấn về bằng cấp luật sư của mình?",
+      "category": "proper_noun",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "ebe6d990-dcfb-447f-9a95-c883ecb92dcd",
+          "content_hash": "sha256:cb7fdddb5e2264224042469924771362f027cd9795db8a6585f946c6c8d8a8bc",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 126,
+              "excerpt_sha256": "7934164aa04ce64975feb9788b51a25f553d67a8539c67c264e5c4052ac3d74c"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Katie Zacharia.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-05",
+      "question": "Live concert nào của Mỹ Tâm đã bán hết 10.000 vé bán sớm chỉ trong 5 phút?",
+      "category": "proper_noun",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "11db59b6-242f-4966-aa68-a98936157c22",
+          "content_hash": "sha256:54cf774699814abff365bed9096bde999109b018a883b3b3df61df879ae563c9",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 114,
+              "excerpt_sha256": "70c05b707a66e24b36f5112807aa91861eebe1aa1e10264e714765ef9db4c479"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Live concert \"See The Light 2\" tại TP HCM.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-06",
+      "question": "Giá vàng giao ngay tăng lên mức nào vào thời điểm nào trong ngày 15/10?",
+      "category": "datetime",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "a8d8c632-94bc-44ce-a4c5-98b530d9cb6f",
+          "content_hash": "sha256:0e14b0b25772f62c3d006ab733d002a1301801a1cac944fd039e0259a5023c9d",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 320,
+              "end": 518,
+              "excerpt_sha256": "969408a6b1839c0ed6640b2f385650fae5f44c786ce9aa01844eed021e7e7367"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Tăng lên 4.153,42 USD/ounce vào lúc 18 giờ 01 phút ngày 15/10 theo giờ GMT.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-07",
+      "question": "Báo cáo công bố ngày 16/10 cho biết mức thâm hụt ngân sách của Mỹ trong năm tài chính 2026 là bao nhiêu?",
+      "category": "datetime",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "266e74ee-1eb5-475c-9b1d-0b55d66e42a9",
+          "content_hash": "sha256:f63decf9d9d589d44e61588bb28374396a750c4637a057eee317645d823cdf40",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 180,
+              "excerpt_sha256": "d0e8abf7413808f8ea1326434b7fe198dcf2da7c8258272a2b186466295c91e2"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "1.992 tỉ USD, cao hơn khoảng 12% so với tài khóa trước.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-08",
+      "question": "Lãi suất trúng thầu trái phiếu chính phủ kỳ hạn 10 năm trong đợt đấu thầu vừa qua đạt mức cao nhất kể từ năm nào?",
+      "category": "datetime",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "2720fc74-e16c-4be1-aad0-4726c74693a4",
+          "content_hash": "sha256:75146147bfda80b4e6ab29ad2f53773d9630c0b5b03604a7a3c5c905dce1fdfe",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 423,
+              "end": 553,
+              "excerpt_sha256": "2f25e14479a5c7bd5320c031dd5383c56507f65d9379eafec1cb2f694877efbd"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Mức cao nhất kể từ năm 2023, với lãi suất trúng thầu 4,43%/năm.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-09",
+      "question": "Vụ việc nam thanh niên đưa cháu gái đến nhà nghỉ ở Hạ Long xảy ra vào ngày nào, và vụ việc bị gia đình phát hiện vào thời điểm nào?",
+      "category": "datetime",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "06c010c1-cd9f-4d57-b313-ff45da913d58",
+          "content_hash": "sha256:8b5562cc088450f3a9e1cc0c35419b5a6120e7a4cfc2be4571cd1b963f70de1f",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 780,
+              "end": 939,
+              "excerpt_sha256": "dd07a05b84490d6dee75022713a5f0d9e8d9ea04e73bcc154ce16b1c018e3c10"
+            },
+            {
+              "start": 1156,
+              "end": 1301,
+              "excerpt_sha256": "da51d1232ac798b11cda5e584455d6e872052ebe07072f087374daff4f4ce20b"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Nam thanh niên đón cháu gái ngày 8/8/2026; mẹ cháu phát hiện vào rạng sáng ngày 10/8/2026.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-10",
+      "question": "Ca mổ cho một bệnh nhân nữ trẻ tuổi có khối u lớn ở buồng trứng dính liền với ruột kéo dài bao lâu và kết quả sau phẫu thuật ra sao?",
+      "category": "paraphrase",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "dddaffc8-26c5-4e7f-b06d-c8708a9a1e74",
+          "content_hash": "sha256:03f66d8421747b2ab8fcecb504a2d335f83d38d25452c304d6ffedc387d01454",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 769,
+              "end": 959,
+              "excerpt_sha256": "f254a769c3808a673ab91387538c7efe27c548dacd6f1e161210f0bc89b59fe0"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Ca mổ kéo dài hơn 3 giờ, bác sĩ bóc được khối u hai bên buồng trứng, cắt đoạn ruột mang u mà không cần mở hậu môn nhân tạo, bảo tồn khả năng sinh sản cho bệnh nhân.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-11",
+      "question": "Vì sao ngày càng nhiều người chọn gặp gỡ bạn bè ở nhà hàng, quán xá bên ngoài thay vì đón tiếp họ tại nhà riêng của mình?",
+      "category": "paraphrase",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "1480e15d-77a6-463d-8305-65382e22f5b6",
+          "content_hash": "sha256:d53b7654be9bf7b9f29a201681dbf386f11674d0625453cf7111af5a7cc95b50",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 127,
+              "excerpt_sha256": "16b5cfa7b20bd1396ebded8e984b386fdb6fb6fc52ee6f63c6ab49f75be5c679"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Vì áp lực phải dọn dẹp, nấu nướng và mong muốn giữ không gian riêng tư cho gia đình.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-12",
+      "question": "Lượng đường huyết cao kéo dài trong thời gian dài có thể gây ra những tổn thương gì ở chi dưới của người mắc bệnh đái tháo đường?",
+      "category": "paraphrase",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "810ec67c-d5f3-4ab1-9470-a0c3ebed9cf6",
+          "content_hash": "sha256:83f4977db8493fb8ec6db7e796eb9c78f9d9e36ad9e8f87abe1eb5bc7ecc2b66",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 136,
+              "excerpt_sha256": "f74b6d59cf51fe7fddb5e2e47b398463a8ea5e9c9e6b24f41c178937bbe9c59b"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Gây tổn thương mạch máu, giảm lưu lượng máu đến chân, dẫn đến mất cảm giác và vết loét chậm lành.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-13",
+      "question": "Công trình thể thao nào tại Indianapolis có phần che phía trên bằng kết cấu thép khổng lồ, có thể di chuyển sang hai bên mà không cần trụ đỡ ở trung tâm khu vực thi đấu?",
+      "category": "paraphrase",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "111de8a4-d998-48de-8d85-7f4015ae4407",
+          "content_hash": "sha256:59b84e45a0c42030a74994689c7b900de22a0846195985a59e70a507019a5347",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 109,
+              "excerpt_sha256": "34e54735602167f548cd86a16301e573a01f6103d69372bc13016f34a16c8590"
+            },
+            {
+              "start": 246,
+              "end": 348,
+              "excerpt_sha256": "4e5bbc0625ae36f2fd46fa9ae24ae945ea742dde93032fc20f43bbf9f06ad383"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Lucas Oil Stadium, sân nhà của Indianapolis Colts.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-14",
+      "question": "Khi tỉnh dậy giữa đêm và cứ trằn trọc mãi không chợp mắt lại được, chuyên gia khuyên nên làm gì?",
+      "category": "paraphrase",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "55833358-0415-4dc0-857a-9959a9c35dc1",
+          "content_hash": "sha256:240c5f10e2052b649542a2ca51789e6486f74adfb53e2617ae68b13fb6008c09",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1080,
+              "end": 1243,
+              "excerpt_sha256": "b1efa3004ce89dd10275ba43337b6c81f65c82f437e4addf25d6739bcd41d0fd"
+            },
+            {
+              "start": 1245,
+              "end": 1369,
+              "excerpt_sha256": "973a6bf8ae64e6fc7b12d25c468dd7f5384e2e5ea010d1d98a179b673752f676"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Nên rời khỏi giường, đến một nơi có ánh sáng dịu và làm một hoạt động yên tĩnh như đọc sách, chỉ quay lại giường khi cảm thấy buồn ngủ.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-15",
+      "question": "Ngân hàng nào dự kiến chào bán hơn 296 triệu cổ phiếu cho cổ đông hiện hữu với giá 10.000 đồng/cổ phiếu?",
+      "category": "filter",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [
+          "vietstock.vn"
+        ],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "a7115527-f9d9-4fb4-ad58-793a17a62f58",
+          "content_hash": "sha256:839ccfefeb3ea0905e0718bc174f173620adfbb26852d22901f7f559eb1f0640",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 333,
+              "end": 435,
+              "excerpt_sha256": "05c9c5b71390b1f9813af11bd712b8d2e9058a7f8e76c15e7d3ddbc93ec54473"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Vietbank.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-16",
+      "question": "Đoạn đường nào trên đường Nguyễn Thị Minh Khai bị chuyển sang lưu thông một chiều để phục vụ thi công ga metro?",
+      "category": "filter",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [
+          "tuoitre.vn"
+        ],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "62582f31-7413-40c8-909a-f64c91f1b248",
+          "content_hash": "sha256:7669afbae2b65467b2d85d9f863130fe090cba6732bf8ceca2b2a1b108678e21",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1330,
+              "end": 1549,
+              "excerpt_sha256": "0ccb92074cd74e6b653c53947b12d552f4f6c6412047cfada09a40412bb47a92"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Đoạn từ hẻm 306 Nguyễn Thị Minh Khai đến đường Cách Mạng Tháng Tám, và từ Cách Mạng Tháng Tám đến đường Huyền Trân Công Chúa.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-17",
+      "question": "Trong các cuộc biểu tình nổ ra trên khắp nước Pháp ngày 17/10, cảnh sát đã bắt giữ bao nhiêu người trên toàn quốc?",
+      "category": "filter",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": "2026-10-17T00:00:00Z",
+        "published_before": "2026-10-18T00:00:00Z"
+      },
+      "gold": [
+        {
+          "article_id": "174056a1-3ed1-4cbc-8f12-730cb5b9f782",
+          "content_hash": "sha256:2945a77fcb8cceb0ffc5bc59cee8656420b90a6135d47fb8d181479fc0d28782",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1167,
+              "end": 1255,
+              "excerpt_sha256": "9180a4a153c396b660891cbf588e03376fecdfef09917b58d6edfa563400c31e"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Hơn 160 người.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s00-18",
+      "question": "EU muốn hợp tác với Việt Nam về lĩnh vực gì nhân chuyến thăm Brussels dự kiến của Tổng Bí thư Tô Lâm?",
+      "category": "filter",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": "2026-10-15T00:00:00Z",
+        "published_before": "2026-10-16T00:00:00Z"
+      },
+      "gold": [
+        {
+          "article_id": "b9677926-185b-47fc-b7d5-cbb939e2f17c",
+          "content_hash": "sha256:fd9c8152f2399563e81f8aeb4f35c02c00c3cf237946a98c310b657554e52ff7",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 214,
+              "excerpt_sha256": "8cac0e09b269c8dd56c65b8283e5fc81ff53ae9e9d8218e8ad5bafe174147bdf"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Hợp tác về khoáng sản, nhằm giúp EU giảm phụ thuộc vào Trung Quốc.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-01",
+      "question": "Ai là nghiên cứu sinh bị bắt tại sân bay quốc tế Los Angeles vì nghi đầu độc đồng nghiệp người Việt tại Đại học Wyoming?",
+      "category": "proper_noun",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "344824d0-2327-414f-9fdd-ff28f655d9c7",
+          "content_hash": "sha256:021a62392471a4653c7a9ca6bfa11da1bf1b2472f61cee0835616cff8bf51f28",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 433,
+              "end": 634,
+              "excerpt_sha256": "1af2592fe9aab68fce10c9e13ac9210d1dd659b16e385f2267b9180de0039c3a"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Vương Ái Lệ (Aili Wang), nghiên cứu sinh ngành vi sinh người Trung Quốc tại Đại học Wyoming.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-02",
+      "question": "Ban nhạc nào đang giữ kỷ lục nhiều tuần đứng đầu Billboard 200 hơn Taylor Swift?",
+      "category": "proper_noun",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "2fbafe73-02cc-45b0-891b-0b67ab49958d",
+          "content_hash": "sha256:57f354cd1db73dffe74187fd056c0377f94cf3807d81d7ff88208d4fd2a4a714",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 551,
+              "end": 699,
+              "excerpt_sha256": "2566d4ff807b8201ce293bb4f7f46ebda6020e63ec5942dcb36066ca5ed87a09"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "The Beatles, với 132 tuần đứng đầu Billboard 200.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-03",
+      "question": "Ai là CEO của công ty vừa được xướng tên 'Doanh nhân TP HCM tiêu biểu 2026'?",
+      "category": "proper_noun",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "5d3653c4-9ca9-44c6-bbda-90308b0a3594",
+          "content_hash": "sha256:b6a5e514aac1ebfa3aefd0e7f535ae0a2416716ec61ffac290b926fa5912a555",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 345,
+              "end": 485,
+              "excerpt_sha256": "4a4a1df4941cbadc6958b2053029439a7bcfa10a9e71d9009ee17db810307e92"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Ông Phan Tiến Đạt, CEO của Công ty Cổ phần Dây cáp điện Lucky Star.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-04",
+      "question": "Ai là Tổng Giám đốc PETROVIETNAM tham dự Diễn đàn Energy Intelligence 2026 tại London?",
+      "category": "proper_noun",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "14229508-0146-425b-a028-ed116d0f8f2c",
+          "content_hash": "sha256:539b2cf9cc282a40769de9df9c9f0af9ffbf1c23731447398b145e7f7e3e26fb",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 52,
+              "end": 267,
+              "excerpt_sha256": "730bebe8ff6145ca31f592663ef49feb374859088ac5ad097903da3244a583a6"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Ông Lê Mạnh Cường.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-05",
+      "question": "Doanh nghiệp nào là chủ đầu tư dự án The Metropole Thủ Thiêm vừa bị xử phạt vì bán căn hộ cho người nước ngoài?",
+      "category": "proper_noun",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "aaf5c4b3-954f-4a20-8556-9a40e1fd602a",
+          "content_hash": "sha256:3c3a122bfc3df2f91aaf3e2e26e8fe2754fd745e5f74a61fbbf050c482fa2da3",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 669,
+              "end": 908,
+              "excerpt_sha256": "b3269479ff88aeba400bac66be38d8c285707c88efa28bf56b7d4fa49ad93214"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Công ty Quốc Lộc Phát, chủ đầu tư dự án The Metropole Thủ Thiêm (Sơn Kim Land là nhà phát triển).",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-06",
+      "question": "Lễ viếng và lễ truy điệu hài cốt liệt sỹ quy tập tại công viên Lê Thị Riêng được tổ chức vào thời điểm nào?",
+      "category": "datetime",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "a37fd53c-f771-4035-9b5f-6dc1955fe1de",
+          "content_hash": "sha256:04272a6d0c95bc445a5083136668daaed2e02b8e6b6c8a9e614165d0e66dc798",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 358,
+              "end": 538,
+              "excerpt_sha256": "2ff960bb7bff325aacd33bffdeb7144bfc721e120e8ab2aefe10aba535be2a63"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "8 giờ sáng ngày 14/10 (lễ viếng, lễ truy điệu); lễ an táng dự kiến lúc 10 giờ cùng ngày.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-07",
+      "question": "Con rùa núi vàng đi lạc ở Đông Thạnh được giao nộp và kiểm lâm tiếp nhận vào ngày nào?",
+      "category": "datetime",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "3e25b014-7a12-4db4-b1c9-e01927a69b06",
+          "content_hash": "sha256:420a5148f700245033c2dd50e4a39a1836e41da1e8bbb96a5927141a6125341d",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 72,
+              "end": 279,
+              "excerpt_sha256": "595a3dd1884b6150e3873b41678425bef8b3b25f1c093273eb854bf5c7c63ab9"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Ngày 14/10 (14-10).",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-08",
+      "question": "Lần gần nhất trước ngày 13/10 Fed tăng lãi suất là vào thời điểm nào?",
+      "category": "datetime",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "05c346a5-ac60-4541-a92f-fca45ae78a60",
+          "content_hash": "sha256:8c4a4148cc9bf41cf1f94ce9378354a8929060c93a2ed9329bbe68b6078128e0",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1114,
+              "end": 1184,
+              "excerpt_sha256": "e1d50fd47d1ef96019962325cca29b7ae29fd9a284540cfd543e2d549480ad4c"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Tháng 9/2026 - đợt tăng lãi suất đầu tiên của Fed kể từ năm 2023.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-09",
+      "question": "Kỳ họp thứ hai Quốc hội khóa XVI khai mạc ngày 17/10 dự kiến kéo dài bao lâu và chia thành mấy đợt?",
+      "category": "datetime",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "78d84fc1-208e-41db-a644-bb79eb69d791",
+          "content_hash": "sha256:22c8d630b7646e572487d32b9843c9fef0a03fd4c3997fd9324431990563dc23",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 396,
+              "end": 539,
+              "excerpt_sha256": "ba51ee518c79d7debce92e92c4e7c5043251a00335cf35d99c7a8afbfd1f5051"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Kéo dài 28 ngày, chia thành hai đợt: đợt một từ 17/10-14/11, đợt hai từ 20-21/11.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-10",
+      "question": "Cư dân ở một khu vực thuộc quận Hoàng Mai cũ của Hà Nội lo ngại điều gì về quyền lợi đất đai khi phản ứng với kế hoạch cải tạo đô thị quy mô lớn do một tập đoàn bất động sản tư nhân thực hiện?",
+      "category": "paraphrase",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "36b68075-77ea-43fa-b1a0-53f67128dcd1",
+          "content_hash": "sha256:7bb2e3ad2f62d9ab9329ccb656304f15bb10a7986bdb72319051f7023174ad18",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1453,
+              "end": 1613,
+              "excerpt_sha256": "1e2d1d2be5cd41ac91632f9d9e0d333833e666b04dd0ca8dc17dc866d084576a"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Họ lo đất ở của mình có thể bị thu hồi để xây chung cư thương mại và yêu cầu phải có phương án bồi thường thỏa đáng nếu bị thu hồi đất.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-11",
+      "question": "Điều gì khiến khả năng tiêu thụ căn hộ mới mở bán tại hai đô thị lớn nhất cả nước sa sút rõ rệt trong quý vừa qua so với cùng kỳ năm trước?",
+      "category": "paraphrase",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "1b2f7657-88ca-453d-a556-76f14038679e",
+          "content_hash": "sha256:3d35f0b539acf68d759318dba22c6c2230250b886e182763fc987c132eef1633",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 940,
+              "end": 1041,
+              "excerpt_sha256": "9c91b9c2b36e69a6b75ed04d44dc11a6331fdec1f0c4ee2885ace0dfcd81278f"
+            },
+            {
+              "start": 1237,
+              "end": 1364,
+              "excerpt_sha256": "45794e3a6a6475fbfe3a0bce214b00e8d3ec88966c2501d99816a1ee245c8cb4"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Giá bán căn hộ đã lên quá cao so với thu nhập của người mua, trong khi lãi suất vay mua nhà vẫn ở mức cao, khiến tỷ lệ hấp thụ căn hộ giảm mạnh (Hà Nội còn khoảng 31%, TP HCM còn 28%).",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-12",
+      "question": "Kỹ thuật nào giúp một cụ ông 86 tuổi có nhiều bệnh nền được thay van tim mà không phải trải qua ca mổ hở truyền thống?",
+      "category": "paraphrase",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "4082d6f5-3535-47b7-888a-9ee8a8c599fe",
+          "content_hash": "sha256:5ed24bbc6646c1af40ca25fc70f6273bb21ec4fd4cf1c43d64d3d3f39a8b128b",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1380,
+              "end": 1490,
+              "excerpt_sha256": "be37d08f655559ef5754aa07686f03ef4dd5b30eae3041453fb8b3d3c69c6849"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Phương pháp cấy van động mạch chủ qua ống thông (TAVI), một kỹ thuật can thiệp ít xâm lấn.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-13",
+      "question": "Hiện tượng khí hậu bất thường đang mạnh lên nhanh chóng ở Thái Bình Dương được các chuyên gia khí tượng dự báo sẽ đạt cường độ cao nhất vào khoảng thời gian nào?",
+      "category": "paraphrase",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "c5c3e37c-0444-4bae-8816-58846cf30ead",
+          "content_hash": "sha256:fc4d03922eb0990fdd2f6cc40047bb469cbe7daaf9227275973e1e3b23ba72c1",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1134,
+              "end": 1260,
+              "excerpt_sha256": "8055faf2e1dff4e6b869a813528da8f7421b86df71b145040af32bc589c4b2f5"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Có khả năng đạt đỉnh vào khoảng tháng 12/2026, và dự báo kéo dài đến hết tháng 2/2027.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-14",
+      "question": "Quy mô xuất khẩu của Việt Nam năm 2025 so sánh ra sao với một nền kinh tế lớn ở Nam Á có tổng thương mại cao hơn nhưng kim ngạch bán hàng ra nước ngoài lại thấp hơn?",
+      "category": "paraphrase",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "85fa9083-f43b-42c5-91b1-8407cf6e354b",
+          "content_hash": "sha256:2d5fd5dd7d5db9c794a0d399fa2f33d49815ce45f02ad87f4a13eb2ade65ab19",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 145,
+              "end": 350,
+              "excerpt_sha256": "c10980fab6061cbbc1e1604c47f88e7099ba67eca86160ffaf97f0737a60403c"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Năm 2025 Việt Nam xuất khẩu đạt 473 tỉ USD, cao hơn Ấn Độ (445 tỉ USD), dù Ấn Độ có tổng kim ngạch thương mại lớn hơn (gần 1.200 tỉ USD, đứng thứ 13 thế giới).",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-15",
+      "question": "Phó thủ tướng nào yêu cầu triển khai khẩn trương giải pháp giảm lãi suất cho vay, và mức giảm đề xuất là bao nhiêu?",
+      "category": "filter",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": "2026-10-17T00:00:00Z",
+        "published_before": "2026-10-18T00:00:00Z"
+      },
+      "gold": [
+        {
+          "article_id": "c7600621-f56b-4463-bb00-6273b8de549c",
+          "content_hash": "sha256:0740a6d17a978b183b49a2ee874c91fdf0212d49d13bc90da9ae75e22569243e",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 282,
+              "excerpt_sha256": "f9afe7f31182cc1e54e2850644ff2961b829d6deaa40256286e995b2a55b61db"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Phó Thủ tướng Nguyễn Văn Thắng, yêu cầu giảm lãi suất cho vay từ 1,5-2% đối với lĩnh vực sản xuất, kinh doanh và các lĩnh vực ưu tiên.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-16",
+      "question": "Hà Nội dự kiến xử lý khối rác chôn lấp ở Xuân Sơn theo hình thức nào, và liên danh nào được đề xuất làm chủ đầu tư?",
+      "category": "filter",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [
+          "thanhnien.vn"
+        ],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "307d6ea4-e516-43f3-8b1e-125f5816292f",
+          "content_hash": "sha256:35f2238947d80bbcd7a19fc738eff69b43f05527c72b7853774340c2c7c1b445",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 228,
+              "end": 418,
+              "excerpt_sha256": "7fea23ea1752f6c202d607f2211bc61e41d6c25974a7aa58cfe30d9617916a08"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Xử lý theo hình thức đốt rác phát điện, chủ đầu tư đề xuất là liên danh Amaccao - Seraphin - Thành Công, tổng vốn dự kiến khoảng 2.226 tỉ đồng.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-17",
+      "question": "Những nền tảng thanh toán di động nào của Trung Quốc đã kết nối thanh toán QR với hệ thống thanh toán bán lẻ quốc gia của Việt Nam tính đến thời điểm đó?",
+      "category": "filter",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": "2026-10-13T00:00:00Z",
+        "published_before": "2026-10-14T00:00:00Z"
+      },
+      "gold": [
+        {
+          "article_id": "89a3615b-64e5-40e3-ae75-2dfae4fa22cb",
+          "content_hash": "sha256:5b95e726140aa17d25eef752fb49eb5c44f7b7e9ac0eaf2893774967ca609d94",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 258,
+              "end": 448,
+              "excerpt_sha256": "3ac1d274c082fb8149a5673b0f2cac894311c360df457d57a213fbc45d662655"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "UnionPay, Alipay và Weixin Pay (WeChat Pay) đã kết nối thanh toán QR với NAPAS.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s100-18",
+      "question": "Những nhóm người nào được bác sĩ khuyến cáo nên thận trọng khi dùng lá tía tô với lượng lớn hoặc kéo dài?",
+      "category": "filter",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [
+          "cafef.vn"
+        ],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "5959f69a-40b8-48fb-bb5c-ea1ea72d39e1",
+          "content_hash": "sha256:e09a734d2045c2298b5c67e499550471c6f77e6ef3a0c8b4a71d49b01f4413ef",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 2454,
+              "end": 2663,
+              "excerpt_sha256": "ca5f9e7a1e6774e742aa5774024a13375a49906ce9880ea6bb650baefe44a0c6"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Phụ nữ mang thai, người đang cho con bú, trẻ nhỏ, người mắc bệnh gan, thận hoặc đang dùng thuốc điều trị.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-01",
+      "question": "Cha của Thứ trưởng Nguyễn Sinh Nhật Tân là ai, và ông từng giữ qua những chức vụ cao cấp nào trước khi làm chủ tịch Quốc hội?",
+      "category": "proper_noun",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "05e0552c-b429-4a40-a464-aa1d6273c88f",
+          "content_hash": "sha256:6372e12d3ab9420977fc6d5182efa26ef6b8372e8407e67418cad3c01869db4b",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 309,
+              "end": 515,
+              "excerpt_sha256": "22c4eba5fc25fabe8871e1125269f3ebea0ce8b02c47ff3428f1347979f94d25"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Ông Nguyễn Sinh Hùng - từng là bộ trưởng Tài chính, rồi phó thủ tướng, trước khi được bầu làm chủ tịch Quốc hội năm 2011.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-02",
+      "question": "Ai là người đứng đầu Grab vừa công bố chương trình hợp tác với OpenAI để đào tạo kỹ năng AI cho tài xế công nghệ ở Đông Nam Á?",
+      "category": "proper_noun",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "1020aa2c-7280-4454-8da3-dafa2e022d8a",
+          "content_hash": "sha256:32a0812e57604b496aa9c4f83486b620b255e5c44f8054221a69e83f19c0a4b2",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 177,
+              "excerpt_sha256": "6e0f532ce42158b5e64b5117672caf3619f1e87db2ead1416a06be98e0c75367"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Ông Anthony Tan, CEO của Grab.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-03",
+      "question": "Ai là CEO của Anthropic được nhà đầu tư Matt Murphy mô tả có \"phong thái thiên tài\" giúp thu hút các nhà nghiên cứu AI?",
+      "category": "proper_noun",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "00f0fc0a-a84c-476f-ab23-b9c331742599",
+          "content_hash": "sha256:e4f3e53e33e8e861d3b5b002830efd54ca939650d0c5ee0ca9b549171c573c57",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 137,
+              "excerpt_sha256": "a7a7d25e1b3f9d48885c5cb39bf841086a47f5c90ba3497297171651c8e485ae"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Dario Amodei, CEO của Anthropic.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-04",
+      "question": "Phó Chủ tịch nước Võ Thị Ánh Xuân đã hội đàm với nguyên thủ quốc gia nào tại Baku nhân dịp hội nghị CICA lần thứ 7?",
+      "category": "proper_noun",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "9cc0fce0-d72b-4aa4-ba97-c9546bceeb52",
+          "content_hash": "sha256:94257a7ae9efa7924d72eb5e53654ee8b21e2ee21333c0f34dce7f77093f4959",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 216,
+              "end": 363,
+              "excerpt_sha256": "c9d7944025206402d827a81c8d66cb6714b28c23a659d4507d302f5a6cd81fbc"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Tổng thống Cộng hòa Azerbaijan Ilham Aliyev (cùng Phó Tổng thống thứ nhất Mehriban Aliyeva).",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-05",
+      "question": "Bộ trưởng Bộ Công an Lương Tam Quang vừa tiếp lãnh đạo của tập đoàn công nghệ viễn thông nào để thúc đẩy hợp tác về 5G, AI và hạ tầng số?",
+      "category": "proper_noun",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "573681f6-a0d4-4148-ace1-30431668d1ff",
+          "content_hash": "sha256:46983cfa454e6a23c34ee62e05da95edf6ad3e16e29b3662839f84ff50d70046",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 25,
+              "end": 200,
+              "excerpt_sha256": "e3c428c8a60f0ac0a9ca7b2425f649723deffdcff8e795ca6f3bec406a25cb7c"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Tập đoàn Nokia (đại diện là Tổng Giám đốc khu vực châu Á-Thái Bình Dương Andrew Cope).",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-06",
+      "question": "Chính sách miễn thị thực cho khách Trung Quốc đi theo đoàn đến Khánh Hòa có hiệu lực trong khoảng thời gian nào?",
+      "category": "datetime",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "d974de6b-3368-4f04-9f94-455dd84f7bb3",
+          "content_hash": "sha256:450da731fd60db6084f5b77c1b7a30a695e8d54a2e37670ccd6612bc94c55f41",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 681,
+              "end": 747,
+              "excerpt_sha256": "5029614b529abd11a91dd64584bd7657dc9c0cddbfb21d4cb1d27ad563a0786f"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Từ ngày 12/10/2026 đến hết ngày 31/12/2027.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-07",
+      "question": "Cơn bão lịch sử khiến nhiều nạn nhân dạt vào bờ biển Côn Đảo, dẫn tới việc UBND đặc khu Côn Đảo nay phải tìm thân nhân cho các phần mộ, xảy ra vào thời điểm nào?",
+      "category": "datetime",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "d5501fd4-ff4d-40b5-957e-47089815567a",
+          "content_hash": "sha256:4e8a0eed8fa9133f47d78e2e50587c439339750603b2c70e8d6663ed584b20d9",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1278,
+              "end": 1455,
+              "excerpt_sha256": "abb7a3705b66dfb3d88e73693ae74e9294d5b8cc6f1b052d4217de77a2dae49d"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Bão Linda (bão số 5), xảy ra vào tháng 11/1997.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-08",
+      "question": "Vụ tai nạn khiến nữ sinh ở Vĩnh Long tử vong xảy ra vào ngày nào, và tòa đã tuyên án tài xế gây tai nạn vào ngày nào?",
+      "category": "datetime",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "fea4fb30-948e-4876-90d2-1ec1fcc9770b",
+          "content_hash": "sha256:05ed21cc58e8f4c08e0a83a3a296a3d3ba5b8529e2a3d719e2fbbc010db6b056",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 228,
+              "excerpt_sha256": "68b4dedc7b6c27103158e48b9349913e829dbe8a7531cfe5e9d5653674040123"
+            },
+            {
+              "start": 1851,
+              "end": 1914,
+              "excerpt_sha256": "23761a769178e958c0e4a7564c4f8cbba4e54f185f3f6d7e3cd10a02c4ef9528"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Tai nạn xảy ra khoảng 9h45 ngày 4/9/2024; tòa tuyên án ngày 15/10 (năm 2026), mức án 2 năm 6 tháng tù.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-09",
+      "question": "Lễ viếng, truy điệu và an táng hài cốt liệt sĩ tại Công viên Lê Thị Riêng diễn ra vào ngày, giờ cụ thể nào?",
+      "category": "datetime",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "27baf20e-5110-4bd7-8c56-6b3e094624e4",
+          "content_hash": "sha256:71d097a7c4dd3740fde1ede5f60b4626f2008791245ce081f0d4b6f40aec92d0",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 456,
+              "end": 686,
+              "excerpt_sha256": "bde67de2c77e4e1d54488cb1059296525e4c31f694f248217c05681cd931739f"
+            },
+            {
+              "start": 806,
+              "end": 906,
+              "excerpt_sha256": "0dc4f674e56d26add05ba00db0a8dbbba02c9c0c37828deae0f42fa80c2b344c"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Sáng 14/10/2026: dâng hương 7h30, lễ viếng/truy điệu 8h, đoàn xe xuất phát 8h45, lễ an táng 10h cùng ngày.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-10",
+      "question": "Số lượng lớn đồ dùng cá nhân cũ chất đống gây ô nhiễm bên một công trình đường ở Hà Nội thực chất là của ai gom lại, và nhằm mục đích gì?",
+      "category": "paraphrase",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "df9bb3f4-4bfc-4303-9714-8925a1bee18d",
+          "content_hash": "sha256:9955180c89a312e8afaaba75e8ef78aef8422bf99325b0c5eb3006913668ad1c",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 245,
+              "end": 365,
+              "excerpt_sha256": "148e2c023971c34bb4e8e811f53f39d971ab9e074ef2957ee2d2692f3387f8f5"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Của một cá nhân thu gom trong nhiều năm nhằm làm từ thiện; phần không dùng được bị bỏ lại tại khu vực dự án đường nối Phạm Hùng - Lê Đức Thọ.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-11",
+      "question": "Tác giả bài viết đề xuất cơ chế gì để các trường công có thể giữ các em nhỏ lại thêm một khoảng thời gian cuối ngày, giúp phụ huynh đi làm có đủ thời gian đến đón mà không phải xin nghỉ sớm?",
+      "category": "paraphrase",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "07c0f42f-69c2-45f8-849e-791267860a9b",
+          "content_hash": "sha256:3181496e07f972631004aa2bf5e528f7a88cac5bb91327cdd08d9465483afed1",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 2515,
+              "end": 2700,
+              "excerpt_sha256": "8b77bb655a88c56a2b7d0bc70568bba52d0592332e3df790ed1e3eb8c788a1cc"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Cho phép trường mầm non công lập tổ chức dịch vụ giữ trẻ ngoài giờ, phụ huynh đăng ký tự nguyện và trả phí theo mức công khai, hợp lý, không cần nhà nước bao cấp toàn bộ.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-12",
+      "question": "Chính quyền một địa phương ở Đà Nẵng đã áp dụng biện pháp gì để xác định được chủ sở hữu khi gia súc đi lạc ra đường gây nguy hiểm giao thông?",
+      "category": "paraphrase",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "9cbfee18-0c2f-4c6c-ade7-d7544b4912fe",
+          "content_hash": "sha256:15be510c389fd4c17f067ee5e780fd5594ae4fa14bfb202dce9e7c6c5c263eeb",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1776,
+              "end": 1907,
+              "excerpt_sha256": "773aa37b0e91bbfe0dc51ee926b0613cf2ef1d5bc94b1866a64be8ad24806e8c"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Thống kê vật nuôi của từng hộ và đánh số/sơn mã số nhận diện lên mỗi con trâu, bò để xác định chủ khi vi phạm.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-13",
+      "question": "Theo bài viết, điều gì đã khiến nhiều cầu thủ trụ cột của đội tuyển quốc gia liên tiếp dính chấn thương nặng trong thời gian gần đây?",
+      "category": "paraphrase",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "5148cbac-9831-4112-92d4-3bcaede534bf",
+          "content_hash": "sha256:293ce8fbbb0c6a72ceaeca0bc8df3583663c982a11f2a0573ca340c42346bf9a",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 678,
+              "end": 1032,
+              "excerpt_sha256": "b510f6132215a96ed806134a820c689feae411bd03063b8ee6329d191da0d7d9"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Do đội tuyển phải thi đấu liên tiếp hai giải (ASEAN Cup 2026 rồi FIFA ASEAN Cup) trong thời gian ngắn với phần lớn cùng một dàn cầu thủ, khiến họ quá tải.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-14",
+      "question": "Vì sao nhiều người có nhu cầu mua căn hộ tại TP.HCM vẫn trì hoãn quyết định xuống tiền, dù một số mức giá chào bán đã mềm hơn so với đầu năm?",
+      "category": "paraphrase",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "e5db629e-064a-42a7-9677-e62a57490ecb",
+          "content_hash": "sha256:9aea7309487debc139d2e9f6cd39e327354f530d5de371a79eb2da6c7e9e8a4f",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1873,
+              "end": 2026,
+              "excerpt_sha256": "3908e208e28f5bf3f579c0a8ce938ce97c86884294cb5fae655416fb86a8189a"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Vì lo lãi vay vẫn cao và kinh tế còn bất định, nhiều người chọn chờ thêm, dành thời gian so sánh và tính toán khoản vay hơn là chốt mua ngay.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-15",
+      "question": "Theo bài viết, tổ chức nào dự kiến công bố cập nhật triển vọng kinh tế toàn cầu trong tuần diễn ra hội nghị thường niên tại Bangkok?",
+      "category": "filter",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [
+          "cafef.vn"
+        ],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "811b01d7-55fc-42d0-a29e-9062fea09c72",
+          "content_hash": "sha256:ae1121500b7f4f7a51453028a2cda8735261c4ce59a367d3dd819cfd9dd64f9d",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 955,
+              "end": 1041,
+              "excerpt_sha256": "790e91143e55d212d20215ad266f1abfdc4f18137f9438aacd57f7670dc88c04"
+            },
+            {
+              "start": 2686,
+              "end": 2830,
+              "excerpt_sha256": "ed16db4df0de030898c67521ddf964e8db3459e951f2123dfbb43d1a3bcd77c1"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Quỹ Tiền tệ Quốc tế (IMF).",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-16",
+      "question": "Theo một bài viết trên tuoitre.vn, công ty chứng khoán nào đạt mốc 2 triệu tài khoản vào tháng 9/2026?",
+      "category": "filter",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [
+          "tuoitre.vn"
+        ],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "abcdf2c3-50f9-4578-866b-f9c817cd2456",
+          "content_hash": "sha256:df2fcbe331a3f2429ef87a10a2fa422e4a967660b9a7a97d4e9a3a0e9d2edaa3",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1344,
+              "end": 1401,
+              "excerpt_sha256": "f8098ebf2aeba405435a7684f044ee65031069164b73dae7f3a54b3da6892600"
+            }
+          ]
+        },
+        {
+          "article_id": "9fc24feb-a74c-4140-8bbe-acc90c726469",
+          "content_hash": "sha256:7b414b3d648be248dde5f68cd55bcfe8563a40b1670f7d37c3df998bf59f4759",
+          "grade": 1,
+          "spans": [
+            {
+              "start": 1106,
+              "end": 1163,
+              "excerpt_sha256": "7238be73a82d4d63f04a1d20133963bcf7f2965fe3341196d8e0d6d521695ef3"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Công ty CP Chứng khoán DNSE (DSE).",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-17",
+      "question": "Trong khoảng ngày 15-16/10/2026, hợp đồng xây dựng 5 tuyến đường sắt đô thị nào được ký tại Hà Nội, và tổng mức đầu tư là bao nhiêu?",
+      "category": "filter",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": "2026-10-15T00:00:00Z",
+        "published_before": "2026-10-16T00:00:00Z"
+      },
+      "gold": [
+        {
+          "article_id": "494c8f98-ad07-43eb-8d7f-28b6633beb17",
+          "content_hash": "sha256:8acab8b09dbef4ec389655dc2bc11383e3fc85a9c23d4b169854ba07e4e3a38a",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 297,
+              "excerpt_sha256": "820a542b2bfed5a782ecade97155d08f5074d7a3f4d1193881ec07d45667c116"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Hợp đồng chìa khóa trao tay giữa Ban Quản lý Đường sắt đô thị Hà Nội và liên danh Vinhomes - SGC để xây 5 tuyến metro (1, 2, 8, 10, 14), tổng vốn đầu tư gần 900.000 tỷ đồng.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s150-18",
+      "question": "Trong ngày 12/10/2026, ngân hàng nào được công bố có giá trị thương hiệu vượt mốc 2 tỷ USD, tăng 27% so với năm trước?",
+      "category": "filter",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": "2026-10-12T00:00:00Z",
+        "published_before": "2026-10-13T00:00:00Z"
+      },
+      "gold": [
+        {
+          "article_id": "e30f244e-2b36-4161-bc4d-1eee001acb1c",
+          "content_hash": "sha256:4d44cf880c1b536169ab5aaf756ff6b3378d7f3c188a83d6afb9f592d49fbd76",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 376,
+              "end": 513,
+              "excerpt_sha256": "f189ab6b91e190f4e265167c0962ef7badf402213a1fce681650dedbf2237858"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Ngân hàng TMCP Quân đội (MB).",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s50-01",
+      "question": "Cựu giáo viên nào bị đưa trở lại nhà tù ở Indonesia sau khi BBC điều tra việc ông được trả tự do sớm bí mật?",
+      "category": "proper_noun",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "682b9542-4e2e-4a0f-91e0-e4570631d153",
+          "content_hash": "sha256:04b87eb7536827d7f60b3dfa99b4cc7c4293a7a8b4937daa7171404891b2ad22",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 183,
+              "end": 438,
+              "excerpt_sha256": "754e6cd3a8432cf14736b3218cdd18bf003e602bfd2f2eb1822ec027ec2819ab"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Mochamad Subchi Azal Tsani, biệt danh Bechi, cựu giáo viên trường nội trú Hồi giáo Shiddiqiyyah ở Đông Java.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s54-06",
+      "question": "Sự cố đứt cáp ngầm 110kV Hà Tiên - Phú Quốc mà tỉnh An Giang đang khắc phục xảy ra vào ngày nào?",
+      "category": "datetime",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "60023905-e559-456a-9cd4-f8acee42f4e0",
+          "content_hash": "sha256:2f8f4122f4b88b6d19cf273f38cbd8ff9a3fdc89b4e3f874a7c010e97bbe4ed4",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 12,
+              "end": 302,
+              "excerpt_sha256": "95028a31694bb76991798bb2529937d1a5e7bd9cfec4e1c04aae333836d380e3"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Ngày 29-11-2025.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s56-02",
+      "question": "Ai được bổ nhiệm làm Tổng Giám đốc mới của Quốc Cường Gia Lai (QCG) vào ngày 12/10/2026, thay cho ông Nguyễn Quốc Cường?",
+      "category": "proper_noun",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "2458c6da-0cfd-4cdf-8387-dd14f7efba6c",
+          "content_hash": "sha256:7cd20512d463bfd6ed7185e711013c69386f391b13d11adf181f745cfc028d46",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 253,
+              "excerpt_sha256": "1bd7eb77bafd6b84168867a0bbc928a1f4763e4734ae630e3d74b5bafc6f0297"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Bà Nguyễn Thị Như Loan.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s58-03",
+      "question": "Nghi phạm 16 tuổi gây ra vụ xả súng tại trường tiểu học Silver Rail ở Oregon được cảnh sát xác định danh tính là ai?",
+      "category": "proper_noun",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "86e5d320-41d1-4912-aa1c-28e72d14d39b",
+          "content_hash": "sha256:fac92f482ebb6ffa54d3c1c44d7fbe880ff28a38d951790b65ff4f60961e5ef8",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 430,
+              "end": 659,
+              "excerpt_sha256": "158a2a2baf313a8bb86cc69c7c5e2e2af57a7fbdf94adb2e5bd6b76ed9aebdf1"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Griffin J. John II, 16 tuổi.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s59-14",
+      "question": "Trong 9 tháng đầu năm 2026, lượng người đi lại bằng đường hàng không tại Việt Nam đã tăng thêm bao nhiêu phần trăm so với cùng kỳ năm trước, và tổng số đạt khoảng bao nhiêu?",
+      "category": "paraphrase",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "3a3e8a77-8bdf-4a42-ae89-3e8e8e23c2f8",
+          "content_hash": "sha256:a34f8b4809155402de0ae5417f26a43195a00bd705967fdb34677b9afe371945",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 369,
+              "end": 489,
+              "excerpt_sha256": "3c96acd009db5020def0132db16bdc3ec8f0e87d3f0a55e35fff4cfe32f72881"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Tăng 12,6%, đạt khoảng 70,5 triệu hành khách.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s60-10",
+      "question": "Theo phương án chỉnh sửa bản đồ phát triển khu vực ven con sông chảy qua Hà Nội, những cụm dân cư lâu đời nào có thể phải chuyển đi toàn bộ hoặc một phần?",
+      "category": "paraphrase",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "979482d8-92be-4f62-ba51-f7fab55d6161",
+          "content_hash": "sha256:11ceb41a9d8b71984a469d3df4446840dedf0ceb8e6fdd742a01267d112f5e62",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 715,
+              "end": 874,
+              "excerpt_sha256": "cab81192fb448836b56af371ccb23524e6841583721436aa1a62b88ab84458eb"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Làng Bắc Cầu (phường Bồ Đề) và cụm làng Võng La - Hải Bối.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s65-07",
+      "question": "Tổng thống Thụy Sĩ Guy Parmelin thực hiện chuyến thăm chính thức Việt Nam trong khoảng thời gian nào?",
+      "category": "datetime",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "9364c3e4-a708-4f61-8eaa-22ea7f71ba35",
+          "content_hash": "sha256:baaf068780dafb3b6d2e1b84328bb9bbb9be4be56b6bf996f445b9df5e80e143",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 255,
+              "excerpt_sha256": "76e28016cb457e28d34458f2251b3848832c552529fb15024281fdc981b25610"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Từ ngày 17 đến 18/10/2026.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s66-15",
+      "question": "Samsung Electronics dự kiến rót bao nhiêu vốn vào các cơ sở kiểm định chip nhớ tại Khu công nghiệp Yên Bình, tỉnh Thái Nguyên?",
+      "category": "filter",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [
+          "vietstock.vn"
+        ],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "b0a3fd2b-0e62-4b76-8a5c-80629de0fb2b",
+          "content_hash": "sha256:37180d223ed9dc04c44d760d9f2395849cedfdabd03aab542af3b7b1d04e20e0",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 195,
+              "excerpt_sha256": "fd93f1cc5c44d86d36d7477ac53e36e86c3c306213c380bd1e8f88c426d0760d"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Khoảng 105.79 ngàn tỷ đồng (4.09 tỷ USD).",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s67-04",
+      "question": "Ai là người đứng đầu IMF đã thúc giục Bộ trưởng Tài chính Mỹ Scott Bessent cắt giảm thâm hụt ngân sách vào ngày 14/10?",
+      "category": "proper_noun",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "9c4345a3-d1d1-4044-b39f-63dc3288a091",
+          "content_hash": "sha256:84ae4d7083c2bb9ccba3840497c8e8bc583dc0530494fc2a21fd38f717051937",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 261,
+              "excerpt_sha256": "9650d33bbce242ec38660b5235ac07e6baaddb7378e480ec9e78fd430a79c531"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Kristalina Georgieva, Tổng giám đốc IMF.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s68-05",
+      "question": "Cựu HLV nào được Emmanuel Petit ủng hộ để tranh cử Chủ tịch FIFA, thay thế Gianni Infantino?",
+      "category": "proper_noun",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "b91b446a-d6f8-4f9a-aed4-f1c6bc34294c",
+          "content_hash": "sha256:3e46b0f190f495edf0a19d047a913666efa24ace13676ae4ec55922cdc7a9609",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 167,
+              "excerpt_sha256": "276fb96db816e1f1817fa5324f71caed914f9a66c514a2f0a56a628b231292d8"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Arsene Wenger, cựu HLV Arsenal.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s74-11",
+      "question": "Loại bệnh truyền nhiễm nguy hiểm nào khởi phát với dấu hiệu dễ nhầm thành cảm cúm nhưng có thể khiến bệnh nhân rơi vào hôn mê, tử vong chỉ trong thời gian rất ngắn nếu không cấp cứu kịp?",
+      "category": "paraphrase",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "69574424-6657-4d4a-8006-d669d476cc59",
+          "content_hash": "sha256:c7bcbba48ab2d986ab67f98862edb2e317d759d37ebf05607f3c3a4fa8196742",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 55,
+              "end": 244,
+              "excerpt_sha256": "046ae10c625f7d691087080835fd3d59b79215a57c3a97ba7b34aba3ab5c5a77"
+            },
+            {
+              "start": 974,
+              "end": 1092,
+              "excerpt_sha256": "2bd1300a629b699cf548bf691ccd3dfe5099fea34b36a30f522fd92776657486"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Viêm màng não do vi khuẩn não mô cầu (Neisseria meningitidis).",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s75-16",
+      "question": "Đoàn thể thao người khuyết tật Việt Nam có bao nhiêu vận động viên tranh tài ở 5 môn thể thao chính tại Asian Para Games 2026?",
+      "category": "filter",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": "2026-10-16T00:00:00Z",
+        "published_before": "2026-10-17T00:00:00Z"
+      },
+      "gold": [
+        {
+          "article_id": "b055ee40-14f4-4362-97cd-0154ea160932",
+          "content_hash": "sha256:fa0bb8972862863f46555e276deba64123376ecc1c74741bae3b5251b9c8108e",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1014,
+              "end": 1327,
+              "excerpt_sha256": "9b098a4e8aee8e14574fde0337df9efb304b0ebd465505fd4290156a4187f10a"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "21 vận động viên, trong tổng đoàn 36 thành viên.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s76-08",
+      "question": "S&P Global Ratings công bố xếp hạng tín nhiệm nhà phát hành dài hạn mức B+ cho EVF vào ngày nào?",
+      "category": "datetime",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "9c11ec6a-5113-4be7-a7da-ac8d96b73ffe",
+          "content_hash": "sha256:c5686237dabcbe5603e4731bbfadccc3813dfb9845f246df03a16b226630d36a",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 211,
+              "end": 341,
+              "excerpt_sha256": "4339785c908b23fed81e5b6876e8e4452800a53e000ddea33c98f9de474d32dc"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Ngày 15/10/2026.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s80-12",
+      "question": "Trong văn kiện mới nhất của Bộ Chính trị về công tác đối với người gốc Việt sinh sống ở nước ngoài, cộng đồng này được xác định giữ vai trò gì đối với sự phát triển của đất nước?",
+      "category": "paraphrase",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "56b55e5c-861a-47d4-acd2-412881392af4",
+          "content_hash": "sha256:55e23be8a8c69f14e31adc922f3ed4256a685a51ec8ff35b58660518cfc7f1c7",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 3188,
+              "end": 3390,
+              "excerpt_sha256": "951cf6146d7b12831ba61f315e7bac1baa5d0e989f43016371201885fabac8da"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Là một trong những nguồn lực chiến lược quan trọng và cầu nối giữa Việt Nam với thế giới.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s84-17",
+      "question": "Tổng giám đốc Lester Tan của công ty bia nào được VCCI vinh danh danh hiệu 'Doanh nhân Việt Nam tiêu biểu - Cúp Thánh Gióng 2026'?",
+      "category": "filter",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [
+          "tuoitre.vn"
+        ],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "62ece2e8-81b6-47e6-8830-20104b9cd37a",
+          "content_hash": "sha256:058e85c25e0838d0618451951a1a2e64ad60ab4defbe2f33eecaa68751f9c874",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 126,
+              "excerpt_sha256": "754a26df7b087bb9271ab32f50f9b81450acc436417ebd7566c27727cb96c9ad"
+            },
+            {
+              "start": 427,
+              "end": 616,
+              "excerpt_sha256": "3906572bdea3c71962dfeb50b3655ce172f1922b4410e8299d7b4d2b9c2827ef"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Sabeco (Tổng công ty Bia - Rượu - Nước giải khát Sài Gòn).",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s90-13",
+      "question": "Trung Quốc vừa khánh thành một cơ sở hợp tác huấn luyện quân sự gần thủ đô của nước láng giềng có chung biên giới với Việt Nam; vì sao giới chuyên gia cho rằng Việt Nam nên theo dõi sát sự hiện diện này?",
+      "category": "paraphrase",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "7f4b8ed9-734d-4b38-a76a-9526414e0ccc",
+          "content_hash": "sha256:f28e6d99d467523a48032cfc227442f98cc6f894404b71401db856f9aa1115b2",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 191,
+              "excerpt_sha256": "297d9607a13aa2644a7e270cee9f89a9dcd9b7a2508da6e25c32b3bc963f1242"
+            },
+            {
+              "start": 2886,
+              "end": 3085,
+              "excerpt_sha256": "230bf8ca30f521991b4083466bc3ea9f23a34d383f47a40c98a1a978fcd1d628"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Trung tâm Hỗ trợ và Huấn luyện Chung Trung Quốc - Lào tại Ban Keun, gần Viêng Chăn; chuyên gia lo ngại nếu trở thành bàn đạp cho sự hiện diện thường trực của quân đội Trung Quốc, có thể gia tăng ảnh hưởng và sức ép quanh Việt Nam.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s93-18",
+      "question": "Trong 4 phiên đấu giá bất động sản của bà Trương Mỹ Lan diễn ra ngày 23/10, tài sản nào có giá khởi điểm cao nhất và là bao nhiêu?",
+      "category": "filter",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": "2026-10-15T00:00:00Z",
+        "published_before": "2026-10-16T00:00:00Z"
+      },
+      "gold": [
+        {
+          "article_id": "2963624e-18ec-47c3-8de2-f1964a5c0711",
+          "content_hash": "sha256:b21f6a90753e7a7b849a9de98d350559a3d4b66ecd5f0a20ebcf3f390ee686ee",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 799,
+              "end": 926,
+              "excerpt_sha256": "a566929448a581f709b02bb9910b62f3ae062f0c88ed384beb9cb7d4544de908"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Căn biệt thự tại 22B Nguyễn Thị Diệu, giá khởi điểm hơn 202,5 tỉ đồng.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "s98-09",
+      "question": "Tiêm kích F-35C thực hiện cú hạ cánh thử nghiệm đầu tiên thành công trên tàu sân bay USS John F. Kennedy vào ngày nào?",
+      "category": "datetime",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "0065629b-3b81-4c17-be6d-e4187996d7fc",
+          "content_hash": "sha256:9e58005f68ad9db58e71f631ff599fd18383ee892e99079847d4a0997e54c19a",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 147,
+              "end": 391,
+              "excerpt_sha256": "572020dc00731be41844a1e5a2ddb52c34cdb75907379ca68afd165d3494d2eb"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Ngày 13/10/2026.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-01",
+      "question": "Tổng thống Thụy Sĩ Guy Parmelin bắt đầu thăm chính thức Việt Nam vào thời điểm nào và được đón tiếp ra sao?",
+      "category": "multi_source",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "9364c3e4-a708-4f61-8eaa-22ea7f71ba35",
+          "content_hash": "sha256:baaf068780dafb3b6d2e1b84328bb9bbb9be4be56b6bf996f445b9df5e80e143",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 255,
+              "excerpt_sha256": "76e28016cb457e28d34458f2251b3848832c552529fb15024281fdc981b25610"
+            }
+          ]
+        },
+        {
+          "article_id": "e762289f-ae0e-4f32-a396-d5c5697aa717",
+          "content_hash": "sha256:b2f33d048a18da18a23c4a4919bc19a94cd8930b03718927fbe7f9ea507250d2",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 136,
+              "excerpt_sha256": "52e0c64b1755380c73f0b53fb40d810f3d8b00134845981d1146eb20dfdeec9f"
+            }
+          ]
+        },
+        {
+          "article_id": "41da98fe-6a8d-4dae-ba0a-8f3063702f67",
+          "content_hash": "sha256:459b9ee3cc986ae956459610be5f84deba3a7fc50a6137f8f16e79fdc497352d",
+          "grade": 1,
+          "spans": [
+            {
+              "start": 0,
+              "end": 228,
+              "excerpt_sha256": "a42e61b13cd79791b82e0ad7e65866c5778b7d63890ca2593c429e60f2fa3240"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Tổng thống Thụy Sĩ Guy Parmelin và Phu nhân đến Hà Nội sáng 17/10/2026, bắt đầu thăm chính thức Việt Nam từ 17-18/10 theo lời mời của Tổng Bí thư, Chủ tịch nước Tô Lâm; lễ đón chính thức được tổ chức trọng thị tại Nhà Quốc hội chiều 17/10.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-02",
+      "question": "Giá vàng thế giới biến động thế nào trong nửa đầu tháng 10/2026 và giới đầu tư nhận định ra sao về triển vọng dài hạn?",
+      "category": "multi_source",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "a8d8c632-94bc-44ce-a4c5-98b530d9cb6f",
+          "content_hash": "sha256:0e14b0b25772f62c3d006ab733d002a1301801a1cac944fd039e0259a5023c9d",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 176,
+              "excerpt_sha256": "3ae604202492872946431e579e456cacf63110b7eae08a59f97c495ee01b7104"
+            }
+          ]
+        },
+        {
+          "article_id": "04b34f48-022d-4a76-9d6d-0849d1ba3948",
+          "content_hash": "sha256:d1f2858c5c910fe299a07da9fe344b6829275ecbff106095b6479f0a190f35c1",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 103,
+              "excerpt_sha256": "b12bc217db20368fe4aa569365914c5f0bca486934491cc65f6d40fff058bf0d"
+            }
+          ]
+        },
+        {
+          "article_id": "76cda207-5d10-4702-b27e-93f5638573a2",
+          "content_hash": "sha256:a6bfa7d2e754b6da0985595c4436a36644d0315c08ac99426504a807e3687ed8",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 117,
+              "end": 294,
+              "excerpt_sha256": "a55463a3e2d443f9ee29cae297c03016ecb9f00ca99d0483b587580a1ed90d7a"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Giá vàng thế giới biến động trái chiều giữa tháng 10/2026 (tăng hơn 1% phiên 15/10, giảm phiên 12/10), dao động quanh 4.100-4.200 USD/oz; một số nhà quản lý quỹ vẫn kỳ vọng giá vàng phục hồi mạnh và lập kỷ lục mới trong khoảng 2 năm tới.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-03",
+      "question": "Thị trường căn hộ tại Hà Nội và TP.HCM trong quý 3/2026 có diễn biến gì về giá và thanh khoản?",
+      "category": "multi_source",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "1b2f7657-88ca-453d-a556-76f14038679e",
+          "content_hash": "sha256:3d35f0b539acf68d759318dba22c6c2230250b886e182763fc987c132eef1633",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 229,
+              "excerpt_sha256": "23e1e51bc3d072eabc088254512b19373efc5f0c31badc862717d2a6845215f0"
+            }
+          ]
+        },
+        {
+          "article_id": "26ce5a30-0302-4909-83d2-4b72ed88151d",
+          "content_hash": "sha256:0c9c58b0c2cf8bef732373c5bd33ac6a67fd2512ea7cc6e607a33f1b0afa3628",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 761,
+              "end": 892,
+              "excerpt_sha256": "395a8f592da48fb30192ad10553e9fa2a12a31cc158a7fc64c6dfe38bc2531f4"
+            }
+          ]
+        },
+        {
+          "article_id": "e5db629e-064a-42a7-9677-e62a57490ecb",
+          "content_hash": "sha256:9aea7309487debc139d2e9f6cd39e327354f530d5de371a79eb2da6c7e9e8a4f",
+          "grade": 1,
+          "spans": [
+            {
+              "start": 0,
+              "end": 103,
+              "excerpt_sha256": "69d2d6307ef2a7a3419e9f1efdd628838e8b5ed5cc2d66a7d9ddc5efd6f9d322"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Giá căn hộ tại Hà Nội và TP.HCM vẫn neo cao trong quý 3/2026 (một số dự án hạng sang TP.HCM tương đương 117-125 triệu đồng/m2) nhưng thanh khoản giảm rõ rệt vì người mua thận trọng trước áp lực tài chính và mức giá vượt khả năng chi trả.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-04",
+      "question": "Mức thâm hụt ngân sách Mỹ năm tài chính 2026 là bao nhiêu, và IMF khuyến nghị gì để kiểm soát nợ công?",
+      "category": "multi_source",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "266e74ee-1eb5-475c-9b1d-0b55d66e42a9",
+          "content_hash": "sha256:f63decf9d9d589d44e61588bb28374396a750c4637a057eee317645d823cdf40",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 180,
+              "excerpt_sha256": "d0e8abf7413808f8ea1326434b7fe198dcf2da7c8258272a2b186466295c91e2"
+            }
+          ]
+        },
+        {
+          "article_id": "9c4345a3-d1d1-4044-b39f-63dc3288a091",
+          "content_hash": "sha256:84ae4d7083c2bb9ccba3840497c8e8bc583dc0530494fc2a21fd38f717051937",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 261,
+              "excerpt_sha256": "9650d33bbce242ec38660b5235ac07e6baaddb7378e480ec9e78fd430a79c531"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Thâm hụt ngân sách Mỹ tài khóa 2026 là 1.992 tỉ USD, cao thứ 3 trong lịch sử; IMF (bà Georgieva) thúc giục Mỹ cắt giảm thâm hụt, cảnh báo chỉ dựa vào tăng trưởng kinh tế là chưa đủ để kiểm soát nợ công.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-05",
+      "question": "Lợi suất trái phiếu Chính phủ Mỹ tăng mạnh gần đây tác động ra sao, và các quan chức Fed đang nghiêng về hướng nào cho lãi suất?",
+      "category": "multi_source",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "176e6d1e-da00-4681-b128-66f9629121c7",
+          "content_hash": "sha256:78da7071f62dd98a2d38365de01a98961958b025bf7b8553942875673d69106c",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 136,
+              "excerpt_sha256": "a4599f9489631bbe3ac25c0321610a62498b83594632828132ba9415271486bb"
+            }
+          ]
+        },
+        {
+          "article_id": "05c346a5-ac60-4541-a92f-fca45ae78a60",
+          "content_hash": "sha256:8c4a4148cc9bf41cf1f94ce9378354a8929060c93a2ed9329bbe68b6078128e0",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 117,
+              "excerpt_sha256": "b60ef5b5d3baf9a97a17b0f82fed882987c6777033521c0f8b578c1790fbe1e6"
+            }
+          ]
+        },
+        {
+          "article_id": "b3d4e6e8-c39f-4bb0-9538-11ebf23c2b2b",
+          "content_hash": "sha256:ebc076538392c8ea6eee6fa8711941268d71bd42ca6399943b638437e776d24f",
+          "grade": 1,
+          "spans": [
+            {
+              "start": 212,
+              "end": 362,
+              "excerpt_sha256": "699955263086fd08eff924bbf66fd491038f69f270b72e7283e9153949a3aebb"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Lợi suất trái phiếu Chính phủ Mỹ tăng mạnh làm tăng chi phí vốn toàn cầu; Chủ tịch Fed New York Williams (phát biểu 13/10) vẫn nghiêng về khả năng cần tăng lãi suất thêm một lần, trong khi lãi suất cao đang ảnh hưởng tới lợi nhuận và chiến lược đầu tư của doanh nghiệp.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-06",
+      "question": "Việc huy động trái phiếu chính phủ Việt Nam qua đấu thầu gần đây diễn ra thế nào, và kế hoạch phát hành cả năm có điều chỉnh không?",
+      "category": "multi_source",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "2720fc74-e16c-4be1-aad0-4726c74693a4",
+          "content_hash": "sha256:75146147bfda80b4e6ab29ad2f53773d9630c0b5b03604a7a3c5c905dce1fdfe",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 423,
+              "end": 553,
+              "excerpt_sha256": "2f25e14479a5c7bd5320c031dd5383c56507f65d9379eafec1cb2f694877efbd"
+            }
+          ]
+        },
+        {
+          "article_id": "09ff1ccd-db5d-4743-bd84-a3ba6a99b00d",
+          "content_hash": "sha256:9ec2b38f28b322c334ff1e48675f1dc1d16f4f7aff2b884d3dfb32955b5f64d3",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 68,
+              "excerpt_sha256": "b7e7ada83d906bdc500a5b81b558466840a1a377fb16e17737dcfad2778a805e"
+            }
+          ]
+        },
+        {
+          "article_id": "e8e14b2d-e37d-4d72-b6df-d29754caf199",
+          "content_hash": "sha256:698cef84a79bf2c5dbc0cf4385bcae0b7c1e20260d4590a72f7ff7caca18de78",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 135,
+              "excerpt_sha256": "203fef58fe9bf54efaaad8ace53a57bad3e0735506b5ffcf023bba5e6b3edacb"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Trái phiếu chính phủ kỳ hạn 10 năm liên tục 'cháy hàng': một phiên huy động thành công 12.000 tỷ đồng với lãi suất 4,43%/năm (cao nhất từ 2023); tháng 9 huy động hơn 70.139 tỷ đồng, tăng 152% so với tháng trước. Đồng thời Kho bạc Nhà nước giảm kế hoạch phát hành cả năm từ 500.000 tỷ xuống 400.000 tỷ đồng.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-07",
+      "question": "VN-Index biến động thế nào trong tuần giao dịch 12-16/10/2026?",
+      "category": "multi_source",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "ff4b2b41-1099-461f-921b-ae58744a7487",
+          "content_hash": "sha256:d43ed95b69790eff8924aa6509ccd7496dd86aa353fec599712d91671c604182",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 206,
+              "end": 318,
+              "excerpt_sha256": "4362f882f898c18afa215200aed97ea14ab7dcedfbfffae7564e4d691a0d3927"
+            }
+          ]
+        },
+        {
+          "article_id": "6abe3e0e-aac3-4981-9830-b2e19cef0863",
+          "content_hash": "sha256:d4989149848888bcc37d54fe8585003c911866ccdf0a02752846673d6b5aa551",
+          "grade": 1,
+          "spans": [
+            {
+              "start": 0,
+              "end": 88,
+              "excerpt_sha256": "b96d10e3e2630c78f1466212db2fd0f8706012ef9f7c4fc20be4f10e3e270f49"
+            }
+          ]
+        },
+        {
+          "article_id": "b28faa82-137a-4611-9b64-3006c88c9c0e",
+          "content_hash": "sha256:9de6fe0cfec01a75a8cdce7ed8b9d3b686d17a81520d09d97b754b38a9e24016",
+          "grade": 1,
+          "spans": [
+            {
+              "start": 224,
+              "end": 392,
+              "excerpt_sha256": "d9b1dbee17b5c921231c5d36ed4909026d36e7cacd6663d2b4b9fdd018dd34c4"
+            }
+          ]
+        },
+        {
+          "article_id": "dea3529a-94c9-40eb-bff3-bfb3e3b146df",
+          "content_hash": "sha256:37fcf0c2ea8e831dfa3a8c923fa7392173cd0bd4304df16a410c683fee78ce93",
+          "grade": 1,
+          "spans": [
+            {
+              "start": 0,
+              "end": 114,
+              "excerpt_sha256": "2aef63b53dddcbc7b9c61c1c46bf5d50ad0df4c9cd821540289f538f0f64a47b"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Trong tuần 12-16/10/2026, VN-Index giảm tổng cộng 29,18 điểm (-1,68%) dù có phiên hồi phục cuối tuần; các phiên trong tuần (12/10 giảm về 1720,98 điểm, 13/10 giảm về vùng đáy ngắn hạn, 15/10 có nhịp tăng rồi đảo chiều giảm) phản ánh áp lực bán và thanh khoản yếu kéo dài.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-08",
+      "question": "Lễ viếng, truy điệu và an táng hài cốt liệt sĩ quy tập tại Công viên Lê Thị Riêng được tổ chức khi nào, và có bao nhiêu hài cốt được an táng?",
+      "category": "multi_source",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "a37fd53c-f771-4035-9b5f-6dc1955fe1de",
+          "content_hash": "sha256:04272a6d0c95bc445a5083136668daaed2e02b8e6b6c8a9e614165d0e66dc798",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 240,
+              "excerpt_sha256": "533026fb779c90bc8e35824f47f61c9df93362b9891f034f79bb6947b55507ba"
+            },
+            {
+              "start": 2844,
+              "end": 2901,
+              "excerpt_sha256": "311477acac4f894f2eaeade5dc109e84d8c3a11c6b79f39c44bba7700dd9a650"
+            }
+          ]
+        },
+        {
+          "article_id": "27baf20e-5110-4bd7-8c56-6b3e094624e4",
+          "content_hash": "sha256:71d097a7c4dd3740fde1ede5f60b4626f2008791245ce081f0d4b6f40aec92d0",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 205,
+              "end": 454,
+              "excerpt_sha256": "c7cfecf34b66e364820beb503ee676ddf0089f9a9a20f466a4a2077cbf70174b"
+            },
+            {
+              "start": 1241,
+              "end": 1280,
+              "excerpt_sha256": "a883e5a8d95c0317896c0b21bbf7178c2a71d9425fb08733ec91de9bce586fcc"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Lễ viếng, truy điệu và an táng được TP.HCM tổ chức sáng 14/10/2026 tại Công viên Lê Thị Riêng, với 731 hài cốt liệt sĩ quy tập được đưa về an táng.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-09",
+      "question": "Vì sao việc đổi chiều lưu thông trên đường Nguyễn Thị Minh Khai (TP.HCM) để phục vụ thi công ga metro lại gây lúng túng cho người dân?",
+      "category": "multi_source",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "62582f31-7413-40c8-909a-f64c91f1b248",
+          "content_hash": "sha256:7669afbae2b65467b2d85d9f863130fe090cba6732bf8ceca2b2a1b108678e21",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 201,
+              "end": 503,
+              "excerpt_sha256": "f8cbec7de2fbcaa3cae4199100fcea30f98d65ce56bc452459adb07afaab388e"
+            }
+          ]
+        },
+        {
+          "article_id": "0e34ca62-048c-4933-8d83-b0f0fed258bc",
+          "content_hash": "sha256:e6e064827c60dec06ba04b164b2c9505d67674d97b71c679535900b92a2bfb30",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 196,
+              "excerpt_sha256": "21b85ff466f128feb1770f4b4e7ecdaf6001b791625993938cfebcd8ec043b70"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "TP.HCM đổi chiều lưu thông trên đường Nguyễn Thị Minh Khai từ 10/10/2026 để thi công ga ST2 Tao Đàn (metro số 2); sau vài ngày, nhiều người dân vẫn chưa nắm rõ phân luồng mới và tiếp tục đi ngược chiều, phải nhờ lực lượng chức năng nhắc nhở.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-10",
+      "question": "Chính phủ đặt mục tiêu tăng trưởng kinh tế năm 2027 ra sao, và tăng trưởng năm 2026 có thực sự vững chắc không?",
+      "category": "multi_source",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "78d84fc1-208e-41db-a644-bb79eb69d791",
+          "content_hash": "sha256:22c8d630b7646e572487d32b9843c9fef0a03fd4c3997fd9324431990563dc23",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 247,
+              "excerpt_sha256": "c6b439eca5c1a60325589a019de4ec60ee803e236a9a8171f8e72bb90dcb0ace"
+            }
+          ]
+        },
+        {
+          "article_id": "2cc39eda-89f1-45e2-9213-81b4cf428cda",
+          "content_hash": "sha256:742d662ee9fe5e928cbc9ba4bcfedca29b80d4c14bfc7f7e7587c35c17e43961",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 428,
+              "end": 699,
+              "excerpt_sha256": "dde379e54ecc7cd69dfce78b9eafca131d65aa84c67179426f1725089b28c8cf"
+            }
+          ]
+        },
+        {
+          "article_id": "f877f48a-7dfc-42e2-94ed-b5ee3248f864",
+          "content_hash": "sha256:0528a3c878c59da6fcea3f3b8a005e255253cf6ee934ea648233bc7511011882",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 667,
+              "end": 782,
+              "excerpt_sha256": "09d5fd89b1c68aba111b4257e1722b2f603933f57826e918f98bb6531b8fd285"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Thủ tướng Lê Minh Hưng đặt mục tiêu tăng trưởng GDP 2027 từ 10% trở lên; tuy GDP 9 tháng 2026 ước tăng 9,01% với nhiều chỉ tiêu đạt/vượt kế hoạch, Ủy ban Kinh tế - Tài chính Quốc hội nhận định tăng trưởng cao nhưng nền tảng chưa vững chắc.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-11",
+      "question": "Thủ tướng Lê Minh Hưng có những hoạt động và phát biểu đáng chú ý nào trong khoảng ngày 10-17/10/2026?",
+      "category": "multi_source",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "b77963a3-e3bf-4bf1-84b7-27070d393be9",
+          "content_hash": "sha256:386f8773208a7af6eccb4b3d43fff58b966a85c652207afb50428291e437e3cb",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 142,
+              "end": 512,
+              "excerpt_sha256": "45a1c784b3801793b6694b011cbb851cda21e5e8e22e7973fb75314532b319d7"
+            }
+          ]
+        },
+        {
+          "article_id": "78d84fc1-208e-41db-a644-bb79eb69d791",
+          "content_hash": "sha256:22c8d630b7646e572487d32b9843c9fef0a03fd4c3997fd9324431990563dc23",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 394,
+              "excerpt_sha256": "555a2b039eb353cccd25ded08a133e3ac63e3148a2b94dc3a4385c16015e88b0"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Ngày 10/10, Thủ tướng Lê Minh Hưng thăm nhà máy AngkorMilk của Vinamilk tại Campuchia, đề nghị mở rộng sản xuất; ngày 17/10, ông trình bày Báo cáo kinh tế - xã hội tại kỳ họp Quốc hội, đặt mục tiêu tăng trưởng GDP 2027 từ 10% trở lên.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-12",
+      "question": "Gần đây có những tin tức/động thái gì đáng chú ý liên quan tới các công ty AI lớn như Meta, OpenAI và Anthropic?",
+      "category": "multi_source",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "b6eea6e9-59cb-49ab-a466-34cec0f34496",
+          "content_hash": "sha256:930a3324509227edb2867ba51ca4b47de7b0500bc1feee328c708b20afa25d54",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 239,
+              "excerpt_sha256": "5e3dd8c53b6d6c0a094041abd66246f136d77da8d997aa6295d09339e3f2f5d9"
+            }
+          ]
+        },
+        {
+          "article_id": "1020aa2c-7280-4454-8da3-dafa2e022d8a",
+          "content_hash": "sha256:32a0812e57604b496aa9c4f83486b620b255e5c44f8054221a69e83f19c0a4b2",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 177,
+              "excerpt_sha256": "6e0f532ce42158b5e64b5117672caf3619f1e87db2ead1416a06be98e0c75367"
+            }
+          ]
+        },
+        {
+          "article_id": "00f0fc0a-a84c-476f-ab23-b9c331742599",
+          "content_hash": "sha256:e4f3e53e33e8e861d3b5b002830efd54ca939650d0c5ee0ca9b549171c573c57",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 95,
+              "excerpt_sha256": "c3da2102ec7a48d056d260785b3c51c8717540b97a38233a108991a8e4fc9e55"
+            }
+          ]
+        },
+        {
+          "article_id": "300b6078-bcf8-43ed-ad86-ff07db7db158",
+          "content_hash": "sha256:ed5bf01487eb744d4a113cfb9d6c9474762d7ae4f05894a31e8e098ec09a4cc5",
+          "grade": 1,
+          "spans": [
+            {
+              "start": 0,
+              "end": 145,
+              "excerpt_sha256": "9b8e178721ff23c22cea9a84707eb592b92baf200af99f7bc16342dada9b6806"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Meta công bố 2 mô hình AI mới (Muse Wonder, Muse Wonder Full) tuyên bố cạnh tranh được với OpenAI và Anthropic (12/10); Grab hợp tác với OpenAI đào tạo kỹ năng AI cho tài xế Đông Nam Á (14/10); CEO Anthropic Dario Amodei được giới đầu tư khen ngợi về phong thái lãnh đạo; đồng thời một sự cố AI xóa bản dựng chương trình truyền hình Thụy Điển cũng được ghi nhận.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-13",
+      "question": "DNSE đạt mốc 2 triệu tài khoản chứng khoán vào tháng nào?",
+      "category": "near_duplicate",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "abcdf2c3-50f9-4578-866b-f9c817cd2456",
+          "content_hash": "sha256:df2fcbe331a3f2429ef87a10a2fa422e4a967660b9a7a97d4e9a3a0e9d2edaa3",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1344,
+              "end": 1401,
+              "excerpt_sha256": "f8098ebf2aeba405435a7684f044ee65031069164b73dae7f3a54b3da6892600"
+            }
+          ]
+        },
+        {
+          "article_id": "9fc24feb-a74c-4140-8bbe-acc90c726469",
+          "content_hash": "sha256:7b414b3d648be248dde5f68cd55bcfe8563a40b1670f7d37c3df998bf59f4759",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 1106,
+              "end": 1163,
+              "excerpt_sha256": "7238be73a82d4d63f04a1d20133963bcf7f2965fe3341196d8e0d6d521695ef3"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "Tháng 9/2026, DNSE đạt mốc 2 triệu tài khoản chứng khoán.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-14",
+      "question": "Theo số liệu thị phần quý 3/2026 do HNX công bố, DNSE đứng ở vị trí nào trong mảng môi giới chứng khoán phái sinh và chiếm bao nhiêu thị phần?",
+      "category": "near_duplicate",
+      "split": "dev",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "abcdf2c3-50f9-4578-866b-f9c817cd2456",
+          "content_hash": "sha256:df2fcbe331a3f2429ef87a10a2fa422e4a967660b9a7a97d4e9a3a0e9d2edaa3",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 782,
+              "end": 935,
+              "excerpt_sha256": "0cff19f6c00fd10fecb69e8fcf8abbd67c9faac1dadc36ebb68a18d45471ab61"
+            }
+          ]
+        },
+        {
+          "article_id": "9fc24feb-a74c-4140-8bbe-acc90c726469",
+          "content_hash": "sha256:7b414b3d648be248dde5f68cd55bcfe8563a40b1670f7d37c3df998bf59f4759",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 584,
+              "end": 737,
+              "excerpt_sha256": "13e587c5845f7de9b3e3079cf10ac4df1071148b619c8a4b8f57b3e5dcdd196b"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "DNSE đứng thứ hai với 26,62% thị phần môi giới chứng khoán phái sinh, mức kỷ lục từ khi DNSE gia nhập thị trường này.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-15",
+      "question": "DNSE được vinh danh trong top 10 thành viên giao dịch có thị phần môi giới lớn nhất VNX cho giai đoạn nào?",
+      "category": "near_duplicate",
+      "split": "test",
+      "answerable": true,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [
+        {
+          "article_id": "abcdf2c3-50f9-4578-866b-f9c817cd2456",
+          "content_hash": "sha256:df2fcbe331a3f2429ef87a10a2fa422e4a967660b9a7a97d4e9a3a0e9d2edaa3",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 132,
+              "end": 309,
+              "excerpt_sha256": "f384387d4562ffcbb99f4beab9f6072b31b9b68ba91d0657616e5ec90b7437a2"
+            }
+          ]
+        },
+        {
+          "article_id": "9fc24feb-a74c-4140-8bbe-acc90c726469",
+          "content_hash": "sha256:7b414b3d648be248dde5f68cd55bcfe8563a40b1670f7d37c3df998bf59f4759",
+          "grade": 2,
+          "spans": [
+            {
+              "start": 0,
+              "end": 155,
+              "excerpt_sha256": "2a7472896558f7e49c18013e6dbb0ec31e8d3171184cb11015962a9caafc173b"
+            }
+          ]
+        }
+      ],
+      "reference_answer": "DNSE được vinh danh trong top 10 thành viên giao dịch có thị phần môi giới lớn nhất Sở Giao dịch chứng khoán Việt Nam (VNX) giai đoạn 2025-2026.",
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-16",
+      "question": "Giá vàng SJC tại thị trường TP.HCM sáng 16/10/2026 được niêm yết ở mức bao nhiêu?",
+      "category": "no_answer",
+      "split": "test",
+      "answerable": false,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [],
+      "reference_answer": null,
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-17",
+      "question": "DNSE đặt mục tiêu đạt bao nhiêu tài khoản chứng khoán vào cuối năm 2027?",
+      "category": "no_answer",
+      "split": "dev",
+      "answerable": false,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [],
+      "reference_answer": null,
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-18",
+      "question": "Mỹ dự kiến thâm hụt ngân sách bao nhiêu USD trong năm tài chính 2027?",
+      "category": "no_answer",
+      "split": "dev",
+      "answerable": false,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [],
+      "reference_answer": null,
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-19",
+      "question": "Giá căn hộ trung bình tại Đà Nẵng trong quý 3/2026 là bao nhiêu triệu đồng/m2?",
+      "category": "no_answer",
+      "split": "dev",
+      "answerable": false,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [],
+      "reference_answer": null,
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-20",
+      "question": "Mô hình AI Muse Wonder của Meta sẽ chính thức mở cho người dùng trả phí vào ngày nào?",
+      "category": "no_answer",
+      "split": "test",
+      "answerable": false,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [],
+      "reference_answer": null,
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-21",
+      "question": "Trong lễ trao văn kiện hợp tác nhân chuyến thăm của Tổng thống Thụy Sĩ, hai nước đã ký kết đúng bao nhiêu văn kiện?",
+      "category": "no_answer",
+      "split": "test",
+      "answerable": false,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [],
+      "reference_answer": null,
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-22",
+      "question": "Trong số 731 hài cốt liệt sĩ được an táng tại Công viên Lê Thị Riêng, có bao nhiêu hài cốt đã xác định được chính xác danh tính bằng xét nghiệm ADN?",
+      "category": "no_answer",
+      "split": "test",
+      "answerable": false,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [],
+      "reference_answer": null,
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-23",
+      "question": "VN-Index được các công ty chứng khoán dự báo sẽ đạt bao nhiêu điểm vào cuối năm 2026?",
+      "category": "no_answer",
+      "split": "dev",
+      "answerable": false,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [],
+      "reference_answer": null,
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    },
+    {
+      "qid": "x-24",
+      "question": "Cuộc họp chính sách tiền tệ (FOMC) tháng 12/2026 của Fed sẽ diễn ra vào ngày cụ thể nào?",
+      "category": "no_answer",
+      "split": "test",
+      "answerable": false,
+      "filters": {
+        "source_domains": [],
+        "published_after": null,
+        "published_before": null
+      },
+      "gold": [],
+      "reference_answer": null,
+      "label_status": "candidate",
+      "origin": "machine_candidate",
+      "reviewer": null,
+      "reviewed_at": null,
+      "notes": "machine-drafted candidate; not reviewed"
+    }
+  ]
+}

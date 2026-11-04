@@ -1,4 +1,4 @@
-.PHONY: sync test lint typecheck build check up infra down web crud-api rag-api rag-worker validate-fixture rag-db-create rag-migrate rag-load-fixtures rag-rebuild rag-db-test rag-adopt-smoke rag-preflight rag-adopt gate-g1 enrichment-eval rag-eval web-browser-test gate-g3
+.PHONY: sync test lint typecheck build check up infra down web crud-api rag-api rag-worker validate-fixture rag-db-create rag-migrate rag-load-fixtures rag-rebuild rag-db-test rag-adopt-smoke rag-preflight rag-adopt gate-g1 enrichment-eval rag-eval web-browser-test gate-g3 search-index-test search-eval-up search-eval-down search-bench
 
 # Local RAG index lives in its own database on the Compose server. The legacy
 # `eventlens` database holds untracked pre-ledger RAG tables and is never targeted.
@@ -108,3 +108,13 @@ web-browser-test:
 
 gate-g3:
 	sh scripts/rag/gate-g3.sh
+
+# Search selection (BM25/semantic/hybrid/rerank). The Elasticsearch adapter suite
+# needs EVENTLENS_RAG_TEST_ELASTICSEARCH_URL; any skip fails (CI job search-index).
+search-index-test:
+	sh scripts/rag/search-index-test.sh
+
+# Controlled benchmark with real models (never in CI): isolated *_eval PostgreSQL
+# and Elasticsearch on loopback, handoff import, then A-E. See docs/search-selection.md.
+search-eval-up search-eval-down search-bench:
+	sh scripts/rag/search-bench.sh $(subst search-,,$@)

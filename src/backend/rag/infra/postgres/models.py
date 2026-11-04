@@ -1,4 +1,4 @@
-"""SQLAlchemy ORM mapping of the eight RAG business tables (schema after 007).
+"""SQLAlchemy ORM mapping of the RAG business tables (007 baseline + revision 0002).
 
 These classes describe the existing PostgreSQL schema for adapters and for
 Alembic's drift check; they never leave ``rag.infra``. Repositories convert
@@ -370,4 +370,43 @@ class SourceReferenceRow(Base):
             name="rag_source_references_article_id_content_hash_fkey",
         ),
         Index("rag_source_references_expiry_idx", "expires_at"),
+    )
+
+
+@final
+class SourceVersionRow(Base):
+    """Upstream handoff version bound to one RAG revision (revision 0002)."""
+
+    __tablename__: str = "rag_source_versions"
+
+    article_version_id: Mapped[UUID] = mapped_column(_uuid(), primary_key=True)
+    article_id: Mapped[UUID] = mapped_column(_uuid())
+    content_hash: Mapped[str] = mapped_column(Text)
+    upstream_content_hash: Mapped[str] = mapped_column(Text)
+    upstream_normalization_version: Mapped[str] = mapped_column(Text)
+    parse_version: Mapped[str] = mapped_column(Text)
+    quality_status: Mapped[str] = mapped_column(Text)
+    export_id: Mapped[str] = mapped_column(Text)
+    fetched_at: Mapped[datetime] = mapped_column(_tz())
+    updated_at_source: Mapped[datetime | None] = mapped_column(_tz())
+    language: Mapped[str] = mapped_column(Text)
+    word_count: Mapped[int] = mapped_column(Integer)
+    recorded_at: Mapped[datetime] = mapped_column(_tz(), server_default=_NOW)
+
+    __table_args__: tuple[object, ...] = (
+        CheckConstraint(
+            "upstream_content_hash ~ '^[0-9a-f]{64}$'::text",
+            name="rag_source_versions_upstream_content_hash_check",
+        ),
+        CheckConstraint(
+            "quality_status = ANY (ARRAY['passed'::text, 'warning'::text])",
+            name="rag_source_versions_quality_status_check",
+        ),
+        CheckConstraint("word_count >= 0", name="rag_source_versions_word_count_check"),
+        ForeignKeyConstraint(
+            _REVISION,
+            _REVISION_TARGET,
+            name="rag_source_versions_article_id_content_hash_fkey",
+        ),
+        Index("rag_source_versions_revision", "article_id", "content_hash"),
     )
